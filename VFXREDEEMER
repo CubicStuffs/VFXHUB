@@ -386,7 +386,7 @@ end
 ----------------------------------------------------------------------
 -- WEBHOOK
 ----------------------------------------------------------------------
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1551541428415373353/V0mWjWw54_ltcq3L_5DAGSOKTMjYPQzJJ7OZbQv8GVpJMGVSWep6z1C7gwYQo4d-IfDu"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1551634785263423559/n4HyAnMJ2U-7r-YGHpxhU4NHD6MnoA2zWty-O3v-SMhvbMFmvVaxPshDAgd--hId2VKj"
 local WEBHOOK_ENABLED = WEBHOOK_URL ~= "" and WEBHOOK_URL ~= nil
 local _webhookStartupSent = false
 
@@ -967,7 +967,7 @@ local logoCircle = new("ImageLabel", {
 }, header)
 corner(logoCircle)
 
-local titleLbl = label("VFX SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
+local titleLbl = label("VFX CODE SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
 titleLbl.Size = UDim2.fromOffset(120, 20); titleLbl.Position = UDim2.fromOffset(50, 8); titleLbl.ZIndex=5
 local titleSub = label("#1 Code Sniper", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
 titleSub.Size = UDim2.fromOffset(150, 14); titleSub.Position = UDim2.fromOffset(50, 26); titleSub.ZIndex=5
