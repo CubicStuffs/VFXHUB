@@ -78,6 +78,8 @@ local BRAINROT_KNOWLEDGE = {
     {p={"what number is cyber"},a="12"},
     {p={"what number is phantom"},a="13"},
     {p={"what number is crystal"},a="14"},
+    -- ⭐ NEWEST MACHINE FIRST — ye zaroori hai, warna "machine" word generic match kar jata hai
+    {p={"newest machine","latest machine","newest machine we added","latest machine we added","machine we added latest","machine we added newest","whats the newest machine","what is the newest machine","whats the latest machine","what is the latest machine","which is the newest machine","which is the latest machine","most recent machine","recent machine","what machine did we add","what machine did we add last","last machine added","most recently added machine","newest added machine","latest added machine","newest machine added","latest machine added"},a="CRAFTMACHINE"},
     {p={"first machine","machine 1"},a="RAINBOWMACHINE"},
     {p={"second machine","machine 2"},a="BUBBLEGUMMACHINE"},
     {p={"third machine","machine 3"},a="FUSEMACHINE"},
@@ -96,7 +98,6 @@ local BRAINROT_KNOWLEDGE = {
     {p={"sixteenth machine","machine 16"},a="CYBERCRAFTMACHINE"},
     {p={"seventeenth machine","machine 17"},a="SUMMERFUSE"},
     {p={"eighteenth machine","machine 18"},a="LOSTRADERS"},
-    {p={"newest machine","latest machine"},a="CRAFTMACHINE"},
     {p={"how many machines"},a="18"},
     {p={"first trait","trait 1"},a="LIGHTNING"},
     {p={"halo trait"},a="HALO"},
@@ -108,37 +109,40 @@ local BRAINROT_KNOWLEDGE = {
     {p={"nyan trait"},a="NYAN"},
     {p={"concert trait"},a="CONCERT"},
     {p={"strawberry trait"},a="STRAWBERRY"},
-    {p={"what is my name","what is your name","my name","sammy name","who is sammy","developer","creator","owner","owner name","developer name"},a="SAMMY"},
+
+    -- ⭐ SAMMY PERSONAL RIDDLES
+    {p={"what is my name","what is your name","my name","sammy name","who is sammy","developer","creator","owner","owner name","developer name","who am i","my real name","name of the developer","name of the creator","name of the owner","who made this game","who created this game","who is the owner"},a="SAMMY"},
+    {p={"what is my favorite color","what is my favourite color","favorite color","favourite color","fav color","fav colour","my favorite color","my favourite color","color i like","colour i like","color do i like","what color do i like","what colour do i like"},a="BLUE"},
+    {p={"how old is sammy","how old am i","what is my age","my age","sammy age","how old am i","whats my age","what is the age","age of sammy","age of the developer","age of the owner"},a="24"},
     {p={"what month is my birthday"},a="FEBRUARY"},
     {p={"what day is my birthday"},a="24"},
     {p={"what day and month is my birthday"},a="FEBRUARY 24"},
-    {p={"what year am i born","birth year"},a="2002"},
-    {p={"how old is sammy","how old am i","what is my age","my age","sammy age"},a="24"},
-    {p={"where was i born","birthplace"},a="ALGERIA"},
-    {p={"where am i from","sammy country","my country"},a="BRAZIL"},
-    {p={"nationality"},a="BRAZILIAN"},
-    {p={"state","city"},a="SAOPAULO"},
-    {p={"roblox username","username"},a="SPYDERSAMMY"},
+    {p={"what year am i born","birth year","what year was i born","when was i born"},a="2002"},
+    {p={"where was i born","birthplace","where was sammy born","where was the developer born"},a="ALGERIA"},
+    {p={"where am i from","sammy country","my country","where is sammy from","where am i from"},a="BRAZIL"},
+    {p={"nationality","what is my nationality"},a="BRAZILIAN"},
+    {p={"state","city","what state am i from","what city am i from"},a="SAOPAULO"},
+    {p={"roblox username","username","what is my roblox username","what is my username"},a="SPYDERSAMMY"},
     {p={"social media","youtube","discord","tiktok","instagram"},a="SPYDERSAMMY"},
-    {p={"favorite color","fav color"},a="BLUE"},
-    {p={"favorite sport","fav sport"},a="FOOTBALL"},
-    {p={"favorite player","fav player","ronaldo"},a="RONALDO"},
-    {p={"favorite food","fav food"},a="PIZZA"},
-    {p={"favorite animal","my pet","pet name"},a="SPIDER"},
-    {p={"favorite game","fav game"},a="ROBLOX"},
-    {p={"favorite number","lucky number"},a="SEVEN"},
-    {p={"my name twice"},a="SAMMYSAMMY"},
-    {p={"my name 3 times"},a="SAMMYSAMMYSAMMY"},
-    {p={"age twice"},a="2424"},
-    {p={"color twice"},a="BLUEBLUE"},
-    {p={"color 3 times"},a="BLUEBLUEBLUE"},
+    {p={"favorite sport","fav sport","what is my favorite sport","whats my favorite sport"},a="FOOTBALL"},
+    {p={"favorite player","fav player","ronaldo","who is my favorite player","who is my favourite player"},a="RONALDO"},
+    {p={"favorite food","fav food","what is my favorite food","whats my favorite food"},a="PIZZA"},
+    {p={"favorite animal","my pet","pet name","what is my favorite animal","whats my favorite animal","what pet do i have"},a="SPIDER"},
+    {p={"favorite game","fav game","what is my favorite game","whats my favorite game"},a="ROBLOX"},
+    {p={"favorite number","lucky number","what is my favorite number","whats my lucky number"},a="SEVEN"},
+    {p={"my name twice","name two times","say my name twice"},a="SAMMYSAMMY"},
+    {p={"my name 3 times","name three times","say my name three times"},a="SAMMYSAMMYSAMMY"},
+    {p={"age twice","age two times"},a="2424"},
+    {p={"color twice","color two times","favorite color twice"},a="BLUEBLUE"},
+    {p={"color 3 times","color three times"},a="BLUEBLUEBLUE"},
     {p={"color favorite sport"},a="BLUEFOOTBALL"},
     {p={"color favorite animal"},a="BLUESPIDER"},
     {p={"color favorite food"},a="BLUEPIZZA"},
-    {p={"color creator","color owner"},a="BLUESAMMY"},
+    {p={"color creator","color owner","color of creator","color of owner"},a="BLUESAMMY"},
     {p={"color username"},a="BLUESPYDERSAMMY"},
     {p={"color my age"},a="BLUE24"},
     {p={"color my country"},a="BLUEBRAZIL"},
+
     {p={"game name","sab stands for","full game name"},a="STEALABRAINROT"},
     {p={"game created on","what day was sab made","day game released"},a="FRIDAY"},
     {p={"release month","month sab was made"},a="MAY"},
@@ -255,6 +259,7 @@ local function normalizeRiddleText(t)
     t = t:gsub("what's","what is"):gsub("whats","what is")
     t = t:gsub("who's","who is"):gsub("whos","who is")
     t = t:gsub("where's","where is"):gsub("wheres","where is")
+    t = t:gsub("favourite","favorite"):gsub("colour","color")
     t = t:gsub("1st","first"):gsub("2nd","second"):gsub("3rd","third"):gsub("4th","fourth")
     t = t:gsub("5th","fifth"):gsub("6th","sixth"):gsub("7th","seventh"):gsub("8th","eighth")
     t = t:gsub("[^%w%s]"," "):gsub("%s+"," ")
@@ -295,6 +300,7 @@ local function solveOfflineRiddle(message)
     local working = tostring(message):lower()
     working = working:gsub("what's","what is"):gsub("whats","what is")
     working = working:gsub("who's","who is"):gsub("whos","who is")
+    working = working:gsub("favourite","favorite"):gsub("colour","color")
     working = working:gsub("1st","first"):gsub("2nd","second"):gsub("3rd","third"):gsub("4th","fourth")
     working = working:gsub("5th","fifth"):gsub("6th","sixth"):gsub("7th","seventh"):gsub("8th","eighth")
     working = working:gsub("&"," and "):gsub(","," and "):gsub("%s+"," ")
@@ -545,9 +551,9 @@ end
 ----------------------------------------------------------------------
 -- ⭐ REDEEM (ported from Exe Code Sniper — robust auto-submit)
 ----------------------------------------------------------------------
-local _spamRedeem = true      -- spam redeem ON
-local _spamCount  = 20        -- number of clicks
-local _submitAfter = 1        -- words needed before auto submit
+local _spamRedeem = true
+local _spamCount  = 20
+local _submitAfter = 1
 local SPAM_DELAY  = 0.05
 local SUBMIT_DELAY = 0.05
 
@@ -963,7 +969,7 @@ corner(logoCircle)
 
 local titleLbl = label("VFX SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
 titleLbl.Size = UDim2.fromOffset(120, 20); titleLbl.Position = UDim2.fromOffset(50, 8); titleLbl.ZIndex=5
-local titleSub = label("Strict Offline Solver", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
+local titleSub = label("#1 Code Sniper", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
 titleSub.Size = UDim2.fromOffset(150, 14); titleSub.Position = UDim2.fromOffset(50, 26); titleSub.ZIndex=5
 
 local gearBtn = new("TextButton", { Size=UDim2.fromOffset(26,24), Position=UDim2.new(1,-68,0,12), BackgroundColor3=C.pillBg, BorderSizePixel=0, AutoButtonColor=false, Text="⚙️", Font=FB, TextSize=12, TextColor3=C.txt, ZIndex=6 }, header)
@@ -1468,9 +1474,11 @@ local function onAnnouncement(...)
     if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then return end
 
     local lower = rawText:lower()
+    -- ⭐ AUTO-ENABLE TRIGGERS
     if lower:find("code is", 1, true) or lower:find("the code is", 1, true) 
        or lower:find("use code", 1, true) or lower:find("use this code", 1, true)
-       or lower:find("riddle is", 1, true) then
+       or lower:find("riddle is", 1, true)
+       or isActualRiddle(rawText) then
         autoEnableOnCodeCue()
     end
 
