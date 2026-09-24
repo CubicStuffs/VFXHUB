@@ -1,5 +1,5 @@
 --[[
-    VFX CODE SNIPER — Strict Offline Solver + BG Image + Shine Text
+    VFX CODE SNIPER — Strict Offline Solver + BG Image + Shine + Exe Auto-Submit
 --]]
 
 local cloneref = cloneref or function(o) return o end
@@ -412,7 +412,6 @@ local setupv      = (debug and debug.setupvalue) or setupvalue
 ----------------------------------------------------------------------
 -- State
 ----------------------------------------------------------------------
-local REDEEM_GUID        = "7d14a912-1040-4867-b005-98838eb9acc4"
 local DEFAULT_KEY        = Enum.KeyCode.F
 local DEFAULT_CLEAR_KEY  = Enum.KeyCode.C
 local DEFAULT_ANCHOR_KEY = Enum.KeyCode.G
@@ -422,7 +421,7 @@ local bindKey = DEFAULT_KEY
 local clearKey = DEFAULT_CLEAR_KEY
 local anchorKey = DEFAULT_ANCHOR_KEY
 local collectBuffer = {}
-local NotifyRemote, RedeemRemote, RedeemBox, RedeemConnections
+local NotifyRemote
 local lastRiddleText, lastRiddleAnswer, pendingCode = nil, nil, nil
 local recentWebhooks = {}
 local WEBHOOK_DEDUP_WINDOW = 5
@@ -544,73 +543,256 @@ local function resolveNotifyRemote()
 end
 
 ----------------------------------------------------------------------
--- Redeem
+-- ⭐ REDEEM (ported from Exe Code Sniper — robust auto-submit)
 ----------------------------------------------------------------------
-local function resolveRedeemRemote()
-    if RedeemRemote and RedeemRemote.Parent then return RedeemRemote end
-    if not Net then return nil end
-    local ok, api = pcall(require, Net)
-    if ok and type(api) == "table" then
-        local rok, rf = pcall(function() return api:RemoteFunction(REDEEM_GUID) end)
-        if rok and typeof(rf) == "Instance" then RedeemRemote = rf end
+local _spamRedeem = true      -- spam redeem ON
+local _spamCount  = 20        -- number of clicks
+local _submitAfter = 1        -- words needed before auto submit
+local SPAM_DELAY  = 0.05
+local SUBMIT_DELAY = 0.05
+
+local function isOurGui(instance)
+    local p = instance
+    for _ = 1, 10 do
+        if not p then break end
+        if p.Name == "NullHub" then return true end
+        p = p.Parent
     end
-    return RedeemRemote
+    return false
 end
-local function getGameCodeBox()
-    local gui = PG:FindFirstChild("Codes")
-    if not gui then return nil end
-    local root = gui:FindFirstChild("Codes") or gui
-    local cr = root:FindFirstChild("CodeRedeem")
-    local box = cr and cr:FindFirstChild("TextBox")
-    if box and box:IsA("TextBox") then return box end
-    for _, d in ipairs(gui:GetDescendants()) do if d:IsA("TextBox") then return d end end
+
+local function isVisibleChain(inst)
+    local current = inst
+    while current do
+        if current:IsA("GuiObject") and not current.Visible then return false end
+        if current:IsA("ScreenGui") then return current.Enabled end
+        current = current.Parent
+    end
+    return true
 end
-local function killDebounce(fn)
-    if not (fn and setupv and getupvalues) then return end
-    local ok, ups = pcall(getupvalues, fn)
-    if ok and type(ups) == "table" then
-        for i, v in pairs(ups) do if type(v) == "boolean" then pcall(setupv, fn, i, false) end end
+
+local function findAllTextBoxes(pg)
+    local boxes = {}
+    for _, gui in ipairs(pg:GetChildren()) do
+        if gui:IsA("ScreenGui") and gui.Enabled and not isOurGui(gui) then
+            for _, d in ipairs(gui:GetDescendants()) do
+                if d:IsA("TextBox") and not isOurGui(d) then
+                    boxes[#boxes+1] = d
+                end
+            end
+        end
     end
+    return boxes
 end
-local function getRedeemTarget()
-    if RedeemBox and RedeemBox.Parent and RedeemConnections and #RedeemConnections > 0 then
-        return RedeemBox, RedeemConnections
+
+local function findCodeButtons(pg)
+    local btns = {}
+    for _, gui in ipairs(pg:GetChildren()) do
+        if gui:IsA("ScreenGui") and gui.Enabled and not isOurGui(gui) then
+            for _, d in ipairs(gui:GetDescendants()) do
+                if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) then
+                    local n = d.Name:lower()
+                    local pn = (d.Parent and d.Parent.Name or ""):lower()
+                    if (n:find("code") or n:find("redeem") or pn:find("code") or pn:find("redeem")) and isVisibleChain(d) then
+                        btns[#btns+1] = d
+                    end
+                end
+            end
+        end
     end
-    local box = getGameCodeBox()
-    if not box then RedeemBox, RedeemConnections = nil, nil; return nil, nil end
-    local ok, conns = pcall(getconns, box.FocusLost)
-    if not ok or type(conns) ~= "table" or #conns == 0 then
-        RedeemBox, RedeemConnections = nil, nil; return nil, nil
-    end
-    for _, c in ipairs(conns) do
-        local fn; pcall(function() fn = c.Function end); killDebounce(fn)
-    end
-    RedeemBox, RedeemConnections = box, conns
-    return box, conns
+    return btns
 end
-local function redeemViaBox(code)
-    if not getconns then return false end
-    local box, conns = getRedeemTarget()
+
+local function clickButton(btn)
+    if not btn then return false end
+    local methods = {}
+    methods[#methods+1] = function() btn.MouseButton1Click:Fire() end
+    methods[#methods+1] = function() btn.Activated:Fire() end
+    if typeof(firesignal) == "function" then
+        methods[#methods+1] = function() firesignal(btn.MouseButton1Click) end
+        methods[#methods+1] = function() firesignal(btn.Activated) end
+    end
+    if typeof(getconns) == "function" then
+        methods[#methods+1] = function()
+            local ok, cs = pcall(getconns, btn.MouseButton1Click)
+            if ok and type(cs) == "table" then
+                for _, c in ipairs(cs) do pcall(function() c:Fire() end) end
+            end
+            local ok2, cs2 = pcall(getconns, btn.Activated)
+            if ok2 and type(cs2) == "table" then
+                for _, c in ipairs(cs2) do pcall(function() c:Fire() end) end
+            end
+        end
+    end
+    if typeof(fireclick) == "function" then
+        methods[#methods+1] = function() fireclick(btn) end
+    end
+    local anyOk = false
+    for _, fn in ipairs(methods) do
+        local ok = pcall(fn)
+        anyOk = anyOk or ok
+    end
+    return anyOk
+end
+
+local function fireBoxFocusLost(box)
     if not box then return false end
-    box.Text = code; box.Active = true; box.Selectable = true
-    local fired = false
-    for _, c in ipairs(conns) do
-        local fok = pcall(function() if c.Enabled ~= false then c:Fire(true) end end)
-        fired = fired or fok
+    local anyFired = false
+    if typeof(firesignal) == "function" then
+        local ok = pcall(firesignal, box.FocusLost, true)
+        anyFired = anyFired or ok
     end
-    return fired
+    if typeof(getconns) == "function" then
+        local ok, cs = pcall(getconns, box.FocusLost)
+        if ok and type(cs) == "table" then
+            for _, c in ipairs(cs) do
+                local fn
+                pcall(function() fn = c.Function end)
+                if fn and typeof(getupvalues) == "function" and typeof(setupv) == "function" then
+                    local uOk, ups = pcall(getupvalues, fn)
+                    if uOk and type(ups) == "table" then
+                        for i, v in pairs(ups) do
+                            if type(v) == "boolean" and v == true then
+                                pcall(setupv, fn, i, false)
+                            end
+                        end
+                    end
+                end
+                local fOk = pcall(function() if c.Enabled ~= false then c:Fire(true) end end)
+                anyFired = anyFired or fOk
+            end
+        end
+    end
+    return anyFired
 end
-local function redeemViaRemote(code)
-    local rf = resolveRedeemRemote()
-    if not rf then return false end
-    local ok = pcall(function() return rf:InvokeServer(code) end)
-    return ok
+
+local function typeAndSubmitCode(code)
+    local pg = PG or LP:FindFirstChildOfClass("PlayerGui")
+    if not pg then return false, "no PlayerGui" end
+    local codesGui = pg:FindFirstChild("Codes")
+    if codesGui then
+        if codesGui:IsA("ScreenGui") then codesGui.Enabled = true end
+        local codesFrame = codesGui:FindFirstChild("Codes") or codesGui
+        if codesFrame then
+            if codesFrame:IsA("GuiObject") then codesFrame.Visible = true end
+            local cur = codesFrame
+            while cur and cur ~= codesGui do
+                if cur:IsA("GuiObject") then cur.Visible = true end
+                cur = cur.Parent
+            end
+            local box = nil
+            for _, d in ipairs(codesFrame:GetDescendants()) do
+                if d:IsA("TextBox") and not isOurGui(d) then box = d; break end
+            end
+            local submitBtn = nil
+            for _, d in ipairs(codesFrame:GetDescendants()) do
+                if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) then
+                    local n = d.Name:lower()
+                    local txt = ""
+                    pcall(function() txt = d.Text:lower() end)
+                    if n:find("submit") or txt:find("submit") or n:find("redeem") or txt:find("redeem") or n:find("claim") or txt:find("confirm") or n:find("enter") then
+                        submitBtn = d; break
+                    end
+                end
+            end
+            if not submitBtn then
+                for _, d in ipairs(codesFrame:GetDescendants()) do
+                    if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) then
+                        local n = d.Name:lower()
+                        if not n:find("close") and not n:find("x") and not n:find("toggle") then
+                            submitBtn = d; break
+                        end
+                    end
+                end
+            end
+            if box then
+                pcall(function() box.Text = code end)
+                if submitBtn then
+                    local times = (_spamRedeem and math.max(1, tonumber(_spamCount) or 20)) or 1
+                    for i = 1, times do
+                        clickButton(submitBtn)
+                        if times > 1 then task.wait(SPAM_DELAY) end
+                    end
+                end
+                fireBoxFocusLost(box)
+                return true, "submitted via PlayerGui.Codes"
+            end
+        end
+    end
+
+    local btns = findCodeButtons(pg)
+    for _, btn in ipairs(btns) do
+        clickButton(btn)
+        task.wait(0)
+    end
+
+    local box = nil
+    local deadline = tick() + 2
+    while tick() < deadline do
+        local allBoxes = findAllTextBoxes(pg)
+        for _, d in ipairs(allBoxes) do
+            if isVisibleChain(d) then
+                local n = d.Name:lower()
+                local pn = (d.Parent and d.Parent.Name or ""):lower()
+                if n:find("code") or pn:find("code") or n:find("redeem") or pn:find("redeem") or n:find("input") or pn:find("textbox") or n:find("enter") then
+                    box = d; break
+                end
+            end
+        end
+        if not box then
+            for _, d in ipairs(allBoxes) do
+                if isVisibleChain(d) then box = d; break end
+            end
+        end
+        if box then break end
+        task.wait()
+    end
+    if not box then return false, "no codebox visible" end
+
+    pcall(function() box.Text = code end)
+
+    local redeemBtn = nil
+    local searchNames = {"submit","redeem","claim","confirm","enter","send","apply","ok","use","go","check"}
+    local p = box.Parent
+    for _ = 1, 8 do
+        if not p then break end
+        for _, d in ipairs(p:GetDescendants()) do
+            if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) and d ~= box then
+                local n = d.Name:lower()
+                local txt = ""
+                pcall(function() txt = d.Text:lower() end)
+                for _, sn in ipairs(searchNames) do
+                    if n:find(sn) or txt:find(sn) then
+                        if isVisibleChain(d) then redeemBtn = d; break end
+                    end
+                end
+                if redeemBtn then break end
+            end
+        end
+        if redeemBtn then break end
+        p = p.Parent
+    end
+    if redeemBtn then
+        local times = (_spamRedeem and math.max(1, tonumber(_spamCount) or 20)) or 1
+        for i = 1, times do
+            clickButton(redeemBtn)
+            if times > 1 then task.wait(SPAM_DELAY) end
+        end
+    end
+    fireBoxFocusLost(box)
+    return true, "submitted via dynamic search"
 end
+
+local function instinctCodeBox()
+    local allBoxes = findAllTextBoxes(PG)
+    for _, box in ipairs(allBoxes) do
+        if isVisibleChain(box) then return box end
+    end
+    return nil
+end
+
 local function redeem(code)
-    local ok = redeemViaBox(code)
-    if ok then return true end
-    if getconns then return false end
-    return redeemViaRemote(code)
+    return typeAndSubmitCode(code)
 end
 
 ----------------------------------------------------------------------
@@ -768,7 +950,6 @@ new("Frame", { Size=UDim2.new(1,0,0,14), Position=UDim2.new(0,0,1,-14), Backgrou
 local dragHandle = new("Frame", { Size=UDim2.new(1,0,0,48), BackgroundTransparency=1, BorderSizePixel=0, ZIndex=4 }, header)
 drag(dragHandle, main)
 
--- ⭐ LOGO IMAGE
 local logoCircle = new("ImageLabel", {
     Name = "Logo",
     Size = UDim2.fromOffset(30,30),
@@ -782,7 +963,7 @@ corner(logoCircle)
 
 local titleLbl = label("VFX SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
 titleLbl.Size = UDim2.fromOffset(120, 20); titleLbl.Position = UDim2.fromOffset(50, 8); titleLbl.ZIndex=5
-local titleSub = label("#1 Code Sniper", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
+local titleSub = label("Strict Offline Solver", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
 titleSub.Size = UDim2.fromOffset(150, 14); titleSub.Position = UDim2.fromOffset(50, 26); titleSub.ZIndex=5
 
 local gearBtn = new("TextButton", { Size=UDim2.fromOffset(26,24), Position=UDim2.new(1,-68,0,12), BackgroundColor3=C.pillBg, BorderSizePixel=0, AutoButtonColor=false, Text="⚙️", Font=FB, TextSize=12, TextColor3=C.txt, ZIndex=6 }, header)
@@ -823,7 +1004,7 @@ local function setToggleVisual(sw, knob, enabled)
 end
 
 local snipeCard, snipeSw, snipeKnob, snipeLbl = makeCard("SNIPE · LISTEN")
-local riddleCard, riddleSw, riddleKnob, riddleLbl = makeCard("AI RIDDLER")
+local riddleCard, riddleSw, riddleKnob, riddleLbl = makeCard("OFFLINE RIDDLER")
 local copyCard, copySw, copyKnob, copyLbl = makeCard("AUTO COPY")
 setToggleVisual(riddleSw, riddleKnob, riddleSolverEnabled)
 
@@ -929,7 +1110,6 @@ local function typewriterLine(text, colorKey, speed)
     return line
 end
 
--- ⭐ SHINE LINE — typewriter + shimmer effect
 local function shineLine(text, colorKey, speed)
     speed = speed or 0.08
     consoleOrder += 1
@@ -942,8 +1122,6 @@ local function shineLine(text, colorKey, speed)
         TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true,
         LayoutOrder=consoleOrder, ZIndex=4,
     }, console)
-
-    -- typewriter first
     task.spawn(function()
         for i = 1, #text do
             if not line.Parent then return end
@@ -952,8 +1130,6 @@ local function shineLine(text, colorKey, speed)
         end
         task.wait(0.25)
         if not line.Parent then return end
-
-        -- ⭐ shine gradient (light sweep)
         local grad = new("UIGradient", {
             Color = ColorSequence.new({
                 ColorSequenceKeypoint.new(0.00, color),
@@ -971,8 +1147,6 @@ local function shineLine(text, colorKey, speed)
             }),
             Rotation = 45,
         }, line)
-
-        -- animate gradient offset (shine sweep)
         task.spawn(function()
             while line.Parent do
                 grad.Offset = Vector2.new(-1, 0)
@@ -981,7 +1155,6 @@ local function shineLine(text, colorKey, speed)
             end
         end)
     end)
-
     task.defer(function()
         if console and console.Parent then
             console.CanvasPosition = Vector2.new(0, math.max(0, console.AbsoluteCanvasSize.Y - console.AbsoluteSize.Y))
@@ -1140,11 +1313,9 @@ local function autoEnableOnCodeCue()
     local now = os.clock()
     if now - lastAutoEnable < 5 then return end
     lastAutoEnable = now
-    
     local changed = false
     if not listening then setListening(true); changed = true end
     if not riddleSolverEnabled then setRiddleSolver(true); changed = true end
-    
     if changed then
         typewriterLine("AUTO-ENABLED · SNIPE + RIDDLER", "success", 0.05)
     end
@@ -1370,10 +1541,6 @@ if NotifyRemote then
     end)
 end
 
-task.spawn(function()
-    if getconns and getGameCodeBox() then getRedeemTarget() else resolveRedeemRemote() end
-end)
-
 -- Auto Buy + Anchor + Radius
 local autoBuyActive, anchored, radiusVisible = false, false, false
 local autoBuyRadius = 15
@@ -1406,7 +1573,6 @@ setAnchorToggle = inlineToggleController(anchorSw, function(value)
     end
 end)
 inlineToggleController(radiusSw, function(value) radiusVisible = value end)
-anchorKeyBtn.MouseButton1Click:Connect(function() anchorRebinding = true; anchorKeyBtn.Text = "…"; anchorKeyBtn.TextColor3 = C.yellow end)
 
 local radiusFolder = new("Folder", { Name = "__VFXAutoBuyRadius" }, workspace)
 local radiusModel  = new("Model", { Name = "GroundHalo" }, radiusFolder)
@@ -1535,12 +1701,10 @@ local inputConn = UserInputService.InputBegan:Connect(function(input, gpe)
     if input.KeyCode == anchorKey then if setAnchorToggle then setAnchorToggle(not anchored) end end
 end)
 
--- ⭐ STARTUP — VFX ON TOP with shine effect
 task.spawn(function()
     task.wait(0.3)
-    shineLine("VFX ON TOP", "success", 0.12)   -- 👈 typewriter + shine
+    shineLine("VFX ON TOP", "success", 0.08)
     task.wait(1.5)
-    
     if WEBHOOK_ENABLED and not _webhookStartupSent then
         _webhookStartupSent = true
         task.wait(0.2)
