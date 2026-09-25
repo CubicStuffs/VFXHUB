@@ -4144,7 +4144,7 @@ end
 function M.startBatAimbot()
     if not M.safeModeTryStart() then return end
     if M.aimbotConn then pcall(function() M.aimbotConn:Disconnect() end); M.aimbotConn = nil end
-    if M._specBypass and M._specBypass.conn then pcall(function() M._specBypass.conn:Disconnect() end); M._specBypass.conn = nil end
+    if M._bypassState and M._bypassState.conn then pcall(function() M._bypassState.conn:Disconnect() end); M._bypassState.conn = nil end
     pcall(function() RunService:UnbindFromRenderStep("VFXAimbotRotCam") end)
     if M.batTPEnabled and M.stopBatTPAimbot then pcall(function() M.stopBatTPAimbot() end) end
     if M.bypassAimbotEnabled and M.stopBypassAimbot then pcall(function() M.stopBypassAimbot() end) end
@@ -4238,7 +4238,7 @@ end
 function M.stopBatAimbot()
     if M.aimbotConn then pcall(function() M.aimbotConn:Disconnect() end); M.aimbotConn=nil end
     if M._aimbotCharConn then pcall(function() M._aimbotCharConn:Disconnect() end); M._aimbotCharConn=nil end
-    if M._specBypass and M._specBypass.conn then pcall(function() M._specBypass.conn:Disconnect() end); M._specBypass.conn=nil end
+    if M._bypassState and M._bypassState.conn then pcall(function() M._bypassState.conn:Disconnect() end); M._bypassState.conn = nil end
     pcall(function() RunService:UnbindFromRenderStep("VFXAimbotRotCam") end)
     do
         local char=player.Character; local root=char and char:FindFirstChild("HumanoidRootPart"); local hum=char and char:FindFirstChildOfClass("Humanoid")
@@ -4255,30 +4255,35 @@ function M.stopBatAimbot()
     if M.mobBtnRefs.autoBat then M.mobBtnRefs.autoBat(false) end
 end
 
--- Spectrum / Envy-style Anti-Bypass bat aimbot (from Dacia)
-M._specBypass = M._specBypass or { conn = nil, swingCD = false }
+-- ============================================================
+-- BYPASS BAT AIMBOT (K7 Duels style)
+-- Direct pursuit + raycast steering | V1 = +3.7 studs | V2 = same level
+-- ============================================================
 
-function M._specFindBat()
+M._specFindBat = function()
     local char = player.Character
     if not char then return nil end
-    local function isBat(tool)
-        if not tool or not tool:IsA("Tool") then return false end
-        local n = tool.Name:lower()
-        return n:find("bat") or n:find("slap") or n:find("glove") or n:find("hand")
+    local function isBat(t)
+        if not t or not t:IsA("Tool") then return false end
+        local n = t.Name:lower()
+        return n:find("bat") or n:find("slap")
     end
-    for _, tool in ipairs(char:GetChildren()) do
-        if isBat(tool) then return tool end
+    for _, t in ipairs(char:GetChildren()) do
+        if isBat(t) then return t end
     end
-    local bp = player:FindFirstChild("Backpack")
+    local bp = player:FindFirstChildOfClass("Backpack") or player:FindFirstChild("Backpack")
     if bp then
-        for _, tool in ipairs(bp:GetChildren()) do
-            if isBat(tool) then return tool end
+        for _, t in ipairs(bp:GetChildren()) do
+            if isBat(t) then
+                pcall(function() t.Parent = char end)
+                return t
+            end
         end
     end
     return nil
 end
 
-function M._specGetTarget()
+M._specGetTarget = function()
     local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
     if not root then return nil end
     local closest, minDist = nil, math.huge
@@ -4287,9 +4292,9 @@ function M._specGetTarget()
             local tRoot = plr.Character:FindFirstChild("HumanoidRootPart")
             local hum = plr.Character:FindFirstChildOfClass("Humanoid")
             if tRoot and hum and hum.Health > 0 then
-                local dist = (tRoot.Position - root.Position).Magnitude
-                if dist < minDist then
-                    minDist = dist
+                local d = (tRoot.Position - root.Position).Magnitude
+                if d < minDist then
+                    minDist = d
                     closest = tRoot
                 end
             end
@@ -4298,91 +4303,163 @@ function M._specGetTarget()
     return closest
 end
 
-function M._specSwing()
-    if not M.autoSwingEnabled then return end
-    if M._specBypass.swingCD then return end
-    local bat = M._specFindBat()
-    if bat and bat.Parent == player.Character then
-        M._specBypass.swingCD = true
-        pcall(function() bat:Activate() end)
-        task.delay(0.08, function() M._specBypass.swingCD = false end)
+M._bypassState = { conn = nil, target = nil, swingCooldown = false }
+M._bypassPF = { PROBE = 14, ANGLES = {18, 36, 54, 72, 90}, WALL_Y = 0.6 }
+
+function M._bypassRayParams()
+    local params = RaycastParams.new()
+    local ignore = {}
+    local ch = player.Character
+    if ch then ignore[#ignore + 1] = ch end
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Character then ignore[#ignore + 1] = plr.Character end
     end
+    params.FilterDescendantsInstances = ignore
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.IgnoreWater = true
+    return params
 end
 
-function M._specBypassTick()
-    if not M.autoBatEnabled or tostring(M.batAimbotMode or "Normal") ~= "Bypass" then return end
-    local c = player.Character
-    if not c then return end
-    local root = c:FindFirstChild("HumanoidRootPart")
-    local hum = c:FindFirstChildOfClass("Humanoid")
-    if not root or not hum or hum.Health <= 0 then return end
-    if not c:FindFirstChildOfClass("Tool") then
-        local bat = M._specFindBat()
-        if bat then pcall(function() hum:EquipTool(bat) end) end
+function M._bypassBlocked(origin, dir, dist, params)
+    local res = workspace:Raycast(origin, dir * dist, params)
+    if not res then return false end
+    if math.abs(res.Normal.Y) > M._bypassPF.WALL_Y then return false end
+    return true
+end
+
+function M._bypassSteer(origin, dir, dist)
+    if dir.Magnitude < 0.01 then return dir end
+    dir = dir.Unit
+    dist = dist or M._bypassPF.PROBE
+    local params = M._bypassRayParams()
+    local low = origin - Vector3.new(0, 2, 0)
+    if not M._bypassBlocked(origin, dir, dist, params)
+       and not M._bypassBlocked(low, dir, dist, params) then
+        return dir
     end
-    local target = M._specGetTarget()
-    if not target then
-        M._specSwing()
-        return
+    for _, deg in ipairs(M._bypassPF.ANGLES) do
+        for _, sign in ipairs({1, -1}) do
+            local rot = CFrame.Angles(0, math.rad(deg * sign), 0)
+            local cand = rot:VectorToWorldSpace(dir)
+            cand = Vector3.new(cand.X, 0, cand.Z)
+            if cand.Magnitude > 0.01 then
+                cand = cand.Unit
+                if not M._bypassBlocked(origin, cand, dist, params)
+                   and not M._bypassBlocked(low, cand, dist, params) then
+                    return cand
+                end
+            end
+        end
     end
-    hum.AutoRotate = false
-    local targetVel = target.AssemblyLinearVelocity
-    local myPos = root.Position
-    local targetPos = target.Position
-    local predictPos = targetPos + targetVel * 0.14 + target.CFrame.LookVector * 0.3
-    local direction = predictPos - myPos
-    local flatDir = Vector3.new(direction.X, 0, direction.Z)
-    if flatDir.Magnitude < 0.01 then
-        M._specSwing()
-        return
+    return dir
+end
+
+function M._bypassGetSpeed()
+    local lagger = (M.laggerModeEnabled or M.laggerCarryActive)
+    local ver = tostring(M.batAimbotVersion or "V1")
+    if ver == "V2" then
+        return lagger and (tonumber(M.laggerAimbotSpeed) or 40)
+                     or (tonumber(M.batTPSpeed) or 58)
     end
-    flatDir = flatDir.Unit
-    local chaseSpeed = tonumber(M.batTPSpeed) or 58
-    if M.laggerModeEnabled or M.laggerCarryActive then
-        chaseSpeed = tonumber(M.laggerAimbotSpeed) or 40
-    end
-    local desiredHeight = targetPos.Y + 3.7
-    local yVel = (desiredHeight - myPos.Y) * 19.5 + targetVel.Y * 0.8
-    if hum.FloorMaterial ~= Enum.Material.Air then
-        yVel = math.max(yVel, 13)
-    end
-    yVel = math.clamp(yVel, -70, 110)
-    local desiredVel = Vector3.new(flatDir.X * chaseSpeed, yVel, flatDir.Z * chaseSpeed)
-    root.AssemblyLinearVelocity = root.AssemblyLinearVelocity:Lerp(desiredVel, 0.8)
-    local speed3 = targetVel.Magnitude
-    local predictTime = math.clamp(speed3 / 150, 0.05, 0.2)
-    local predictedPos = targetPos + targetVel * predictTime
-    if (predictedPos - myPos).Magnitude > 0.1 then
-        local goalCF = CFrame.lookAt(myPos, predictedPos)
-        local diffCF = root.CFrame:Inverse() * goalCF
-        local rx, ry, rz = diffCF:ToEulerAnglesXYZ()
-        rx = math.clamp(rx, -2.5, 2.5)
-        ry = math.clamp(ry, -2.5, 2.5)
-        rz = math.clamp(rz, -2.5, 2.5)
-        local tiltSpeed = 42
-        root.AssemblyAngularVelocity = root.CFrame:VectorToWorldSpace(Vector3.new(rx * tiltSpeed, ry * tiltSpeed, rz * tiltSpeed))
-    end
-    M._specSwing()
+    return lagger and (tonumber(M.laggerAimbotSpeed) or 40)
+                 or (tonumber(M.aimbotSpeed) or 58)
 end
 
 function M.startSpectrumBypassAimbot()
-    if not M.safeModeTryStart() then return end
+    if M.safeModeTryStart and not M.safeModeTryStart() then return end
+    if M._bypassState.conn then return end
+
     if M.aimbotConn then pcall(function() M.aimbotConn:Disconnect() end); M.aimbotConn = nil end
-    if M._specBypass.conn then pcall(function() M._specBypass.conn:Disconnect() end); M._specBypass.conn = nil end
     if M.batTPEnabled and M.stopBatTPAimbot then pcall(function() M.stopBatTPAimbot() end) end
     if M.bypassAimbotEnabled and M.stopBypassAimbot then pcall(function() M.stopBypassAimbot() end) end
-    if M.autoLeftEnabled then M.autoLeftEnabled=false; if M.autoLeftSetVisual then M.autoLeftSetVisual(false) end; M.stopAutoLeft() end
-    if M.autoRightEnabled then M.autoRightEnabled=false; if M.autoRightSetVisual then M.autoRightSetVisual(false) end; M.stopAutoRight() end
+    if M.autoLeftEnabled then M.autoLeftEnabled = false
+        if M.autoLeftSetVisual then M.autoLeftSetVisual(false) end
+        M.stopAutoLeft() end
+    if M.autoRightEnabled then M.autoRightEnabled = false
+        if M.autoRightSetVisual then M.autoRightSetVisual(false) end
+        M.stopAutoRight() end
     M._autoTPWasEnabledForBat = false
-    if M.autoTPEnabled then M._autoTPWasEnabledForBat=true; M.stopAutoTP(); if M.setAutoTPVisual then M.setAutoTPVisual(false) end end
+    if M.autoTPEnabled then
+        M._autoTPWasEnabledForBat = true
+        M.stopAutoTP()
+        if M.setAutoTPVisual then M.setAutoTPVisual(false) end
+    end
+
     M.autoBatEnabled = true
     M.autoSwingEnabled = true
     M.batAimbotMode = "Bypass"
+    M._bypassState.target = nil
+    M._bypassState.swingCooldown = false
+
     local hum0 = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
     if hum0 then pcall(function() hum0.AutoRotate = false end) end
-    M._specBypass.conn = RunService.RenderStepped:Connect(function()
-        M._specBypassTick()
+
+    if M.syncCombatAntiDie then pcall(M.syncCombatAntiDie) end
+
+    M._bypassState.conn = RunService.RenderStepped:Connect(function()
+        if not M.autoBatEnabled or tostring(M.batAimbotMode or "Normal") ~= "Bypass" then return end
+        local char = player.Character
+        if not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum or hum.Health <= 0 then return end
+
+        local bat = char:FindFirstChildOfClass("Tool") or M._specFindBat()
+        if bat and bat.Parent ~= char then
+            pcall(function() hum:EquipTool(bat) end)
+        end
+
+        local target = M._specGetTarget()
+        if not target then
+            hum.AutoRotate = true
+            return
+        end
+        M._bypassState.target = target
+
+        local myPos     = root.Position
+        local targetPos = target.Position
+        local direction = targetPos - myPos
+        local flatDir   = Vector3.new(direction.X, 0, direction.Z)
+        if flatDir.Magnitude > 0 then flatDir = flatDir.Unit else flatDir = Vector3.zero end
+
+        if flatDir.Magnitude > 0 then
+            local s = M._bypassSteer(myPos, flatDir, M._bypassPF.PROBE)
+            if s then flatDir = s end
+        end
+
+        local chaseSpeed = M._bypassGetSpeed()
+        local isV2 = (tostring(M.batAimbotVersion or "V1") == "V2")
+
+        local desiredHeight = targetPos.Y + (isV2 and 0 or 3.7)
+        local yVel = (desiredHeight - myPos.Y) * 19.5
+        if not isV2 and hum.FloorMaterial ~= Enum.Material.Air then
+            yVel = math.max(yVel, 13)
+        end
+        yVel = math.clamp(yVel, -70, 110)
+
+        local desiredVel = Vector3.new(flatDir.X * chaseSpeed, yVel, flatDir.Z * chaseSpeed)
+        root.AssemblyLinearVelocity = root.AssemblyLinearVelocity:Lerp(desiredVel, 0.8)
+
+        local toTarget = targetPos - myPos
+        if toTarget.Magnitude > 0.1 then
+            local goalCF = CFrame.lookAt(myPos, targetPos)
+            local diffCF = root.CFrame:Inverse() * goalCF
+            local rx, ry, rz = diffCF:ToEulerAnglesXYZ()
+            rx = math.clamp(rx, -2.5, 2.5)
+            ry = math.clamp(ry, -2.5, 2.5)
+            rz = math.clamp(rz, -2.5, 2.5)
+            root.AssemblyAngularVelocity =
+                root.CFrame:VectorToWorldSpace(Vector3.new(rx * 42, ry * 42, rz * 42))
+        end
+
+        if M.autoSwingEnabled ~= false and bat and not M._bypassState.swingCooldown then
+            M._bypassState.swingCooldown = true
+            pcall(function() bat:Activate() end)
+            task.delay(0.08, function() M._bypassState.swingCooldown = false end)
+        end
     end)
+
     if M.autoBatSetVisual then pcall(function() M.autoBatSetVisual(true) end) end
     if M.mobBtnRefs and M.mobBtnRefs.autoBat then pcall(function() M.mobBtnRefs.autoBat(true) end) end
 end
