@@ -3071,7 +3071,7 @@ function M.buildNewStatusUI()
     if not parented then parented = pcall(function() gui.Parent = game:GetService("CoreGui") end) end
     if not parented then gui.Parent = player:WaitForChild("PlayerGui") end
 
-    local barW = math.clamp(tonumber(M.stealBarSize) or 280, 220, 420)
+    local barW = math.clamp(tonumber(M.stealBarSize) or 280, 80, 500)
     local accent = Color3.fromRGB(160, 60, 255)
     local frame = Instance.new("Frame")
     frame.Name = "HudBar"
@@ -3382,7 +3382,7 @@ function M.buildStatusUI()
     if not parented then parented = pcall(function() gui.Parent = game:GetService("CoreGui") end) end
     if not parented then gui.Parent = player:WaitForChild("PlayerGui") end
 
-    local barW = math.clamp(tonumber(M.stealBarSize) or 420, 320, 560)
+    local barW = math.clamp(tonumber(M.stealBarSize) or 420, 80, 560)
     local barH = 46
     local RED = Color3.fromRGB(255, 255, 255)
     local WHITE = Color3.fromRGB(255, 255, 255)
@@ -8408,7 +8408,7 @@ function M.resetMobilePositions()
     M.stealBarPos = nil
     pcall(function()
         if M.statusHolder then
-            local barW = (M.stealBarStyle == "New") and math.clamp(math.max(tonumber(M.stealBarSize) or 390, 360), 360, 480) or math.max(tonumber(M.stealBarSize) or 320, 300)
+            local barW = (M.stealBarStyle == "New") and math.clamp(tonumber(M.stealBarSize) or 390, 80, 480) or math.clamp(tonumber(M.stealBarSize) or 320, 80, 480)
             M.statusHolder.Position = UDim2.new(0.5, -math.floor(barW / 2), 1, (M.stealBarStyle == "New") and -78 or -60)
         end
     end)
@@ -14157,9 +14157,9 @@ end
     M.setAutoRadiusVisual = setAutoRadius
     regStealSettings("V2", v2Box)
 
-    local _, sbBox = uiNumberRow(PMech, "Steal Bar Size", M.stealBarSize or 220, 160, 480, function(v)
+    local _, sbBox = uiNumberRow(PMech, "Steal Bar Size", M.stealBarSize or 220, 80, 480, function(v)
         local n = tonumber(v)
-        if n and n >= 160 and n <= 480 then
+        if n and n >= 80 and n <= 480 then
             M.stealBarSize = math.floor(n)
             if M.buildStatusUI then M.buildStatusUI() end
             pcall(saveVFXConfig)
@@ -16262,41 +16262,9 @@ task.spawn(function()
     end
 end)
 
--- AGGRESSIVE EARLY BUILD: 0 wait, first frame se build karo
-task.spawn(function()
-    -- Pehla attempt: koi wait nahi
-    M._introUIReady = true
-    M._buildingGui = false
-    M.menuOpen = true
-    pcall(function() if M.buildGui then M.buildGui() end end)
-    pcall(function() if M.mobileButtonsEnabled and M.buildMobileButtons then M.buildMobileButtons() end end)
-
-    -- Agar fail ho jaye to fast retry
-    local tries = 0
-    while tries < 50 do
-        tries = tries + 1
-        if M.gui and M.gui.Parent and M.mainFrame and M.mainFrame.Parent then
-            break
-        end
-        M._introUIReady = true
-        M._buildingGui = false
-        pcall(function() if M.buildGui then M.buildGui() end end)
-        task.wait(0.03)
-    end
-
-    -- Theme + accent apply
-    pcall(function() if M.applyStealBarTheme then M.applyStealBarTheme(M.accentColor()) end end)
-    pcall(function() if M.updateHeadTheme then M.updateHeadTheme() end end)
-    pcall(function() if M.retintBackgrounds then M.retintBackgrounds() end end)
-    pcall(function() if M.sweepAccentRecolor then M.sweepAccentRecolor() end end)
-end)
-
--- Config load background me
-task.spawn(function()
-    repeat task.wait() until game:IsLoaded()
-    task.wait(0.05)
-    pcall(loadVFXConfig)
-end)
+repeat task.wait() until game:IsLoaded()
+task.wait(0.05)
+pcall(loadVFXConfig)
 -- Re-apply saved Anti Lag / Stretch after config load
 task.defer(function()
     task.wait(0.4)
