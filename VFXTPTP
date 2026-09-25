@@ -11550,6 +11550,35 @@ task.spawn(function()
     title.TextSize = 13
     title.TextColor3 = Color3.fromRGB(200, 140, 255)
     title.TextXAlignment = Enum.TextXAlignment.Left
+	    -- Minimize button
+    local minBtn = Instance.new("TextButton", header)
+    minBtn.Size = UDim2.new(0, 20, 0, 20)
+    minBtn.Position = UDim2.new(1, -46, 0.5, -10)
+    minBtn.BackgroundColor3 = Color3.fromRGB(175, 95, 255)
+    minBtn.BackgroundTransparency = 0.3
+    minBtn.Text = "−"
+    minBtn.Font = Enum.Font.GothamBlack
+    minBtn.TextSize = 16
+    minBtn.TextColor3 = Color3.new(1, 1, 1)
+    minBtn.BorderSizePixel = 0
+    minBtn.AutoButtonColor = false
+    minBtn.ZIndex = 10
+    Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 5)
+
+    -- Close button
+    local closeBtn = Instance.new("TextButton", header)
+    closeBtn.Size = UDim2.new(0, 20, 0, 20)
+    closeBtn.Position = UDim2.new(1, -22, 0.5, -10)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 70)
+    closeBtn.BackgroundTransparency = 0.3
+    closeBtn.Text = "✕"
+    closeBtn.Font = Enum.Font.GothamBlack
+    closeBtn.TextSize = 12
+    closeBtn.TextColor3 = Color3.new(1, 1, 1)
+    closeBtn.BorderSizePixel = 0
+    closeBtn.AutoButtonColor = false
+    closeBtn.ZIndex = 10
+    Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 5)
 
     -- Status indicator (small dot)
     local dot = Instance.new("Frame", header)
@@ -11642,6 +11671,48 @@ task.spawn(function()
             task.wait(0.5)
             pcall(syncBtn)
         end
+    end)
+	    -- Minimize / Restore Logic
+    local _minimized = false
+    local _fullHeight = 60
+
+    minBtn.MouseButton1Click:Connect(function()
+        _minimized = not _minimized
+        if _minimized then
+            -- Hide panel body, keep only header
+            panel:TweenSize(
+                UDim2.fromOffset(220, 32),
+                Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true
+            )
+            for _, child in ipairs(panel:GetChildren()) do
+                if child ~= header then
+                    child.Visible = false
+                end
+            end
+            minBtn.Text = "+"
+            title.Text = "PODIUM ESP ▸"
+        else
+            -- Restore full panel
+            panel:TweenSize(
+                UDim2.fromOffset(220, _fullHeight),
+                Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true
+            )
+            task.wait(0.05)
+            for _, child in ipairs(panel:GetChildren()) do
+                if child ~= header then
+                    child.Visible = true
+                end
+            end
+            minBtn.Text = "−"
+            title.Text = "PODIUM ESP"
+        end
+    end)
+
+    -- Close button - poori GUI band
+    closeBtn.MouseButton1Click:Connect(function()
+        if _G.__PodiumESP_TurnOff then pcall(_G.__PodiumESP_TurnOff) end
+        if UI then pcall(function() UI:Destroy() end) end
+        _G.__PodiumESPGuiDestroy = nil
     end)
 
     -- GUI destroy function (sirf manual cleanup pe chalega)
