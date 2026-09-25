@@ -12589,6 +12589,10 @@ function M.setSpeedBoosterPanelOpen(on)
 end
 
 function M.buildGui()
+        -- Purana Anti Die cleanup (re-execute ke liye)
+    if M._antiDieStop then pcall(function() M._antiDieStop() end) end
+
+
     -- Never hard-block UI forever on intro; allow build after first attempt
     if M._introUIReady == false and M._bootBuildAttempts == nil then
         M._bootBuildAttempts = 1
@@ -14479,14 +14483,16 @@ end
         end
     end
 
-    local _, setAntiDie = uiToggleRow(PMech, "Anti Die", false, function(on)
-        if on then
-            _antiDieStart()
-        else
-            _antiDieStop()
-        end
-        saveVFXConfig()
-    end)
+local _, setAntiDie = uiToggleRow(PMech, "Anti Die", M.antiDieEnabled == true, function(on)
+    M.antiDieEnabled = on == true
+    M.antiDieFlingEnabled = M.antiDieEnabled
+    if on then
+        _antiDieStart()
+    else
+        _antiDieStop()
+    end
+    saveVFXConfig()
+end)
     M.setAntiDieVisual = setAntiDie
     M._antiDieStart = _antiDieStart
     M._antiDieStop = _antiDieStop
@@ -14659,9 +14665,6 @@ end
     end
 
     -- Anti Die / Anti Fling removed completely
-    M.setAntiDieVisual = function() end
-    M.setAntiDieFlingVisual = function() end
-    M.setAntiFlingVisual = function() end
 
     local _, setAntiSummer = uiToggleRow(PUtil, "Anti Summer Base", M.antiSummerBaseEnabled == true, function(on)
         if on then
@@ -15046,6 +15049,13 @@ M.bypassKeybindName = M.bypassKeybindName or "G"
     if M.setAntiRagVisual then M.setAntiRagVisual(M.antiRagdollEnabled) end
     if M.setAntiFlingVisual then M.setAntiFlingVisual(M.antiFlingEnabled == true) end
     if M.setSafeModeVisual then M.setSafeModeVisual(M.safeModeEnabled) end
+    -- Anti Die auto-start (config ON tha to chalu karo)
+    if M.antiDieEnabled == true and M._antiDieStart then
+        task.defer(function()
+            pcall(function() M._antiDieStart() end)
+            if M.setAntiDieVisual then pcall(function() M.setAntiDieVisual(true) end) end
+        end)
+    end
     if M.setAutoCarryVisual then M.setAutoCarryVisual(M.autoSwitchSpeedEnabled) end
     if M.setCircleBtnsVisual then M.setCircleBtnsVisual(M.circleButtonsEnabled) end
     if M.safeModeEnabled then M.enableSafeMode() end
