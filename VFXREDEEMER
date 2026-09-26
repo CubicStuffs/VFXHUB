@@ -1,5 +1,5 @@
 --[[
-    VFX CODE SNIPER — Strict Offline Solver + BG Image + Shine + Exe Auto-Submit
+    VFX CODE SNIPER — Strict Offline Solver + BG Image + Shine + Exe Auto-Submit + UI Scale
 --]]
 
 local cloneref = cloneref or function(o) return o end
@@ -22,350 +22,237 @@ local scriptLoadedAt = os.clock()
 local STARTUP_GRACE = 3
 
 ----------------------------------------------------------------------
--- ⭐ RIDDLE KNOWLEDGE BASE
+-- RIDDLE KNOWLEDGE BASE (chunked)
 ----------------------------------------------------------------------
-local BRAINROT_KNOWLEDGE = {
-    -- ⭐⭐⭐⭐⭐ TOP PRIORITY — FULL NAME (must be BEFORE regular "my name" entry!)
-    {p={"what is my full name","whats my full name","my full name","full name","what is sammys full name","whats sammys full name","sammys full name","sammy full name","what is your full name","whats your full name","your full name","the full name","what is my real full name","full name of sammy","full name of sammys","full name of the developer","the developers full name","sammys real full name","full name of sammys real name","what is sammys real full name","whats sammys real full name","tell me my full name","give me my full name"},a="SAMUEL"},
-    -- ⭐⭐⭐⭐⭐ TOP PRIORITY — Developing start year
-    {p={"year when i started developing","year i started developing","when did i start developing","when did sammy start developing","year sammy started developing","started developing year","year of developing start","what year did i start developing","what year did sammy start developing","when did sammy start making games","year started making games","when did i start making games","start developing year","when i started developing","year i began developing","when did sammy begin developing","begin developing","started game development","when did sammy start developing games","what year did sammy start making games","when did the developer start developing","year the developer started developing","when did the developer start making games","when did sammy begin","when did i begin developing","year sammy began developing","sammy started developing","sammy developing year","started developing","started game dev","when did sammy start his journey"},a="2013"},
+local BRAINROT_KNOWLEDGE
+do
+    BRAINROT_KNOWLEDGE = {}
+    local E = function(a, ...) BRAINROT_KNOWLEDGE[#BRAINROT_KNOWLEDGE + 1] = {p = {...}, a = a} end
 
-    {p={"which mutation turns a brainrot yellow","what mutation turns a brainrot yellow","which mutation turns brainrot yellow","which mutation makes brainrot yellow","mutation turns brainrot yellow","mutation makes brainrot yellow","brainrot yellow mutation","yellow mutation name","what mutation makes brainrot yellow"},a="GOLD"},
-    {p={"which mutation turns a brainrot blue","what mutation turns a brainrot blue","which mutation turns brainrot blue","which mutation makes brainrot blue","mutation turns brainrot blue","mutation makes brainrot blue","brainrot blue mutation","blue mutation name"},a="DIAMOND"},
-    {p={"which mutation turns a brainrot pink","what mutation turns a brainrot pink","which mutation turns brainrot pink","which mutation makes brainrot pink","pink mutation","mutation that turns brainrot pink","brainrot pink mutation"},a="CANDY"},
-    {p={"which mutation turns a brainrot red","what mutation turns a brainrot red","which mutation turns brainrot red","which mutation makes brainrot red","red mutation","mutation that turns brainrot red","brainrot red mutation"},a="LAVA"},
-    {p={"which mutation turns a brainrot purple","what mutation turns a brainrot purple","which mutation turns brainrot purple","purple mutation","mutation that turns brainrot purple","brainrot purple mutation"},a="GALAXY"},
-    {p={"which mutation turns a brainrot black and white","which mutation turns brainrot black and white","black and white mutation","mutation turns brainrot black and white","brainrot black and white mutation"},a="YINYANG"},
-    {p={"which mutation turns a brainrot neon green","which mutation turns brainrot neon green","neon green mutation","mutation turns brainrot neon green","which mutation turns a brainrot green","brainrot neon green mutation"},a="RADIOACTIVE"},
-    {p={"which mutation gives a rainbow effect","which mutation gives rainbow effect","rainbow effect mutation","rainbow mutation effect","brainrot rainbow effect"},a="RAINBOW"},
-    {p={"which mutation gives a strawberry texture","strawberry texture mutation","which mutation gives strawberry texture","brainrot strawberry texture"},a="STRAWBERRYOP"},
-    {p={"which mutation gives a glitch effect","glitch effect mutation","which mutation gives glitch effect","brainrot glitch effect"},a="GLITCH"},
+    E("SAMUEL", "what is my full name","whats my full name","my full name","full name","what is sammys full name","whats sammys full name","sammys full name","sammy full name","what is your full name","whats your full name","your full name","the full name","what is my real full name","full name of sammy","full name of sammys","full name of the developer","the developers full name","sammys real full name","full name of sammys real name","what is sammys real full name","whats sammys real full name","tell me my full name","give me my full name")
+    E("2013", "year when i started developing","year i started developing","when did i start developing","when did sammy start developing","year sammy started developing","started developing year","year of developing start","what year did i start developing","what year did sammy start developing","when did sammy start making games","year started making games","when did i start making games","start developing year","when i started developing","year i began developing","when did sammy begin developing","begin developing","started game development","when did sammy start developing games","what year did sammy start making games","when did the developer start developing","year the developer started developing","when did the developer start making games","when did sammy begin","when did i begin developing","year sammy began developing","sammy started developing","sammy developing year","started developing","started game dev","when did sammy start his journey")
 
-    {p={"gold mutation multiplier","multiplier of gold mutation","what is the gold mutation multiplier","gold mutation multiplier value"},a="1.25X"},
-    {p={"diamond mutation multiplier","multiplier of diamond mutation","what is the diamond mutation multiplier"},a="1.5X"},
-    {p={"candy mutation multiplier","multiplier of candy mutation","what is the candy mutation multiplier"},a="4X"},
-    {p={"lava mutation multiplier","multiplier of lava mutation","what is the lava mutation multiplier"},a="6X"},
-    {p={"galaxy mutation multiplier","multiplier of galaxy mutation","what is the galaxy mutation multiplier"},a="6X"},
-    {p={"yin yang mutation multiplier","yinyang mutation multiplier","multiplier of yin yang mutation","multiplier of yinyang mutation"},a="7.5X"},
-    {p={"radioactive mutation multiplier","multiplier of radioactive mutation","what is the radioactive mutation multiplier"},a="8.5X"},
-    {p={"rainbow mutation multiplier","multiplier of rainbow mutation","what is the rainbow mutation multiplier"},a="10X"},
+    E("GOLD", "which mutation turns a brainrot yellow","what mutation turns a brainrot yellow","which mutation turns brainrot yellow","which mutation makes brainrot yellow","mutation turns brainrot yellow","mutation makes brainrot yellow","brainrot yellow mutation","yellow mutation name","what mutation makes brainrot yellow")
+    E("DIAMOND", "which mutation turns a brainrot blue","what mutation turns a brainrot blue","which mutation turns brainrot blue","which mutation makes brainrot blue","mutation turns brainrot blue","mutation makes brainrot blue","brainrot blue mutation","blue mutation name")
+    E("CANDY", "which mutation turns a brainrot pink","what mutation turns a brainrot pink","which mutation turns brainrot pink","which mutation makes brainrot pink","pink mutation","mutation that turns brainrot pink","brainrot pink mutation")
+    E("LAVA", "which mutation turns a brainrot red","what mutation turns a brainrot red","which mutation turns brainrot red","which mutation makes brainrot red","red mutation","mutation that turns brainrot red","brainrot red mutation")
+    E("GALAXY", "which mutation turns a brainrot purple","what mutation turns a brainrot purple","which mutation turns brainrot purple","purple mutation","mutation that turns brainrot purple","brainrot purple mutation")
+    E("YINYANG", "which mutation turns a brainrot black and white","which mutation turns brainrot black and white","black and white mutation","mutation turns brainrot black and white","brainrot black and white mutation")
+    E("RADIOACTIVE", "which mutation turns a brainrot neon green","which mutation turns brainrot neon green","neon green mutation","mutation turns brainrot neon green","which mutation turns a brainrot green","brainrot neon green mutation")
+    E("RAINBOW", "which mutation gives a rainbow effect","which mutation gives rainbow effect","rainbow effect mutation","rainbow mutation effect","brainrot rainbow effect")
+    E("STRAWBERRYOP", "which mutation gives a strawberry texture","strawberry texture mutation","which mutation gives strawberry texture","brainrot strawberry texture")
+    E("GLITCH", "which mutation gives a glitch effect","glitch effect mutation","which mutation gives glitch effect","brainrot glitch effect")
 
-    {p={"who owns steal a brainrot","who owns sab","owner of steal a brainrot","who is the owner of steal a brainrot","who owns the game","game owner","who is the owner of sab"},a="SPYDERSAMMY"},
-    {p={"sammys real name","sammy real name","what is sammys real name","what is the real name of sammy","sammy actual name","real name of sammy","real name of sammys"},a="SPYDERSAMMY"},
-    {p={"which country is sammy from","what country is sammy from","sammy from which country","which country does sammy belong to","sammy country of origin"},a="BRAZIL"},
-    {p={"sammys rival","who is sammys rival","sammy rival","who is sammys enemy","sammy enemy"},a="JANDEL"},
-    {p={"sammys favorite food","sammy favorite food","favorite food of sammy","sammy fav food"},a="TACOS"},
-    {p={"sammys net worth","net worth of sammy","how much is sammy worth","sammy net worth","how rich is sammy"},a="$30MILLION"},
-    {p={"sammys company","company of sammy","what is sammys company","sammy company","sammy owns what company"},a="DOBIGSTUDIOS"},
-    {p={"which color is sammy related to","color related to sammy","sammy related color","what color is sammy related to"},a="RED"},
-    {p={"minimum brainrots sammy spawns in admin abuse","minimum brainrots in admin abuse","min brainrots sammy spawns","how many brainrots min admin abuse"},a="3"},
+    E("1.25X", "gold mutation multiplier","multiplier of gold mutation","what is the gold mutation multiplier","gold mutation multiplier value")
+    E("1.5X", "diamond mutation multiplier","multiplier of diamond mutation","what is the diamond mutation multiplier")
+    E("4X", "candy mutation multiplier","multiplier of candy mutation","what is the candy mutation multiplier")
+    E("6X", "lava mutation multiplier","multiplier of lava mutation","what is the lava mutation multiplier")
+    E("6X", "galaxy mutation multiplier","multiplier of galaxy mutation","what is the galaxy mutation multiplier")
+    E("7.5X", "yin yang mutation multiplier","yinyang mutation multiplier","multiplier of yin yang mutation","multiplier of yinyang mutation")
+    E("8.5X", "radioactive mutation multiplier","multiplier of radioactive mutation","what is the radioactive mutation multiplier")
+    E("10X", "rainbow mutation multiplier","multiplier of rainbow mutation","what is the rainbow mutation multiplier")
 
-    {p={"when did tung tung tung sahur return","tung tung tung sahur return date","when did tung tung tung sahur come back","tung tung tung sahur came back"},a="NOVEMBER292025"},
-    {p={"when did sammy remove tung tung tung sahur","sammy removed tung tung tung sahur","tung tung tung sahur removed","when was tung tung tung sahur removed"},a="SEPTEMBER132025"},
-    {p={"copyright removed brainrot","copyright brainrot","brainrot with copyright issue","removed brainrot copyright","brainrot removed from copyright"},a="TUNGTUNGTUNGSAHUR"},
+    E("SPYDERSAMMY", "who owns steal a brainrot","who owns sab","owner of steal a brainrot","who is the owner of steal a brainrot","who owns the game","game owner","who is the owner of sab")
+    E("SPYDERSAMMY", "sammys real name","sammy real name","what is sammys real name","what is the real name of sammy","sammy actual name","real name of sammy","real name of sammys")
+    E("BRAZIL", "which country is sammy from","what country is sammy from","sammy from which country","which country does sammy belong to","sammy country of origin")
+    E("JANDEL", "sammys rival","who is sammys rival","sammy rival","who is sammys enemy","sammy enemy")
+    E("TACOS", "sammys favorite food","sammy favorite food","favorite food of sammy","sammy fav food")
+    E("$30MILLION", "sammys net worth","net worth of sammy","how much is sammy worth","sammy net worth","how rich is sammy")
+    E("DOBIGSTUDIOS", "sammys company","company of sammy","what is sammys company","sammy company","sammy owns what company")
+    E("RED", "which color is sammy related to","color related to sammy","sammy related color","what color is sammy related to")
+    E("3", "minimum brainrots sammy spawns in admin abuse","minimum brainrots in admin abuse","min brainrots sammy spawns","how many brainrots min admin abuse")
 
-    {p={"which brainrot from mexican event","brainrot from mexican event","mexican event brainrot","what brainrot from mexican event"},a="LACUCARACHA"},
-    {p={"secret brainrot from lucky block","lucky block secret brainrot","secret brainrot from lucky block 5","secret from lucky block","lucky block 5 percent secret"},a="ESOKSEKOLAH"},
-    {p={"first secret brainrot","what is first secret brainrot","first secret brainrot in game","the first secret brainrot"},a="FRAGRAMAANDCHOCROMA"},
+    E("NOVEMBER292025", "when did tung tung tung sahur return","tung tung tung sahur return date","when did tung tung tung sahur come back","tung tung tung sahur came back")
+    E("SEPTEMBER132025", "when did sammy remove tung tung tung sahur","sammy removed tung tung tung sahur","tung tung tung sahur removed","when was tung tung tung sahur removed")
+    E("TUNGTUNGTUNGSAHUR", "copyright removed brainrot","copyright brainrot","brainrot with copyright issue","removed brainrot copyright","brainrot removed from copyright")
+    E("LACUCARACHA", "which brainrot from mexican event","brainrot from mexican event","mexican event brainrot","what brainrot from mexican event")
+    E("ESOKSEKOLAH", "secret brainrot from lucky block","lucky block secret brainrot","secret brainrot from lucky block 5","secret from lucky block","lucky block 5 percent secret")
+    E("FRAGRAMAANDCHOCROMA", "first secret brainrot","what is first secret brainrot","first secret brainrot in game","the first secret brainrot")
 
-    {p={"which brainrot earns 1 sec","which brainrot earns 1 per sec","brainrot earns 1 per sec","brainrot earns 1 sec","brainrot that earns 1 per second"},a="NOOBINIPIZZANINI"},
-    {p={"which brainrot earns 5 per sec","brainrot earns 5 per sec","brainrot earns 5 sec","brainrot that earns 5 per second"},a="TIMCHEESE"},
-    {p={"which brainrot earns 200 per sec","brainrot earns 200 per sec","brainrot earns 200 sec","brainrot that earns 200 per second"},a="BURBALONILOLILOLI"},
-    {p={"which brainrot earns 999","brainrot earns 999","brainrot earns 999.9k per sec","brainrot earns 999k","brainrot that earns 999.9k per second","brainrot earns 999.9k"},a="GIFTINISPIDERINI"},
-    {p={"which brainrot earns 450m","brainrot earns 450m","brainrot earns 450m per sec","brainrot that earns 450m per second"},a="MEOWL"},
-    {p={"which brainrot earns 10m","brainrot earns 10m","brainrot earns 10m per sec","brainrot that earns 10m per second"},a="LAGRANDECOMBINASION"},
-    {p={"which brainrot earns 150k","brainrot earns 150k","brainrot earns 150k per sec","brainrot that earns 150k per second"},a="TRENOSTRUZZOTURBO3000"},
-    {p={"which brainrot earns 1b","brainrot earns 1b","brainrot earns 1b per sec","brainrot earns 1 billion per sec","brainrot that earns 1b per second"},a="SPYDERELEPHANT"},
-    {p={"which brainrot earns 750m","brainrot earns 750m","brainrot earns 750m per sec","brainrot that earns 750m per second"},a="STRAWBERRYELEPHANT"},
+    E("NOOBINIPIZZANINI", "which brainrot earns 1 sec","which brainrot earns 1 per sec","brainrot earns 1 per sec","brainrot earns 1 sec","brainrot that earns 1 per second")
+    E("TIMCHEESE", "which brainrot earns 5 per sec","brainrot earns 5 per sec","brainrot earns 5 sec","brainrot that earns 5 per second")
+    E("BURBALONILOLILOLI", "which brainrot earns 200 per sec","brainrot earns 200 per sec","brainrot earns 200 sec","brainrot that earns 200 per second")
+    E("GIFTINISPIDERINI", "which brainrot earns 999","brainrot earns 999","brainrot earns 999.9k per sec","brainrot earns 999k","brainrot that earns 999.9k per second","brainrot earns 999.9k")
+    E("MEOWL", "which brainrot earns 450m","brainrot earns 450m","brainrot earns 450m per sec","brainrot that earns 450m per second")
+    E("LAGRANDECOMBINASION", "which brainrot earns 10m","brainrot earns 10m","brainrot earns 10m per sec","brainrot that earns 10m per second")
+    E("TRENOSTRUZZOTURBO3000", "which brainrot earns 150k","brainrot earns 150k","brainrot earns 150k per sec","brainrot that earns 150k per second")
+    E("SPYDERELEPHANT", "which brainrot earns 1b","brainrot earns 1b","brainrot earns 1b per sec","brainrot earns 1 billion per sec","brainrot that earns 1b per second")
+    E("STRAWBERRYELEPHANT", "which brainrot earns 750m","brainrot earns 750m","brainrot earns 750m per sec","brainrot that earns 750m per second")
 
-    {p={"starter item","starting item","first item","default item","beginner item","what item do you start with"},a="BAT"},
-    {p={"item at rebirth 17","rebirth 17 item","what item at rebirth 17","which item at rebirth 17","rebirth seventeen item"},a="GIANTPOTION"},
-    {p={"fastest non robux item","fastest non-robux item","fastest item without robux","fastest free item","fastest item no robux"},a="INVISIBILITYCLOAK"},
-    {p={"robux item that slaps pulls pushes","robux item that slaps","robux item that pulls","robux item that pushes","slap pull push robux item","blackhole slap"},a="BLACKHOLESLAP"},
-    {p={"halloween flying item","halloween item that flies","halloween flying","flying item halloween"},a="WITCHBROOM"},
+    E("BAT", "starter item","starting item","first item","default item","beginner item","what item do you start with")
+    E("GIANTPOTION", "item at rebirth 17","rebirth 17 item","what item at rebirth 17","which item at rebirth 17","rebirth seventeen item")
+    E("INVISIBILITYCLOAK", "fastest non robux item","fastest non-robux item","fastest item without robux","fastest free item","fastest item no robux")
+    E("BLACKHOLESLAP", "robux item that slaps pulls pushes","robux item that slaps","robux item that pulls","robux item that pushes","slap pull push robux item","blackhole slap")
+    E("WITCHBROOM", "halloween flying item","halloween item that flies","halloween flying","flying item halloween")
 
-    {p={"trait that splits income","split income trait","trait that divides income","splits income trait"},a="SLEEPY"},
-    {p={"1x1x1x1 cave trait","cave trait","1x1x1x1 trait","trait from 1x1x1x1 cave"},a="GLITCH"},
-    {p={"la vacca ritual trait","ritual trait","vacca ritual trait","trait from la vacca ritual"},a="COSMIC"},
-    {p={"galaxy mutation release date","when was galaxy mutation released","galaxy mutation came out","galaxy mutation added","galaxy mutation release"},a="AUGUST232025"},
+    E("SLEEPY", "trait that splits income","split income trait","trait that divides income","splits income trait")
+    E("GLITCH", "1x1x1x1 cave trait","cave trait","1x1x1x1 trait","trait from 1x1x1x1 cave")
+    E("COSMIC", "la vacca ritual trait","ritual trait","vacca ritual trait","trait from la vacca ritual")
+    E("AUGUST232025", "galaxy mutation release date","when was galaxy mutation released","galaxy mutation came out","galaxy mutation added","galaxy mutation release")
 
-    {p={"bunito bunito spinito machine","which machine gives bunito bunito spinito","bunito bunito spinito from which machine","bunito bunito spinito machine name"},a="NEWYEARSMACHINE"},
-    {p={"headless horseman machine","which machine gives headless horseman","headless horseman from which machine","headless horseman machine name"},a="WITCHFUSE"},
-    {p={"tralaledon machine","which machine gives tralaledon","tralaledon from which machine","tralaledon machine name"},a="CRAFTMACHINE"},
-    {p={"los hotspotsitos machine","which machine gives los hotspotsitos","los hotspotsitos from which machine","hotspotsitos machine","los hotspotsitos machine name"},a="OGFUSEMACHINE"},
-    {p={"pipi avocado machine","which machine gives pipi avocado","pipi avocado from which machine","pipi avocado machine name"},a="FUSEMACHINE"},
+    E("NEWYEARSMACHINE", "bunito bunito spinito machine","which machine gives bunito bunito spinito","bunito bunito spinito from which machine","bunito bunito spinito machine name")
+    E("WITCHFUSE", "headless horseman machine","which machine gives headless horseman","headless horseman from which machine","headless horseman machine name")
+    E("CRAFTMACHINE", "tralaledon machine","which machine gives tralaledon","tralaledon from which machine","tralaledon machine name")
+    E("OGFUSEMACHINE", "los hotspotsitos machine","which machine gives los hotspotsitos","los hotspotsitos from which machine","hotspotsitos machine","los hotspotsitos machine name")
+    E("FUSEMACHINE", "pipi avocado machine","which machine gives pipi avocado","pipi avocado from which machine","pipi avocado machine name")
 
-    {p={"rainbow machine usage","how to use rainbow machine","rainbow machine how to use","what does rainbow machine need","rainbow machine recipe","rainbow machine requirements"},a="PUT25GOLDBRAINROTS"},
-    {p={"bubblegum machine usage","how to use bubblegum machine","bubblegum machine how to use","what does bubblegum machine need","bubblegum machine recipe"},a="PUT10CANDYBRAINROTS"},
-    {p={"fuse machine usage","how to use fuse machine","fuse machine how to use","what does fuse machine need","fuse machine recipe"},a="PUT4BRAINROTS"},
-    {p={"craft machine usage","how to use craft machine","craft machine how to use","what does craft machine need","craft machine recipe"},a="PUT2-4BRAINROTS"},
-    {p={"witch fuse usage","how to use witch fuse","witch fuse how to use","what does witch fuse need","witch fuse recipe"},a="PUT4BRAINROTS"},
+    E("PUT25GOLDBRAINROTS", "rainbow machine usage","how to use rainbow machine","rainbow machine how to use","what does rainbow machine need","rainbow machine recipe","rainbow machine requirements")
+    E("PUT10CANDYBRAINROTS", "bubblegum machine usage","how to use bubblegum machine","bubblegum machine how to use","what does bubblegum machine need","bubblegum machine recipe")
+    E("PUT4BRAINROTS", "fuse machine usage","how to use fuse machine","fuse machine how to use","what does fuse machine need","fuse machine recipe")
+    E("PUT2-4BRAINROTS", "craft machine usage","how to use craft machine","craft machine how to use","what does craft machine need","craft machine recipe")
+    E("PUT4BRAINROTS", "witch fuse usage","how to use witch fuse","witch fuse how to use","what does witch fuse need","witch fuse recipe")
 
-    {p={"how many colors does los chilis have","los chilis how many colors","colors of los chilis count","how many colors los chilis"},a="3"},
-    {p={"what are the colors of los chilis","los chilis colors","los chilis color names","what colors are los chilis"},a="REDYELLOWGREEN"},
+    E("3", "how many colors does los chilis have","los chilis how many colors","colors of los chilis count","how many colors los chilis")
+    E("REDYELLOWGREEN", "what are the colors of los chilis","los chilis colors","los chilis color names","what colors are los chilis")
 
-    {p={"sammys admin abuse event with jandel","admin abuse event with jandel","admin abuse event","sammy jandel admin abuse"},a="ADMINWARS"},
-    {p={"sammys taco tuesday date","taco tuesday date","when was taco tuesday","taco tuesday when"},a="SEPTEMBER92025"},
-    {p={"what did sammy accidentally spawn on taco tuesday","accidentally spawn on taco tuesday","taco tuesday accidental spawn","what did sammy spawn on taco tuesday"},a="LAKARKERKARCOMBINASION"},
-    {p={"sammys collaboration for skibidi toilet","skibidi toilet collaboration","who collaborated for skibidi toilet","skibidi toilet sammy collab"},a="ADAMGOODMAN"},
-    {p={"what did sammys base look like during admin abuse","sammys base during admin abuse","sammy base admin abuse","floating pathway base"},a="FLOATINGPATHWAY"},
-    {p={"how many skibidi toilets did sammy spawn on launch day","skibidi toilets sammy spawn launch day","how many skibidi toilets on launch day","skibidi toilets on launch day"},a="50"},
+    E("ADMINWARS", "sammys admin abuse event with jandel","admin abuse event with jandel","admin abuse event","sammy jandel admin abuse")
+    E("SEPTEMBER92025", "sammys taco tuesday date","taco tuesday date","when was taco tuesday","taco tuesday when")
+    E("LAKARKERKARCOMBINASION", "what did sammy accidentally spawn on taco tuesday","accidentally spawn on taco tuesday","taco tuesday accidental spawn","what did sammy spawn on taco tuesday")
+    E("ADAMGOODMAN", "sammys collaboration for skibidi toilet","skibidi toilet collaboration","who collaborated for skibidi toilet","skibidi toilet sammy collab")
+    E("FLOATINGPATHWAY", "what did sammys base look like during admin abuse","sammys base during admin abuse","sammy base admin abuse","floating pathway base")
+    E("50", "how many skibidi toilets did sammy spawn on launch day","skibidi toilets sammy spawn launch day","how many skibidi toilets on launch day","skibidi toilets on launch day")
 
-    {p={"starfall trait multiplier","multiplier of starfall trait","starfall multiplier"},a="2.5X"},
-    {p={"rain trait multiplier","multiplier of rain trait","rain multiplier"},a="1.5X"},
-    {p={"snow trait multiplier","multiplier of snow trait","snow multiplier"},a="2X"},
-    {p={"bombardiro trait multiplier","multiplier of bombardiro trait","bombardiro multiplier"},a="3X"},
-    {p={"shark trait multiplier","multiplier of shark trait","shark multiplier"},a="3X"},
-    {p={"matteo hat trait multiplier","multiplier of matteo hat trait","matteo hat multiplier","matteo trait multiplier"},a="3.5X"},
-    {p={"galactic trait multiplier","multiplier of galactic trait","galactic multiplier"},a="3X"},
-    {p={"glitch trait multiplier","multiplier of glitch trait","glitch multiplier"},a="6X"},
-    {p={"tung tung attack trait multiplier","tung tung attack multiplier","multiplier of tung tung attack trait","tung tung attack trait"},a="5X"},
-    {p={"taco trait multiplier","multiplier of taco trait","taco multiplier"},a="3X"},
-    {p={"meowl trait multiplier","multiplier of meowl trait","meowl multiplier"},a="7X"},
-    {p={"strawberry trait multiplier","multiplier of strawberry trait","strawberry multiplier"},a="9X"},
-    {p={"john pork trait multiplier","multiplier of john pork trait","john pork multiplier"},a="7.5X"},
-    {p={"skibidi trait multiplier","multiplier of skibidi trait","skibidi multiplier"},a="7X"},
-    {p={"reindeer trait multiplier","multiplier of reindeer trait","reindeer multiplier"},a="6X"},
+    E("2.5X", "starfall trait multiplier","multiplier of starfall trait","starfall multiplier")
+    E("1.5X", "rain trait multiplier","multiplier of rain trait","rain multiplier")
+    E("2X", "snow trait multiplier","multiplier of snow trait","snow multiplier")
+    E("3X", "bombardiro trait multiplier","multiplier of bombardiro trait","bombardiro multiplier")
+    E("3X", "shark trait multiplier","multiplier of shark trait","shark multiplier")
+    E("3.5X", "matteo hat trait multiplier","multiplier of matteo hat trait","matteo hat multiplier","matteo trait multiplier")
+    E("3X", "galactic trait multiplier","multiplier of galactic trait","galactic multiplier")
+    E("6X", "glitch trait multiplier","multiplier of glitch trait","glitch multiplier")
+    E("5X", "tung tung attack trait multiplier","tung tung attack multiplier","multiplier of tung tung attack trait","tung tung attack trait")
+    E("3X", "taco trait multiplier","multiplier of taco trait","taco multiplier")
+    E("7X", "meowl trait multiplier","multiplier of meowl trait","meowl multiplier")
+    E("9X", "strawberry trait multiplier","multiplier of strawberry trait","strawberry multiplier")
+    E("7.5X", "john pork trait multiplier","multiplier of john pork trait","john pork multiplier")
+    E("7X", "skibidi trait multiplier","multiplier of skibidi trait","skibidi multiplier")
+    E("6X", "reindeer trait multiplier","multiplier of reindeer trait","reindeer multiplier")
 
-    {p={"best fuse machine","best fuse brainrot","best fuse machine brainrot","best fuse brainrot of all time","best fuse machine of all time","best brainrot in fuse machine","best brainrot of fuse machine","best brainrot from fuse machine","best brainrot from fuse","best fuse brainrot ever","what is the best fuse machine","whats the best fuse machine","what is the best fuse brainrot","whats the best fuse brainrot","best fuse","best brainrot fuse machine","best brainrot in fuse","strongest fuse brainrot","rarest fuse brainrot","most expensive fuse brainrot","top fuse brainrot","number 1 fuse brainrot","best from fuse machine","best fusion brainrot","best fuse brainrot currently","best fuse brainrot now","what is the best brainrot in fuse","whats the best brainrot in fuse","what brainrot is best in fuse machine","best brainrot you can get from fuse","best brainrot in the fuse machine","strongest brainrot in fuse machine","best fuse result","highest rarity fuse brainrot","best brainrot from the fuse machine","most op fuse brainrot","op fuse brainrot","best brainrot fusion","best fusion","strongest fuse machine brainrot","strongest brainrot from fuse","best brainrot in the fuse"},a="GRIFFIN"},
-    {p={"best craft machine brainrot","best craftmachine brainrot","best craft machine brainrot of all time","best craftmachine brainrot of all time","best brainrot in craft machine","best brainrot of craft machine","best brainrot from craft machine","best brainrot from craftmachine","best brainrot in craftmachine","best craft machine","best craftmachine","what is the best craft machine brainrot","whats the best craft machine brainrot","what is the best craftmachine brainrot","whats the best craftmachine brainrot","best craft machine brainrot ever","best craft brainrot","best brainrot from craft","best brainrot in craft","strongest craft brainrot","rarest craft brainrot","most expensive craft brainrot","top craft brainrot","number 1 craft machine brainrot","best craft result","highest rarity craft brainrot","what is the best brainrot in craft","whats the best brainrot in craft","what brainrot is best in craft machine","best brainrot you can get from craft","best brainrot in the craft machine","strongest brainrot in craft machine","most op craft brainrot","op craft brainrot","best brainrot craft","best from craft machine","best from craftmachine","strongest craft machine brainrot","strongest brainrot from craft","best brainrot in the craft"},a="LOSDRAGONS"},
-    {p={"last rebirth","last rebirth which we added","the last rebirth","the last rebirth which we added","last rebirth we added","the last rebirth we added","last rebirth added","most recent rebirth","newest rebirth","latest rebirth","what is the last rebirth","whats the last rebirth","what is the last rebirth we added","whats the last rebirth we added","last rebirth we got","last rebirth level","final rebirth","highest rebirth","max rebirth","maximum rebirth","whats the max rebirth","what is the max rebirth","whats the highest rebirth","what is the highest rebirth","last rebirth in the game","newest rebirth added","latest rebirth added","most recent rebirth added","current last rebirth","last rebirth in sab","last rebirth in steal a brainrot","max rebirth level","highest rebirth level","what is the max rebirth level","whats the max rebirth level","top rebirth","newest rebirth we added","latest rebirth we added"},a="19"},
+    E("GRIFFIN", "best fuse machine","best fuse brainrot","best fuse machine brainrot","best fuse brainrot of all time","best fuse machine of all time","best brainrot in fuse machine","best brainrot of fuse machine","best brainrot from fuse machine","best brainrot from fuse","best fuse brainrot ever","what is the best fuse machine","whats the best fuse machine","what is the best fuse brainrot","whats the best fuse brainrot","best fuse","best brainrot fuse machine","best brainrot in fuse","strongest fuse brainrot","rarest fuse brainrot","most expensive fuse brainrot","top fuse brainrot","number 1 fuse brainrot","best from fuse machine","best fusion brainrot","best fuse brainrot currently","best fuse brainrot now","what is the best brainrot in fuse","whats the best brainrot in fuse","what brainrot is best in fuse machine","best brainrot you can get from fuse","best brainrot in the fuse machine","strongest brainrot in fuse machine","best fuse result","highest rarity fuse brainrot","best brainrot from the fuse machine","most op fuse brainrot","op fuse brainrot","best brainrot fusion","best fusion","strongest fuse machine brainrot","strongest brainrot from fuse","best brainrot in the fuse")
+    E("LOSDRAGONS", "best craft machine brainrot","best craftmachine brainrot","best craft machine brainrot of all time","best craftmachine brainrot of all time","best brainrot in craft machine","best brainrot of craft machine","best brainrot from craft machine","best brainrot from craftmachine","best brainrot in craftmachine","best craft machine","best craftmachine","what is the best craft machine brainrot","whats the best craft machine brainrot","what is the best craftmachine brainrot","whats the best craftmachine brainrot","best craft machine brainrot ever","best craft brainrot","best brainrot from craft","best brainrot in craft","strongest craft brainrot","rarest craft brainrot","most expensive craft brainrot","top craft brainrot","number 1 craft machine brainrot","best craft result","highest rarity craft brainrot","what is the best brainrot in craft","whats the best brainrot in craft","what brainrot is best in craft machine","best brainrot you can get from craft","best brainrot in the craft machine","strongest brainrot in craft machine","most op craft brainrot","op craft brainrot","best brainrot craft","best from craft machine","best from craftmachine","strongest craft machine brainrot","strongest brainrot from craft","best brainrot in the craft")
+    E("19", "last rebirth","last rebirth which we added","the last rebirth","the last rebirth which we added","last rebirth we added","the last rebirth we added","last rebirth added","most recent rebirth","newest rebirth","latest rebirth","what is the last rebirth","whats the last rebirth","what is the last rebirth we added","whats the last rebirth we added","last rebirth we got","last rebirth level","final rebirth","highest rebirth","max rebirth","maximum rebirth","whats the max rebirth","what is the max rebirth","whats the highest rebirth","what is the highest rebirth","last rebirth in the game","newest rebirth added","latest rebirth added","most recent rebirth added","current last rebirth","last rebirth in sab","last rebirth in steal a brainrot","max rebirth level","highest rebirth level","what is the max rebirth level","whats the max rebirth level","top rebirth","newest rebirth we added","latest rebirth we added")
 
-    {p={"sab release date","sab released date","sab date","date sab released","release date of sab","release date sab","steal a brainrot release date","steal a brainrot released","when was steal a brainrot released","when was steal a brainrot made","what is sab release date","whats sab release date","what is the sab release date","whats the sab release date","sab release date is","when did sab release","when did sab come out","sab came out"},a="MAY162025"},
-    {p={"sab release month","sab month released","sab month","sab month of release","month sab was made","month sab was released","release month of sab","what month was sab released","what month was sab made","sab was released month","what is sab release month","whats sab release month","release month","month of release","month released"},a="MAY"},
-    {p={"sab release year","sab year released","sab year","year of release","sab released year","release year of sab","year sab was released","year sab was made","what year was sab released","what year was sab made","sab was released year","what is sab release year","whats sab release year","release year","year of sab"},a="2025"},
-    {p={"sab release day","day sab was released","sab released day","day of release","sab day","sab day of release","sab was released day","what day was sab released","what day was sab made","what day was sab created","day sab was made","game created on","day game released","what day was sab released on","sab released on"},a="FRIDAY"},
-    {p={"when was sab released","when was sab made","when was sab created","when was sab added","when released","when was released","when sab released","sab released","sab was released","sab made","sab created","sab release","release date","sab was made","sab was created","sab came out","when sab came out"},a="MAY162025"},
+    E("MAY162025", "sab release date","sab released date","sab date","date sab released","release date of sab","release date sab","steal a brainrot release date","steal a brainrot released","when was steal a brainrot released","when was steal a brainrot made","what is sab release date","whats sab release date","what is the sab release date","whats the sab release date","sab release date is","when did sab release","when did sab come out","sab came out")
+    E("MAY", "sab release month","sab month released","sab month","sab month of release","month sab was made","month sab was released","release month of sab","what month was sab released","what month was sab made","sab was released month","what is sab release month","whats sab release month","release month","month of release","month released")
+    E("2025", "sab release year","sab year released","sab year","year of release","sab released year","release year of sab","year sab was released","year sab was made","what year was sab released","what year was sab made","sab was released year","what is sab release year","whats sab release year","release year","year of sab")
+    E("FRIDAY", "sab release day","day sab was released","sab released day","day of release","sab day","sab day of release","sab was released day","what day was sab released","what day was sab made","what day was sab created","day sab was made","game created on","day game released","what day was sab released on","sab released on")
+    E("MAY162025", "when was sab released","when was sab made","when was sab created","when was sab added","when released","when was released","when sab released","sab released","sab was released","sab made","sab created","sab release","release date","sab was made","sab was created","sab came out","when sab came out")
 
-    {p={"what is today date","whats today date","todays date","today date","what is today day of month","whats today day of month","today day of month","todays day of month","day of month today","what day of month is it","whats the day of month","what is the date today","whats the date today","date today","current day of month","current date","what is todays day","whats todays day","todays day","today day","what is the day today","whats the day today","what day is it today","what day is today","todays day number","day number today"},a="26"},
-    {p={"what is my favourite food","what is my favorite food","whats my favourite food","whats my favorite food","favorite food","favourite food","fav food","my favorite food","my favourite food","food i like","what food do i like","what is the favorite food","whats the favorite food","favorite meal","favourite meal","my fav food","best food","favorite thing to eat","what do i like to eat"},a="TACO"},
-    {p={"name of animal in last og we added","animal in last og we added","animal in last og","last og animal","animal of last og","what animal is in the last og","what animal is in last og","animal in last og added","animal in the last og we added","what animal is in the last og we added","what is the animal in the last og","whats the animal in the last og","animal in 5th og","animal in fifth og","animal in the fifth og","what animal is in the fifth og we added"},a="PIG"},
-    {p={"name of goat","goat name","name of the goat","what is the name of goat","who is the goat","whats the goat name","who is the goat of football","goat of football","who is football goat","football goat","the goat of football","who is called the goat","who is known as the goat","the goat name","goats name","who is my goat","my goat"},a="RONALDO"},
-    {p={"our planet name","our planets name","what is our planet name","whats our planet name","name of our planet","which planet do we live on","what planet do we live on","what planet are we on","our planet","planet name","which planet are we on","what is the planet we live on","whats the name of our planet","which planet is ours","name of the planet we live on","the planet we live on","on which planet do we live"},a="EARTH"},
+    E("26", "what is today date","whats today date","todays date","today date","what is today day of month","whats today day of month","today day of month","todays day of month","day of month today","what day of month is it","whats the day of month","what is the date today","whats the date today","date today","current day of month","current date","what is todays day","whats todays day","todays day","today day","what is the day today","whats the day today","what day is it today","what day is today","todays day number","day number today")
+    E("TACO", "what is my favourite food","what is my favorite food","whats my favourite food","whats my favorite food","favorite food","favourite food","fav food","my favorite food","my favourite food","food i like","what food do i like","what is the favorite food","whats the favorite food","favorite meal","favourite meal","my fav food","best food","favorite thing to eat","what do i like to eat")
+    E("PIG", "name of animal in last og we added","animal in last og we added","animal in last og","last og animal","animal of last og","what animal is in the last og","what animal is in last og","animal in last og added","animal in the last og we added","what animal is in the last og we added","what is the animal in the last og","whats the animal in the last og","animal in 5th og","animal in fifth og","animal in the fifth og","what animal is in the fifth og we added")
+    E("RONALDO", "name of goat","goat name","name of the goat","what is the name of goat","who is the goat","whats the goat name","who is the goat of football","goat of football","who is football goat","football goat","the goat of football","who is called the goat","who is known as the goat","the goat name","goats name","who is my goat","my goat")
+    E("EARTH", "our planet name","our planets name","what is our planet name","whats our planet name","name of our planet","which planet do we live on","what planet do we live on","what planet are we on","our planet","planet name","which planet are we on","what is the planet we live on","whats the name of our planet","which planet is ours","name of the planet we live on","the planet we live on","on which planet do we live")
+    E("NOVA", "what is my cat name","whats my cat name","my cat name","cat name","what is my cats name","whats my cats name","my cats name","cats name","name of my cat","name of my cats","my pet cat name","what is my pet cat name","whats my pet cat name","what is the cat name","whats the cat name","cat called","what is my cat called","whats my cat called","what is your cat name","whats your cat name","your cat name","the cat name","what is my kitty name","whats my kitty name","my kitty name","kitty name","my cats nickname","cat nickname","my cat nickname")
 
-    {p={"what is my cat name","whats my cat name","my cat name","cat name","what is my cats name","whats my cats name","my cats name","cats name","name of my cat","name of my cats","my pet cat name","what is my pet cat name","whats my pet cat name","what is the cat name","whats the cat name","cat called","what is my cat called","whats my cat called","what is your cat name","whats your cat name","your cat name","the cat name","what is my kitty name","whats my kitty name","my kitty name","kitty name","my cats nickname","cat nickname","my cat nickname"},a="NOVA"},
+    E("STRAWBERRYELEPHANT", "what is the first og","first og","first og added","1st og","first og we added","the first og we added")
+    E("MEOWL", "what is the second og","second og","second og added","2nd og","second og we added","the second og we added")
+    E("SKIBIDITOILET", "what is the third og","third og","third og added","3rd og","third og we added","the third og we added")
+    E("JOHNPORK", "what is the fourth og","fourth og","fourth og added","4th og","fourth og we added","the fourth og we added")
+    E("MEOWL", "what is the fifth og","fifth og","fifth og added","5th og","fifth og we added","the fifth og we added")
+    E("FIVE", "how many og brainrots","og count")
+    E("POLAROIDINI", "best brainrot","rarest brainrot")
+    E("ORCHIDOX", "unobtainable brainrot")
+    E("DRAGONCANNELONNI", "most popular brainrot")
+    E("NOOBINIPIZZANINI", "most common brainrot","weakest brainrot")
 
-    {p={"what is the first og","first og","first og added","1st og","first og we added","the first og we added"},a="STRAWBERRYELEPHANT"},
-    {p={"what is the second og","second og","second og added","2nd og","second og we added","the second og we added"},a="MEOWL"},
-    {p={"what is the third og","third og","third og added","3rd og","third og we added","the third og we added"},a="SKIBIDITOILET"},
-    {p={"what is the fourth og","fourth og","fourth og added","4th og","fourth og we added","the fourth og we added"},a="JOHNPORK"},
-    {p={"what is the fifth og","fifth og","fifth og added","5th og","fifth og we added","the fifth og we added"},a="MEOWL"},
-    {p={"how many og brainrots","og count"},a="FIVE"},
-    {p={"best brainrot","rarest brainrot"},a="POLAROIDINI"},
-    {p={"unobtainable brainrot"},a="ORCHIDOX"},
-    {p={"most popular brainrot"},a="DRAGONCANNELONNI"},
-    {p={"most common brainrot","weakest brainrot"},a="NOOBINIPIZZANINI"},
+    E("CRYSTAL", "fourteenth mutation","mutation 14","latest mutation","newest mutation","last mutation","the last mutation","last mutation we added","last mutation added","final mutation","most recent mutation","mutation added last","whats the last mutation","what is the last mutation","whats the last mutation we added","what is the last mutation we added","the last mutation we added","newest mutation we added","latest mutation we added")
+    E("BLOODROT", "first mutation","mutation 1","was the first mutation","the first mutation we added","first mutation we added")
+    E("GOLD", "second mutation","mutation 2","second mutation we added","the second mutation we added")
+    E("DIAMOND", "third mutation","mutation 3","third mutation we added","the third mutation we added")
+    E("RAINBOW", "fourth mutation","mutation 4","fourth mutation we added","the fourth mutation we added")
+    E("CANDY", "fifth mutation","mutation 5","fifth mutation we added","the fifth mutation we added")
+    E("LAVA", "sixth mutation","mutation 6","sixth mutation we added")
+    E("GALAXY", "seventh mutation","mutation 7","seventh mutation we added")
+    E("YINYANG", "eighth mutation","mutation 8","eighth mutation we added")
+    E("RADIOACTIVE", "ninth mutation","mutation 9","ninth mutation we added")
+    E("CURSED", "tenth mutation","mutation 10","tenth mutation we added")
+    E("DIVINE", "eleventh mutation","mutation 11","eleventh mutation we added")
+    E("CYBER", "twelfth mutation","mutation 12","twelfth mutation we added")
+    E("PHANTOM", "thirteenth mutation","mutation 13","thirteenth mutation we added")
+    E("14", "how many mutations")
 
-    {p={"fourteenth mutation","mutation 14","latest mutation","newest mutation","last mutation","the last mutation","last mutation we added","last mutation added","final mutation","most recent mutation","mutation added last","whats the last mutation","what is the last mutation","whats the last mutation we added","what is the last mutation we added","the last mutation we added","newest mutation we added","latest mutation we added"},a="CRYSTAL"},
-    {p={"first mutation","mutation 1","was the first mutation","the first mutation we added","first mutation we added"},a="BLOODROT"},
-    {p={"second mutation","mutation 2","second mutation we added","the second mutation we added"},a="GOLD"},
-    {p={"third mutation","mutation 3","third mutation we added","the third mutation we added"},a="DIAMOND"},
-    {p={"fourth mutation","mutation 4","fourth mutation we added","the fourth mutation we added"},a="RAINBOW"},
-    {p={"fifth mutation","mutation 5","fifth mutation we added","the fifth mutation we added"},a="CANDY"},
-    {p={"sixth mutation","mutation 6","sixth mutation we added"},a="LAVA"},
-    {p={"seventh mutation","mutation 7","seventh mutation we added"},a="GALAXY"},
-    {p={"eighth mutation","mutation 8","eighth mutation we added"},a="YINYANG"},
-    {p={"ninth mutation","mutation 9","ninth mutation we added"},a="RADIOACTIVE"},
-    {p={"tenth mutation","mutation 10","tenth mutation we added"},a="CURSED"},
-    {p={"eleventh mutation","mutation 11","eleventh mutation we added"},a="DIVINE"},
-    {p={"twelfth mutation","mutation 12","twelfth mutation we added"},a="CYBER"},
-    {p={"thirteenth mutation","mutation 13","thirteenth mutation we added"},a="PHANTOM"},
-    {p={"how many mutations"},a="14"},
-    {p={"color of gold"},a="YELLOW"},
-    {p={"color of diamond"},a="BLUE"},
-    {p={"color of bloodrot"},a="RED"},
-    {p={"color of rainbow"},a="RAINBOW"},
-    {p={"color of candy"},a="PINK"},
-    {p={"color of lava"},a="ORANGE"},
-    {p={"color of galaxy"},a="PURPLE"},
-    {p={"color of yinyang"},a="BLACK"},
-    {p={"color of radioactive"},a="GREEN"},
-    {p={"color of cursed"},a="RED"},
-    {p={"color of divine"},a="YELLOW"},
-    {p={"color of cyber"},a="BLUE"},
-    {p={"color of phantom"},a="BLACK"},
-    {p={"color of crystal"},a="BLUEPURPLE"},
-    {p={"what number is gold"},a="1"},
-    {p={"what number is diamond"},a="2"},
-    {p={"what number is bloodrot"},a="3"},
-    {p={"what number is rainbow"},a="4"},
-    {p={"what number is candy"},a="5"},
-    {p={"what number is lava"},a="6"},
-    {p={"what number is galaxy"},a="7"},
-    {p={"what number is yinyang"},a="8"},
-    {p={"what number is radioactive"},a="9"},
-    {p={"what number is cursed"},a="10"},
-    {p={"what number is divine"},a="11"},
-    {p={"what number is cyber"},a="12"},
-    {p={"what number is phantom"},a="13"},
-    {p={"what number is crystal"},a="14"},
-    {p={"newest machine","latest machine","newest machine we added","latest machine we added","machine we added latest","machine we added newest","whats the newest machine","what is the newest machine","whats the latest machine","what is the latest machine","which is the newest machine","which is the latest machine","most recent machine","recent machine","what machine did we add","what machine did we add last","last machine added","most recently added machine","newest added machine","latest added machine","newest machine added","latest machine added"},a="CRAFTMACHINE"},
-    {p={"first machine","machine 1"},a="RAINBOWMACHINE"},
-    {p={"second machine","machine 2"},a="BUBBLEGUMMACHINE"},
-    {p={"third machine","machine 3"},a="FUSEMACHINE"},
-    {p={"fourth machine","machine 4"},a="CRAFTMACHINE"},
-    {p={"fifth machine","machine 5"},a="WITCHFUSE"},
-    {p={"sixth machine","machine 6"},a="BRAINROTDEALER"},
-    {p={"seventh machine","machine 7"},a="BRAINROTTRADER"},
-    {p={"eighth machine","machine 8"},a="SANTASFUSE"},
-    {p={"ninth machine","machine 9"},a="SANTASSHOP"},
-    {p={"tenth machine","machine 10"},a="NEWYEARSMACHINE"},
-    {p={"eleventh machine","machine 11"},a="DUELSMACHINE"},
-    {p={"twelfth machine","machine 12"},a="CUPIDSMACHINE"},
-    {p={"thirteenth machine","machine 13"},a="TRADEMACHINE"},
-    {p={"fourteenth machine","machine 14"},a="DIVINEFUSE"},
-    {p={"fifteenth machine","machine 15"},a="EGGINCUBATOR"},
-    {p={"sixteenth machine","machine 16"},a="CYBERCRAFTMACHINE"},
-    {p={"seventeenth machine","machine 17"},a="SUMMERFUSE"},
-    {p={"eighteenth machine","machine 18"},a="LOSTRADERS"},
-    {p={"how many machines"},a="18"},
-    {p={"first trait","trait 1"},a="LIGHTNING"},
-    {p={"halo trait"},a="HALO"},
-    {p={"bull trait"},a="BULL"},
-    {p={"santa hat trait"},a="SANTAHAT"},
-    {p={"taco trait"},a="TACO"},
-    {p={"crab trait"},a="CRAB"},
-    {p={"fire trait"},a="FIRE"},
-    {p={"nyan trait"},a="NYAN"},
-    {p={"concert trait"},a="CONCERT"},
-    {p={"strawberry trait"},a="STRAWBERRY"},
+    E("YELLOW", "color of gold") E("BLUE", "color of diamond") E("RED", "color of bloodrot") E("RAINBOW", "color of rainbow")
+    E("PINK", "color of candy") E("ORANGE", "color of lava") E("PURPLE", "color of galaxy") E("BLACK", "color of yinyang")
+    E("GREEN", "color of radioactive") E("RED", "color of cursed") E("YELLOW", "color of divine") E("BLUE", "color of cyber")
+    E("BLACK", "color of phantom") E("BLUEPURPLE", "color of crystal")
 
-    {p={"what is my name","what is your name","my name","sammy name","who is sammy","developer","creator","owner","owner name","developer name","who am i","my real name","name of the developer","name of the creator","name of the owner","who made this game","who created this game","who is the owner"},a="SAMMY"},
-    {p={"what is my favorite color","what is my favourite color","favorite color","favourite color","fav color","fav colour","my favorite color","my favourite color","color i like","colour i like","color do i like","what color do i like","what colour do i like"},a="BLUE"},
-    {p={"how old is sammy","how old am i","what is my age","my age","sammy age","whats my age","what is the age","age of sammy","age of the developer","age of the owner","age"},a="24"},
-    {p={"what month is my birthday"},a="FEBRUARY"},
-    {p={"what day is my birthday"},a="24"},
-    {p={"what day and month is my birthday"},a="FEBRUARY 24"},
-    {p={"what year am i born","birth year","what year was i born","when was i born"},a="2002"},
-    {p={"where was i born","birthplace","where was sammy born","where was the developer born"},a="ALGERIA"},
-    {p={"where am i from","sammy country","my country","where is sammy from","where am i from"},a="BRAZIL"},
-    {p={"nationality","what is my nationality"},a="BRAZILIAN"},
-    {p={"state","city","what state am i from","what city am i from"},a="SAOPAULO"},
-    {p={"roblox username","username","what is my roblox username","what is my username"},a="SPYDERSAMMY"},
-    {p={"social media","youtube","discord","tiktok","instagram"},a="SPYDERSAMMY"},
-    {p={"favorite sport","fav sport","what is my favorite sport","whats my favorite sport"},a="FOOTBALL"},
-    {p={"favorite player","fav player","who is my favorite player","who is my favourite player","favorite football player","favourite football player"},a="RONALDO"},
-    {p={"favorite animal","my pet","pet name","what is my favorite animal","whats my favorite animal","what pet do i have"},a="SPIDER"},
-    {p={"favorite game","fav game","what is my favorite game","whats my favorite game"},a="ROBLOX"},
-    {p={"favorite number","lucky number","what is my favorite number","whats my lucky number"},a="SEVEN"},
-    {p={"my name twice","name two times","say my name twice"},a="SAMMYSAMMY"},
-    {p={"my name 3 times","name three times","say my name three times"},a="SAMMYSAMMYSAMMY"},
-    {p={"age twice","age two times"},a="2424"},
-    {p={"color twice","color two times","favorite color twice"},a="BLUEBLUE"},
-    {p={"color 3 times","color three times"},a="BLUEBLUEBLUE"},
-    {p={"color favorite sport"},a="BLUEFOOTBALL"},
-    {p={"color favorite animal"},a="BLUESPIDER"},
-    {p={"color favorite food"},a="BLUEPIZZA"},
-    {p={"color creator","color owner","color of creator","color of owner"},a="BLUESAMMY"},
-    {p={"color username"},a="BLUESPYDERSAMMY"},
-    {p={"color my age"},a="BLUE24"},
-    {p={"color my country"},a="BLUEBRAZIL"},
+    E("1", "what number is gold") E("2", "what number is diamond") E("3", "what number is bloodrot") E("4", "what number is rainbow")
+    E("5", "what number is candy") E("6", "what number is lava") E("7", "what number is galaxy") E("8", "what number is yinyang")
+    E("9", "what number is radioactive") E("10", "what number is cursed") E("11", "what number is divine") E("12", "what number is cyber")
+    E("13", "what number is phantom") E("14", "what number is crystal")
 
-    {p={"game name","sab stands for","full game name"},a="STEALABRAINROT"},
-    {p={"game type","sab genre"},a="SIMULATOR"},
-    {p={"first update"},a="MUTATIONS"},
-    {p={"max players","player count"},a="8"},
-    {p={"highest rarity","best rarity"},a="OG"},
-    {p={"lowest rarity","worst rarity"},a="COMMON"},
-    {p={"total rarities","how many rarities"},a="SIX"},
-    {p={"first rarity"},a="COMMON"},
-    {p={"second rarity"},a="UNCOMMON"},
-    {p={"third rarity"},a="RARE"},
-    {p={"fourth rarity"},a="EPIC"},
-    {p={"fifth rarity"},a="LEGENDARY"},
-    {p={"sixth rarity"},a="OG"},
-    {p={"sammyni cakini"},a="SAMMYNICAKINI"},
-    {p={"la anniversary grande"},a="LAANNIVERSARYGRANDE"},
-    {p={"la food combinasion"},a="LAFOODCOMBINASION"},
-    {p={"la taco combinasion"},a="LATACOCOMBINASION"},
-    {p={"los amigos"},a="LOSAMIGOS"},
-    {p={"los sekalahs"},a="LOSSEKALAHS"},
-    {p={"gub"},a="GUB"},
-    {p={"sir mangus"},a="SIRMANGUS"},
-    {p={"gattino hydrantino"},a="GATTINOHYDRANTINO"},
-    {p={"puffino builderino"},a="PUFFINOBUILDERINO"},
-    {p={"hydra dragon"},a="HYDRADRAGONCANNELLONI"},
-    {p={"los secret combinasionas"},a="LOSSECRETCOMBINASIONAS"},
-    {p={"pizza and ranch"},a="PIZZAANDRANCH"},
-    {p={"examen bros"},a="EXAMENBROS"},
-    {p={"chicleteira champeona"},a="CHICLETEIRACHAMPEONA"},
-    {p={"toro espanolo"},a="TOROESPANOLO"},
-    {p={"chicleteira futboleira"},a="CHICLETEIRAFUTBOLEIRA"},
-    {p={"grante angelta"},a="GRANTEANGELTA"},
-    {p={"foxini lanternini"},a="FOXINILANTERNINI"},
-    {p={"cloverat"},a="CLOVERAT"},
-    {p={"dragon gingerini"},a="DRAGONGINGERINI"},
-    {p={"hippo golazo"},a="HIPPOGOLAZO"},
-    {p={"ref ref ref sahur"},a="REFREFREFSAHUR"},
-    {p={"esok goala"},a="ESOKGOALA"},
-    {p={"la summer grande"},a="LASUMMERGRANDE"},
-    {p={"chicleteira surfeiteira"},a="CHICLETEIRASURFEITEIRA"},
-    {p={"aquarino"},a="AQUARINO"},
-    {p={"gelato lumacho"},a="GELATOLUMACHO"},
-    {p={"rocketini frostini"},a="ROCKETINIFROSTINI"},
-    {p={"frullato framingo"},a="FRULLATOFRAMINGO"},
-    {p={"los fruits"},a="LOSFRUITS"},
-    {p={"venuspino"},a="VENUSPINO"},
-    {p={"spongini quackini"},a="SPONGINIQUACKINI"},
-    {p={"fizzy soda"},a="FIZZYSODA"},
-    {p={"boba panda"},a="BOBAPANDA"},
-    {p={"dolphini jetskini"},a="DOLPHINIJETSKINI"},
-    {p={"los trios"},a="LOSTRIOS"},
-    {p={"chill puppy"},a="CHILLPUPPY"},
-    {p={"spinny hammy"},a="SPINNYHAMMY"},
-    {p={"ketupat bros"},a="KETUPATBROS"},
-    {p={"holy arepa"},a="HOLYAREPA"},
-    {p={"pengolino nuvoletto"},a="PENGOLINONUVOLETTO"},
-    {p={"gato celesto"},a="GATOCELESTO"},
-    {p={"buho del cielo"},a="BUHODELCIELO"},
-    {p={"seraphino gruyero"},a="SERAPHINOGRUYERO"},
-    {p={"harpuccino"},a="HARPUCCINO"},
-    {p={"berenjello angello"},a="BERENJELLOANGELLO"},
-    {p={"divino platypio"},a="DIVINOPLATYPIO"},
-    {p={"orcalita orcala"},a="ORCALITAORCALA"},
-    {p={"squalanana"},a="SQUALANANA"},
-    {p={"trenotubo axolotrico"},a="TRENOTUBOAXOLOTRICO"},
-    {p={"pretzo robo"},a="PRETZOROBO"},
-    {p={"buho de volto"},a="BUHODEVOLTO"},
-    {p={"futbolini skatini"},a="FUTBOLINISKATINI"},
-    {p={"camera ramena"},a="CAMERARAMENA"},
-    {p={"gym bros"},a="GYMBROS"},
-    {p={"los chilis"},a="LOSCHILIS"},
-    {p={"bandito axolito"},a="BANDITOAXOLITO"},
-    {p={"electro quacko"},a="ELECTROQUACKO"},
-    {p={"los noobinis"},a="LOSNOOBINIS"},
-    {p={"bee loco"},a="BEELOCO"},
-    {p={"orbi mochi"},a="ORBIMOCHI"},
-    {p={"tortuginni sandcastlini"},a="TORTUGINNISANDCASTLINI"},
-    {p={"craburger"},a="CRABURGER"},
-    {p={"octoball"},a="OCTOBALL"},
-    {p={"sushi inu"},a="SUSHIINU"},
-    {p={"girafini raftini"},a="GIRAFINIRAFTINI"},
-    {p={"what is steal a brainrot","main goal"},a="steal brainrots"},
-    {p={"what do you steal"},a="brainrots"},
-    {p={"where do brainrots spawn"},a="conveyor"},
-    {p={"where do you keep brainrots"},a="base"},
-    {p={"what protects your base"},a="lock"},
-    {p={"how many brainrots"},a="THIRTEEN"},
-    {p={"new base we added"},a="1OF1BASE"},
-    {p={"struck by lightning"},a="MATEO"},
-    {p={"won the admin war"},a="GROWAGARDEN"},
-    {p={"worst game on roblox","most boring game"},a="KEYBOARDESCAPE"},
-    {p={"brother of hydra"},a="CERBERUS"},
-    {p={"won the world cup","world cup"},a="SPAIN"},
-    {p={"first brainrotgod"},a="ODINDINDUN"},
-    {p={"uncommon"},a="UNCOMMON"},
-    {p={"rare"},a="RARE"},
-    {p={"epic"},a="EPIC"},
-    {p={"legendary"},a="LEGENDARY"},
-    {p={"og"},a="OG"},
-    {p={"common"},a="COMMON"},
-}
+    E("CRAFTMACHINE", "newest machine","latest machine","newest machine we added","latest machine we added","machine we added latest","machine we added newest","whats the newest machine","what is the newest machine","whats the latest machine","what is the latest machine","which is the newest machine","which is the latest machine","most recent machine","recent machine","what machine did we add","what machine did we add last","last machine added","most recently added machine","newest added machine","latest added machine","newest machine added","latest machine added")
+    E("RAINBOWMACHINE", "first machine","machine 1") E("BUBBLEGUMMACHINE", "second machine","machine 2") E("FUSEMACHINE", "third machine","machine 3")
+    E("CRAFTMACHINE", "fourth machine","machine 4") E("WITCHFUSE", "fifth machine","machine 5") E("BRAINROTDEALER", "sixth machine","machine 6")
+    E("BRAINROTTRADER", "seventh machine","machine 7") E("SANTASFUSE", "eighth machine","machine 8") E("SANTASSHOP", "ninth machine","machine 9")
+    E("NEWYEARSMACHINE", "tenth machine","machine 10") E("DUELSMACHINE", "eleventh machine","machine 11") E("CUPIDSMACHINE", "twelfth machine","machine 12")
+    E("TRADEMACHINE", "thirteenth machine","machine 13") E("DIVINEFUSE", "fourteenth machine","machine 14") E("EGGINCUBATOR", "fifteenth machine","machine 15")
+    E("CYBERCRAFTMACHINE", "sixteenth machine","machine 16") E("SUMMERFUSE", "seventeenth machine","machine 17") E("LOSTRADERS", "eighteenth machine","machine 18")
+    E("18", "how many machines")
+
+    E("LIGHTNING", "first trait","trait 1") E("HALO", "halo trait") E("BULL", "bull trait") E("SANTAHAT", "santa hat trait")
+    E("TACO", "taco trait") E("CRAB", "crab trait") E("FIRE", "fire trait") E("NYAN", "nyan trait") E("CONCERT", "concert trait") E("STRAWBERRY", "strawberry trait")
+
+    E("SAMMY", "what is my name","what is your name","my name","sammy name","who is sammy","developer","creator","owner","owner name","developer name","who am i","my real name","name of the developer","name of the creator","name of the owner","who made this game","who created this game","who is the owner")
+    E("BLUE", "what is my favorite color","what is my favourite color","favorite color","favourite color","fav color","fav colour","my favorite color","my favourite color","color i like","colour i like","color do i like","what color do i like","what colour do i like")
+    E("24", "how old is sammy","how old am i","what is my age","my age","sammy age","whats my age","what is the age","age of sammy","age of the developer","age of the owner","age")
+    E("FEBRUARY", "what month is my birthday") E("24", "what day is my birthday") E("FEBRUARY 24", "what day and month is my birthday")
+    E("2002", "what year am i born","birth year","what year was i born","when was i born")
+    E("ALGERIA", "where was i born","birthplace","where was sammy born","where was the developer born")
+    E("BRAZIL", "where am i from","sammy country","my country","where is sammy from","where am i from")
+    E("BRAZILIAN", "nationality","what is my nationality") E("SAOPAULO", "state","city","what state am i from","what city am i from")
+    E("SPYDERSAMMY", "roblox username","username","what is my roblox username","what is my username")
+    E("SPYDERSAMMY", "social media","youtube","discord","tiktok","instagram")
+    E("FOOTBALL", "favorite sport","fav sport","what is my favorite sport","whats my favorite sport")
+    E("RONALDO", "favorite player","fav player","who is my favorite player","who is my favourite player","favorite football player","favourite football player")
+    E("SPIDER", "favorite animal","my pet","pet name","what is my favorite animal","whats my favorite animal","what pet do i have")
+    E("ROBLOX", "favorite game","fav game","what is my favorite game","whats my favorite game")
+    E("SEVEN", "favorite number","lucky number","what is my favorite number","whats my lucky number")
+    E("SAMMYSAMMY", "my name twice","name two times","say my name twice")
+    E("SAMMYSAMMYSAMMY", "my name 3 times","name three times","say my name three times")
+    E("2424", "age twice","age two times") E("BLUEBLUE", "color twice","color two times","favorite color twice")
+    E("BLUEBLUEBLUE", "color 3 times","color three times") E("BLUEFOOTBALL", "color favorite sport")
+    E("BLUESPIDER", "color favorite animal") E("BLUEPIZZA", "color favorite food")
+    E("BLUESAMMY", "color creator","color owner","color of creator","color of owner")
+    E("BLUESPYDERSAMMY", "color username") E("BLUE24", "color my age") E("BLUEBRAZIL", "color my country")
+
+    E("STEALABRAINROT", "game name","sab stands for","full game name") E("SIMULATOR", "game type","sab genre")
+    E("MUTATIONS", "first update") E("8", "max players","player count") E("OG", "highest rarity","best rarity")
+    E("COMMON", "lowest rarity","worst rarity") E("SIX", "total rarities","how many rarities")
+    E("COMMON", "first rarity") E("UNCOMMON", "second rarity") E("RARE", "third rarity") E("EPIC", "fourth rarity")
+    E("LEGENDARY", "fifth rarity") E("OG", "sixth rarity")
+    E("SAMMYNICAKINI", "sammyni cakini") E("LAANNIVERSARYGRANDE", "la anniversary grande") E("LAFOODCOMBINASION", "la food combinasion")
+    E("LATACOCOMBINASION", "la taco combinasion") E("LOSAMIGOS", "los amigos") E("LOSSEKALAHS", "los sekalahs") E("GUB", "gub")
+    E("SIRMANGUS", "sir mangus") E("GATTINOHYDRANTINO", "gattino hydrantino") E("PUFFINOBUILDERINO", "puffino builderino")
+    E("HYDRADRAGONCANNELLONI", "hydra dragon") E("LOSSECRETCOMBINASIONAS", "los secret combinasionas") E("PIZZAANDRANCH", "pizza and ranch")
+    E("EXAMENBROS", "examen bros") E("CHICLETEIRACHAMPEONA", "chicleteira champeona") E("TOROESPANOLO", "toro espanolo")
+    E("CHICLETEIRAFUTBOLEIRA", "chicleteira futboleira") E("GRANTEANGELTA", "grante angelta") E("FOXINILANTERNINI", "foxini lanternini")
+    E("CLOVERAT", "cloverat") E("DRAGONGINGERINI", "dragon gingerini") E("HIPPOGOLAZO", "hippo golazo") E("REFREFREFSAHUR", "ref ref ref sahur")
+    E("ESOKGOALA", "esok goala") E("LASUMMERGRANDE", "la summer grande") E("CHICLETEIRASURFEITEIRA", "chicleteira surfeiteira")
+    E("AQUARINO", "aquarino") E("GELATOLUMACHO", "gelato lumacho") E("ROCKETINIFROSTINI", "rocketini frostini") E("FRULLATOFRAMINGO", "frullato framingo")
+    E("LOSFRUITS", "los fruits") E("VENUSPINO", "venuspino") E("SPONGINIQUACKINI", "spongini quackini") E("FIZZYSODA", "fizzy soda")
+    E("BOBAPANDA", "boba panda") E("DOLPHINIJETSKINI", "dolphini jetskini") E("LOSTRIOS", "los trios") E("CHILLPUPPY", "chill puppy")
+    E("SPINNYHAMMY", "spinny hammy") E("KETUPATBROS", "ketupat bros") E("HOLYAREPA", "holy arepa") E("PENGOLINONUVOLETTO", "pengolino nuvoletto")
+    E("GATOCELESTO", "gato celesto") E("BUHODELCIELO", "buho del cielo") E("SERAPHINOGRUYERO", "seraphino gruyero") E("HARPUCCINO", "harpuccino")
+    E("BERENJELLOANGELLO", "berenjello angello") E("DIVINOPLATYPIO", "divino platypio") E("ORCALITAORCALA", "orcalita orcala") E("SQUALANANA", "squalanana")
+    E("TRENOTUBOAXOLOTRICO", "trenotubo axolotrico") E("PRETZOROBO", "pretzo robo") E("BUHODEVOLTO", "buho de volto") E("FUTBOLINISKATINI", "futbolini skatini")
+    E("CAMERARAMENA", "camera ramena") E("GYMBROS", "gym bros") E("LOSCHILIS", "los chilis") E("BANDITOAXOLITO", "bandito axolito")
+    E("ELECTROQUACKO", "electro quacko") E("LOSNOOBINIS", "los noobinis") E("BEELOCO", "bee loco") E("ORBIMOCHI", "orbi mochi")
+    E("TORTUGINNISANDCASTLINI", "tortuginni sandcastlini") E("CRABURGER", "craburger") E("OCTOBALL", "octoball") E("SUSHIINU", "sushi inu")
+    E("GIRAFINIRAFTINI", "girafini raftini")
+    E("steal brainrots", "what is steal a brainrot","main goal") E("brainrots", "what do you steal")
+    E("conveyor", "where do brainrots spawn") E("base", "where do you keep brainrots") E("lock", "what protects your base")
+    E("THIRTEEN", "how many brainrots") E("1OF1BASE", "new base we added") E("MATEO", "struck by lightning")
+    E("GROWAGARDEN", "won the admin war") E("KEYBOARDESCAPE", "worst game on roblox","most boring game")
+    E("CERBERUS", "brother of hydra") E("SPAIN", "won the world cup","world cup") E("ODINDINDUN", "first brainrotgod")
+    E("UNCOMMON", "uncommon") E("RARE", "rare") E("EPIC", "epic") E("LEGENDARY", "legendary") E("OG", "og") E("COMMON", "common")
+end
 
 ----------------------------------------------------------------------
--- Riddle logic
+-- Riddle logic (global to save registers)
 ----------------------------------------------------------------------
-local function normalizeRiddleText(t)
+function normalizeRiddleText(t)
     t = tostring(t or ""):lower()
     t = t:gsub("what's","what is"):gsub("whats","what is")
     t = t:gsub("who's","who is"):gsub("whos","who is")
@@ -376,7 +263,7 @@ local function normalizeRiddleText(t)
     t = t:gsub("[^%w%s]"," "):gsub("%s+"," ")
     return t:match("^%s*(.-)%s*$") or ""
 end
-local function stemRiddleWord(w)
+function stemRiddleWord(w)
     w = tostring(w or ""):lower()
     if #w>4 and w:sub(-3)=="ing" then w=w:sub(1,-4) end
     if #w>4 and w:sub(-2)=="ed" then w=w:sub(1,-3) end
@@ -386,7 +273,7 @@ local function stemRiddleWord(w)
     return al[w] or w
 end
 local FILL={what=true,is=true,the=true,a=true,an=true,["do"]=true,does=true,did=true,you=true,are=true,was=true,were=true,am=true,i=true,my=true,me=true,we=true,our=true,of=true,to=true,["in"]=true,on=true,at=true,["and"]=true,["or"]=true,have=true,has=true,it=true,["for"]=true,how=true,where=true,who=true,when=true,which=true,can=true,s=true,will=true,would=true,could=true,please=true}
-local function riddleWords(t)
+function riddleWords(t)
     local w={}
     for word in normalizeRiddleText(t):gmatch("%w+") do
         local s=stemRiddleWord(word)
@@ -396,7 +283,7 @@ local function riddleWords(t)
     if w.brainrotgod then w.brainrot=true; w.god=true end
     return w
 end
-local function riddleMatch(msg, pat)
+function riddleMatch(msg, pat)
     local ph=normalizeRiddleText(pat)
     if msg:find(ph,1,true) then return true end
     if msg:gsub("%s+",""):find(ph:gsub("%s+",""),1,true) then return true end
@@ -407,7 +294,7 @@ local function riddleMatch(msg, pat)
     return n>0
 end
 
-local function solveOfflineRiddle(message)
+function solveOfflineRiddle(message)
     if not message or message=="" then return nil end
     local working = tostring(message):lower()
     working = working:gsub("what's","what is"):gsub("whats","what is")
@@ -435,13 +322,8 @@ local function solveOfflineRiddle(message)
                     local baseAnswer = e.a:gsub("%s+",""):upper()
                     local numsInAnswer = {}
                     local answerHasDigits = false
-                    for num in tostring(e.a):gmatch("%d+") do
-                        numsInAnswer[num] = true
-                        answerHasDigits = true
-                    end
-                    if answerHasDigits then
-                        return baseAnswer
-                    end
+                    for num in tostring(e.a):gmatch("%d+") do numsInAnswer[num] = true; answerHasDigits = true end
+                    if answerHasDigits then return baseAnswer end
                     local suffix
                     for num in tostring(message):gmatch("%d+") do
                         if not numsInAnswer[num] then suffix = num end
@@ -481,7 +363,7 @@ local function solveOfflineRiddle(message)
     return nil
 end
 
-local function isActualRiddle(text)
+function isActualRiddle(text)
     if not text or text == "" then return false end
     local l = text:lower():gsub("%s+", " ")
     local hasQuestion = l:find("%?") ~= nil
@@ -533,13 +415,10 @@ local function isActualRiddle(text)
 end
 
 ----------------------------------------------------------------------
--- ⭐ CUE PREFIX STRIPPER (The riddle is / Use code / etc.)
+-- CUE PREFIX STRIPPER
 ----------------------------------------------------------------------
-local CUE_PREFIXES = {
-    "the riddle is ", "ok riddle is ", "riddle is ",
-    "the code is ", "ok code is ", "use this code ", "use code ", "code is ", "question is ",
-}
-local function stripCuePrefix(text)
+local CUE_PREFIXES = { "the riddle is ", "ok riddle is ", "riddle is ", "the code is ", "ok code is ", "use this code ", "use code ", "code is ", "question is " }
+function stripCuePrefix(text)
     if not text or text == "" then return text end
     local l = text:lower()
     for _, p in ipairs(CUE_PREFIXES) do
@@ -554,23 +433,15 @@ end
 ----------------------------------------------------------------------
 -- WEBHOOK
 ----------------------------------------------------------------------
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1551541428415373353/V0mWjWw54_ltcq3L_5DAGSOKTMjYPQzJJ7OZbQv8GVpJMGVSWep6z1C7gwYQo4d-IfDu"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1551634785263423559/n4HyAnMJ2U-7r-YGHpxhU4NHD6MnoA2zWty-O3v-SMhvbMFmvVaxPshDAgd--hId2VKj"
 local WEBHOOK_ENABLED = WEBHOOK_URL ~= "" and WEBHOOK_URL ~= nil
 local _webhookStartupSent = false
 
-local function httpRequest(opts)
-    if typeof(request) == "function" then
-        local ok, res = pcall(request, opts); if ok and res then return true, res end
-    end
-    if typeof(http_request) == "function" then
-        local ok, res = pcall(http_request, opts); if ok and res then return true, res end
-    end
-    if typeof(syn) == "table" and typeof(syn.request) == "function" then
-        local ok, res = pcall(syn.request, opts); if ok and res then return true, res end
-    end
-    if typeof(http) == "table" and typeof(http.request) == "function" then
-        local ok, res = pcall(http.request, opts); if ok and res then return true, res end
-    end
+function httpRequest(opts)
+    if typeof(request) == "function" then local ok, res = pcall(request, opts); if ok and res then return true, res end end
+    if typeof(http_request) == "function" then local ok, res = pcall(http_request, opts); if ok and res then return true, res end end
+    if typeof(syn) == "table" and typeof(syn.request) == "function" then local ok, res = pcall(syn.request, opts); if ok and res then return true, res end end
+    if typeof(http) == "table" and typeof(http.request) == "function" then local ok, res = pcall(http.request, opts); if ok and res then return true, res end end
     local ok, res = pcall(function() return HttpService:RequestAsync(opts) end)
     if ok and res then return true, res end
     return false, "no-http-method"
@@ -580,31 +451,35 @@ local getupvalues = (debug and debug.getupvalues) or getupvalues
 local getconns    = getconnections or (debug and debug.getconnections)
 local setupv      = (debug and debug.setupvalue) or setupvalue
 
-local DEFAULT_KEY        = Enum.KeyCode.F
-local DEFAULT_CLEAR_KEY  = Enum.KeyCode.C
+local DEFAULT_KEY = Enum.KeyCode.F
+local DEFAULT_CLEAR_KEY = Enum.KeyCode.C
 local DEFAULT_ANCHOR_KEY = Enum.KeyCode.G
-local listening, autoCopyCode = false, false
-local riddleSolverEnabled = true
-local bindKey = DEFAULT_KEY
-local clearKey = DEFAULT_CLEAR_KEY
-local anchorKey = DEFAULT_ANCHOR_KEY
-local collectBuffer = {}
-local NotifyRemote
-local lastRiddleText, lastRiddleAnswer, pendingCode = nil, nil, nil
-local recentWebhooks = {}
-local WEBHOOK_DEDUP_WINDOW = 5
-local lastSuccessfulRedeem = 0
-local REDEEM_LOCKOUT = 6
-local lastAutoEnable = 0
+listening, autoCopyCode = false, false
+riddleSolverEnabled = true
+bindKey = DEFAULT_KEY
+clearKey = DEFAULT_CLEAR_KEY
+anchorKey = DEFAULT_ANCHOR_KEY
+collectBuffer = {}
+NotifyRemote = nil
+lastRiddleText, lastRiddleAnswer, pendingCode = nil, nil, nil
+recentWebhooks = {}
+WEBHOOK_DEDUP_WINDOW = 5
+lastSuccessfulRedeem = 0
+REDEEM_LOCKOUT = 6
+lastAutoEnable = 0
+uiScaleValue = 0.9
+UI_SCALE_MIN = 0.5
+UI_SCALE_MAX = 1.5
+UI_SCALE_STEP = 0.05
 
-local function stripRich(s) if type(s) ~= "string" then return tostring(s) end; return (s:gsub("<[^>]->", "")) end
-local function trim(s) return (s or ""):gsub("^%s+", ""):gsub("%s+$", "") end
-local function tokenize(text)
+function stripRich(s) if type(s) ~= "string" then return tostring(s) end; return (s:gsub("<[^>]->", "")) end
+function trim(s) return (s or ""):gsub("^%s+", ""):gsub("%s+$", "") end
+function tokenize(text)
     local t = {}
     for w in text:gmatch("[%w_]+") do if w:lower() ~= "and" then t[#t + 1] = w end end
     return t
 end
-local function normalizeMsgKey(text)
+function normalizeMsgKey(text)
     local t = tostring(text or ""):lower()
     t = t:gsub("<[^>]->", ""):gsub("%s+", " ")
     return t:match("^%s*(.-)%s*$") or ""
@@ -621,7 +496,7 @@ local BLACKLISTED_PHRASES = {
     "you locked your base for","you got a free spin","broke into your base",
     "someone is stealing","trade has been completed","tradehasbeencompleted",
 }
-local function isBlacklistedPhrase(text)
+function isBlacklistedPhrase(text)
     local lowered = tostring(text or ""):lower():gsub("%s+", " ")
     local normalized = lowered:gsub("[^%w_]+", " "):gsub("%s+", " ")
     if lowered:match("^%s*sammy%s*:") then return true end
@@ -635,14 +510,14 @@ local function isBlacklistedPhrase(text)
     end
     return false
 end
-local function isCodeCueText(text)
+function isCodeCueText(text)
     local l = tostring(text or ""):lower():gsub("%s+", " ")
     return l:find("use code",1,true) or l:find("use this code",1,true)
         or l:find("the code is",1,true) or l:find("code is",1,true)
         or l:find("the riddle is",1,true) or l:find("riddle is",1,true)
         or l:find("ok code is",1,true) or l:find("question is",1,true)
 end
-local function isSuccessText(lower)
+function isSuccessText(lower)
     return lower:find("spawned!",1,true) or lower:find("has spawned",1,true)
         or lower:find("code redeemed",1,true) or lower:find("successfully redeemed",1,true)
         or lower:find("you redeemed",1,true) or lower:find("code accepted",1,true)
@@ -652,7 +527,7 @@ local function isSuccessText(lower)
         or (lower:find("reward",1,true) and not lower:find("no reward",1,true))
         or lower:find("claimed",1,true) or lower:find("luck activated",1,true)
 end
-local function isInvalidText(lower)
+function isInvalidText(lower)
     return lower:find("invalid code",1,true) or lower:find("code is invalid",1,true)
         or lower:find("code invalid",1,true) or lower:find("expired",1,true)
         or lower:find("already redeemed",1,true) or lower:find("already used",1,true)
@@ -661,7 +536,7 @@ local function isInvalidText(lower)
         or lower:find("wrong code",1,true)
 end
 
-local function getRemotesFromFn(fn)
+function getRemotesFromFn(fn)
     if not getupvalues then return {} end
     local ok, ups = pcall(getupvalues, fn)
     local out = {}
@@ -674,7 +549,7 @@ local function getRemotesFromFn(fn)
     end
     return out
 end
-local function resolveNotifyRemote()
+function resolveNotifyRemote()
     local ctrl = ReplicatedStorage:FindFirstChild("Controllers")
     ctrl = ctrl and ctrl:FindFirstChild("NotificationController", true)
     if ctrl then
@@ -706,13 +581,9 @@ local function resolveNotifyRemote()
     return nil
 end
 
-local _spamRedeem = true
-local _spamCount  = 20
-local _submitAfter = 1
-local SPAM_DELAY  = 0.05
-local SUBMIT_DELAY = 0.05
+local _spamRedeem, _spamCount, _submitAfter, SPAM_DELAY, SUBMIT_DELAY = true, 20, 1, 0.05, 0.05
 
-local function isOurGui(instance)
+function isOurGui(instance)
     local p = instance
     for _ = 1, 10 do
         if not p then break end
@@ -721,8 +592,7 @@ local function isOurGui(instance)
     end
     return false
 end
-
-local function isVisibleChain(inst)
+function isVisibleChain(inst)
     local current = inst
     while current do
         if current:IsA("GuiObject") and not current.Visible then return false end
@@ -731,22 +601,18 @@ local function isVisibleChain(inst)
     end
     return true
 end
-
-local function findAllTextBoxes(pg)
+function findAllTextBoxes(pg)
     local boxes = {}
     for _, gui in ipairs(pg:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Enabled and not isOurGui(gui) then
             for _, d in ipairs(gui:GetDescendants()) do
-                if d:IsA("TextBox") and not isOurGui(d) then
-                    boxes[#boxes+1] = d
-                end
+                if d:IsA("TextBox") and not isOurGui(d) then boxes[#boxes+1] = d end
             end
         end
     end
     return boxes
 end
-
-local function findCodeButtons(pg)
+function findCodeButtons(pg)
     local btns = {}
     for _, gui in ipairs(pg:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Enabled and not isOurGui(gui) then
@@ -763,8 +629,7 @@ local function findCodeButtons(pg)
     end
     return btns
 end
-
-local function clickButton(btn)
+function clickButton(btn)
     if not btn then return false end
     local methods = {}
     methods[#methods+1] = function() btn.MouseButton1Click:Fire() end
@@ -776,47 +641,29 @@ local function clickButton(btn)
     if typeof(getconns) == "function" then
         methods[#methods+1] = function()
             local ok, cs = pcall(getconns, btn.MouseButton1Click)
-            if ok and type(cs) == "table" then
-                for _, c in ipairs(cs) do pcall(function() c:Fire() end) end
-            end
+            if ok and type(cs) == "table" then for _, c in ipairs(cs) do pcall(function() c:Fire() end) end end
             local ok2, cs2 = pcall(getconns, btn.Activated)
-            if ok2 and type(cs2) == "table" then
-                for _, c in ipairs(cs2) do pcall(function() c:Fire() end) end
-            end
+            if ok2 and type(cs2) == "table" then for _, c in ipairs(cs2) do pcall(function() c:Fire() end) end end
         end
     end
-    if typeof(fireclick) == "function" then
-        methods[#methods+1] = function() fireclick(btn) end
-    end
+    if typeof(fireclick) == "function" then methods[#methods+1] = function() fireclick(btn) end end
     local anyOk = false
-    for _, fn in ipairs(methods) do
-        local ok = pcall(fn)
-        anyOk = anyOk or ok
-    end
+    for _, fn in ipairs(methods) do local ok = pcall(fn); anyOk = anyOk or ok end
     return anyOk
 end
-
-local function fireBoxFocusLost(box)
+function fireBoxFocusLost(box)
     if not box then return false end
     local anyFired = false
-    if typeof(firesignal) == "function" then
-        local ok = pcall(firesignal, box.FocusLost, true)
-        anyFired = anyFired or ok
-    end
+    if typeof(firesignal) == "function" then local ok = pcall(firesignal, box.FocusLost, true); anyFired = anyFired or ok end
     if typeof(getconns) == "function" then
         local ok, cs = pcall(getconns, box.FocusLost)
         if ok and type(cs) == "table" then
             for _, c in ipairs(cs) do
-                local fn
-                pcall(function() fn = c.Function end)
+                local fn; pcall(function() fn = c.Function end)
                 if fn and typeof(getupvalues) == "function" and typeof(setupv) == "function" then
                     local uOk, ups = pcall(getupvalues, fn)
                     if uOk and type(ups) == "table" then
-                        for i, v in pairs(ups) do
-                            if type(v) == "boolean" and v == true then
-                                pcall(setupv, fn, i, false)
-                            end
-                        end
+                        for i, v in pairs(ups) do if type(v) == "boolean" and v == true then pcall(setupv, fn, i, false) end end
                     end
                 end
                 local fOk = pcall(function() if c.Enabled ~= false then c:Fire(true) end end)
@@ -826,8 +673,7 @@ local function fireBoxFocusLost(box)
     end
     return anyFired
 end
-
-local function typeAndSubmitCode(code)
+function typeAndSubmitCode(code)
     local pg = PG or LP:FindFirstChildOfClass("PlayerGui")
     if not pg then return false, "no PlayerGui" end
     local codesGui = pg:FindFirstChild("Codes")
@@ -837,32 +683,22 @@ local function typeAndSubmitCode(code)
         if codesFrame then
             if codesFrame:IsA("GuiObject") then codesFrame.Visible = true end
             local cur = codesFrame
-            while cur and cur ~= codesGui do
-                if cur:IsA("GuiObject") then cur.Visible = true end
-                cur = cur.Parent
-            end
+            while cur and cur ~= codesGui do if cur:IsA("GuiObject") then cur.Visible = true end; cur = cur.Parent end
             local box = nil
-            for _, d in ipairs(codesFrame:GetDescendants()) do
-                if d:IsA("TextBox") and not isOurGui(d) then box = d; break end
-            end
+            for _, d in ipairs(codesFrame:GetDescendants()) do if d:IsA("TextBox") and not isOurGui(d) then box = d; break end end
             local submitBtn = nil
             for _, d in ipairs(codesFrame:GetDescendants()) do
                 if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) then
-                    local n = d.Name:lower()
-                    local txt = ""
+                    local n = d.Name:lower(); local txt = ""
                     pcall(function() txt = d.Text:lower() end)
-                    if n:find("submit") or txt:find("submit") or n:find("redeem") or txt:find("redeem") or n:find("claim") or txt:find("confirm") or n:find("enter") then
-                        submitBtn = d; break
-                    end
+                    if n:find("submit") or txt:find("submit") or n:find("redeem") or txt:find("redeem") or n:find("claim") or txt:find("confirm") or n:find("enter") then submitBtn = d; break end
                 end
             end
             if not submitBtn then
                 for _, d in ipairs(codesFrame:GetDescendants()) do
                     if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) then
                         local n = d.Name:lower()
-                        if not n:find("close") and not n:find("x") and not n:find("toggle") then
-                            submitBtn = d; break
-                        end
+                        if not n:find("close") and not n:find("x") and not n:find("toggle") then submitBtn = d; break end
                     end
                 end
             end
@@ -870,48 +706,31 @@ local function typeAndSubmitCode(code)
                 pcall(function() box.Text = code end)
                 if submitBtn then
                     local times = (_spamRedeem and math.max(1, tonumber(_spamCount) or 20)) or 1
-                    for i = 1, times do
-                        clickButton(submitBtn)
-                        if times > 1 then task.wait(SPAM_DELAY) end
-                    end
+                    for i = 1, times do clickButton(submitBtn); if times > 1 then task.wait(SPAM_DELAY) end end
                 end
                 fireBoxFocusLost(box)
                 return true, "submitted via PlayerGui.Codes"
             end
         end
     end
-
     local btns = findCodeButtons(pg)
-    for _, btn in ipairs(btns) do
-        clickButton(btn)
-        task.wait(0)
-    end
-
+    for _, btn in ipairs(btns) do clickButton(btn); task.wait(0) end
     local box = nil
     local deadline = tick() + 2
     while tick() < deadline do
         local allBoxes = findAllTextBoxes(pg)
         for _, d in ipairs(allBoxes) do
             if isVisibleChain(d) then
-                local n = d.Name:lower()
-                local pn = (d.Parent and d.Parent.Name or ""):lower()
-                if n:find("code") or pn:find("code") or n:find("redeem") or pn:find("redeem") or n:find("input") or pn:find("textbox") or n:find("enter") then
-                    box = d; break
-                end
+                local n = d.Name:lower(); local pn = (d.Parent and d.Parent.Name or ""):lower()
+                if n:find("code") or pn:find("code") or n:find("redeem") or pn:find("redeem") or n:find("input") or pn:find("textbox") or n:find("enter") then box = d; break end
             end
         end
-        if not box then
-            for _, d in ipairs(allBoxes) do
-                if isVisibleChain(d) then box = d; break end
-            end
-        end
+        if not box then for _, d in ipairs(allBoxes) do if isVisibleChain(d) then box = d; break end end end
         if box then break end
         task.wait()
     end
     if not box then return false, "no codebox visible" end
-
     pcall(function() box.Text = code end)
-
     local redeemBtn = nil
     local searchNames = {"submit","redeem","claim","confirm","enter","send","apply","ok","use","go","check"}
     local p = box.Parent
@@ -919,14 +738,9 @@ local function typeAndSubmitCode(code)
         if not p then break end
         for _, d in ipairs(p:GetDescendants()) do
             if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) and d ~= box then
-                local n = d.Name:lower()
-                local txt = ""
+                local n = d.Name:lower(); local txt = ""
                 pcall(function() txt = d.Text:lower() end)
-                for _, sn in ipairs(searchNames) do
-                    if n:find(sn) or txt:find(sn) then
-                        if isVisibleChain(d) then redeemBtn = d; break end
-                    end
-                end
+                for _, sn in ipairs(searchNames) do if n:find(sn) or txt:find(sn) then if isVisibleChain(d) then redeemBtn = d; break end end end
                 if redeemBtn then break end
             end
         end
@@ -935,28 +749,19 @@ local function typeAndSubmitCode(code)
     end
     if redeemBtn then
         local times = (_spamRedeem and math.max(1, tonumber(_spamCount) or 20)) or 1
-        for i = 1, times do
-            clickButton(redeemBtn)
-            if times > 1 then task.wait(SPAM_DELAY) end
-        end
+        for i = 1, times do clickButton(redeemBtn); if times > 1 then task.wait(SPAM_DELAY) end end
     end
     fireBoxFocusLost(box)
     return true, "submitted via dynamic search"
 end
-
-local function instinctCodeBox()
+function instinctCodeBox()
     local allBoxes = findAllTextBoxes(PG)
-    for _, box in ipairs(allBoxes) do
-        if isVisibleChain(box) then return box end
-    end
+    for _, box in ipairs(allBoxes) do if isVisibleChain(box) then return box end end
     return nil
 end
+function redeem(code) return typeAndSubmitCode(code) end
 
-local function redeem(code)
-    return typeAndSubmitCode(code)
-end
-
-local function extractBrainrotFromSpawn(text)
+function extractBrainrotFromSpawn(text)
     if not text then return nil end
     local clean = tostring(text):gsub("<[^>]->",""):gsub("^%s+",""):gsub("%s+$","")
     local name = clean:match("^(.+)%s+spawned!?$")
@@ -965,19 +770,19 @@ local function extractBrainrotFromSpawn(text)
     if name then return name:gsub("^%s+",""):gsub("%s+$","") end
     return nil
 end
-local function extractIncome(text)
+function extractIncome(text)
     if not text then return nil end
     local inc = text:match("%$([%d,]+)%s*/%s*[sS]") or text:match("%$([%d,]+)%s*per%s*[sS]")
     if inc then return inc:gsub(",","") end
 end
-local function sendRedeemWebhook(code, brainrotName, income, redeemType, riddleText)
+function sendRedeemWebhook(code, brainrotName, income, redeemType, riddleText)
     if not WEBHOOK_ENABLED then return end
     task.spawn(function()
         local typeLabel = (redeemType == "Riddle") and "🧩 Riddle" or "🎟️ Code"
         local title     = (redeemType == "Riddle") and "🧩 Riddle Solved + Redeemed!" or "🎁 Code Redeemed Successfully!"
         local color     = (redeemType == "Riddle") and 15844367 or 5763719
         local fields = {
-            { name = "📌 Type",     value = typeLabel, inline = true },
+            { name = "📌 Type", value = typeLabel, inline = true },
             { name = "🧠 Brainrot", value = brainrotName and ("**"..brainrotName.."**") or "*unknown*", inline = true },
         }
         if redeemType == "Riddle" and riddleText and riddleText ~= "" then
@@ -986,11 +791,10 @@ local function sendRedeemWebhook(code, brainrotName, income, redeemType, riddleT
         else
             table.insert(fields, { name = "🔑 Code", value = code and ("`"..tostring(code).."`") or "*unknown*", inline = true })
         end
-        table.insert(fields, { name = "💰 Income",  value = income and ("$"..tostring(income).."/s") or "*unknown*", inline = true })
-        table.insert(fields, { name = "👤 Player",  value = (LP.DisplayName or LP.Name).." (@"..LP.Name..")", inline = true })
+        table.insert(fields, { name = "💰 Income", value = income and ("$"..tostring(income).."/s") or "*unknown*", inline = true })
+        table.insert(fields, { name = "👤 Player", value = (LP.DisplayName or LP.Name).." (@"..LP.Name..")", inline = true })
         pcall(function()
-            httpRequest({Url=WEBHOOK_URL, Method="POST",
-                Headers={["Content-Type"]="application/json"},
+            httpRequest({Url=WEBHOOK_URL, Method="POST", Headers={["Content-Type"]="application/json"},
                 Body=HttpService:JSONEncode({username="VFX Redeemer",
                     embeds={{title=title, color=color, fields=fields,
                         footer={text="VFX Redeemer · Offline"},
@@ -998,23 +802,24 @@ local function sendRedeemWebhook(code, brainrotName, income, redeemType, riddleT
         end)
     end)
 end
-local function sendStartupTest()
+function sendStartupTest()
     if not WEBHOOK_ENABLED then return end
     task.spawn(function()
         pcall(function()
-            httpRequest({Url=WEBHOOK_URL, Method="POST",
-                Headers={["Content-Type"]="application/json"},
+            httpRequest({Url=WEBHOOK_URL, Method="POST", Headers={["Content-Type"]="application/json"},
                 Body=HttpService:JSONEncode({username="VFX Redeemer",
                     embeds={{title="🟢 VFX Redeemer Connected", description="Offline riddle solver ready",
-                        color=3447003, fields={
-                            {name="👤 Player", value=LP.Name, inline=true}},
+                        color=3447003, fields={{name="👤 Player", value=LP.Name, inline=true}},
                         footer={text="VFX Redeemer · Offline"},
                         timestamp=os.date("!%Y-%m-%dT%H:%M:%SZ")}}})})
         end)
     end)
 end
 
-local C = {
+----------------------------------------------------------------------
+-- THEME + UI (globals)
+----------------------------------------------------------------------
+C = {
     bg=Color3.fromRGB(24, 12, 38), card=Color3.fromRGB(35, 18, 55),
     cardBorder=Color3.fromRGB(180, 60, 220), headerBg=Color3.fromRGB(30, 14, 46),
     pillBg=Color3.fromRGB(45, 20, 70), txt=Color3.fromRGB(255, 255, 255),
@@ -1026,25 +831,26 @@ local C = {
     yellow=Color3.fromRGB(255, 210, 100), inputBg=Color3.fromRGB(18, 8, 30),
     codeBg=Color3.fromRGB(15, 6, 26), btnDark=Color3.fromRGB(40, 20, 60),
 }
-local function toggleKnobPosition(enabled) return UDim2.fromOffset(enabled and 22 or 2, 2) end
-local FM, FB, FBK = Enum.Font.GothamMedium, Enum.Font.GothamBold, Enum.Font.GothamBlack
-local function new(cls, props, parent)
+FM, FB, FBK = Enum.Font.GothamMedium, Enum.Font.GothamBold, Enum.Font.GothamBlack
+
+function toggleKnobPosition(enabled) return UDim2.fromOffset(enabled and 22 or 2, 2) end
+function new(cls, props, parent)
     local o = Instance.new(cls)
     for k, v in pairs(props or {}) do o[k] = v end
     if parent then o.Parent = parent end
     return o
 end
-local function corner(o, r) new("UICorner", { CornerRadius = UDim.new(1, 0) }, o) end
-local function cornerP(o, r) new("UICorner", { CornerRadius = UDim.new(0, r or 12) }, o) end
-local function stroke(o, col, th, tr) return new("UIStroke", { Color = col or C.cardBorder, Thickness = th or 1.2, Transparency = tr or 0.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, o) end
-local function tween(o, t, goal, style) TweenService:Create(o, TweenInfo.new(t, style or Enum.EasingStyle.Quad), goal):Play() end
-local function label(text, size, col, font, xa, parent)
+function corner(o, r) new("UICorner", { CornerRadius = UDim.new(1, 0) }, o) end
+function cornerP(o, r) new("UICorner", { CornerRadius = UDim.new(0, r or 12) }, o) end
+function stroke(o, col, th, tr) return new("UIStroke", { Color = col or C.cardBorder, Thickness = th or 1.2, Transparency = tr or 0.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, o) end
+function tween(o, t, goal, style) TweenService:Create(o, TweenInfo.new(t, style or Enum.EasingStyle.Quad), goal):Play() end
+function label(text, size, col, font, xa, parent)
     return new("TextLabel", {
         BackgroundTransparency=1, Text=text, Font=font or FM, TextSize=size or 12,
         TextColor3=col or C.txt, TextXAlignment=xa or Enum.TextXAlignment.Left,
     }, parent)
 end
-local function drag(handle, target)
+function drag(handle, target)
     local d, ds, sp
     handle.InputBegan:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
@@ -1060,85 +866,47 @@ local function drag(handle, target)
     end)
 end
 
-local parentGui = (gethui and gethui()) or PG
-local old = parentGui:FindFirstChild("NullHub"); if old then old:Destroy() end
-local SG = new("ScreenGui", { Name="NullHub", ResetOnSpawn=false, ZIndexBehavior=Enum.ZIndexBehavior.Sibling, DisplayOrder=250 }, parentGui)
+parentGui = (gethui and gethui()) or PG
+old = parentGui:FindFirstChild("NullHub"); if old then old:Destroy() end
+SG = new("ScreenGui", { Name="NullHub", ResetOnSpawn=false, ZIndexBehavior=Enum.ZIndexBehavior.Sibling, DisplayOrder=250 }, parentGui)
 
-local BAR_W, BAR_H = 380, 660
+BAR_W, BAR_H = 380, 660
 
-local main = new("Frame", {
-    Name="Main", Size=UDim2.fromOffset(BAR_W, BAR_H),
-    AnchorPoint=Vector2.new(0.5,0), Position=UDim2.new(0.5,0,0,10),
-    BackgroundColor3=C.bg, BackgroundTransparency=1,
-    BorderSizePixel=0, ClipsDescendants=true, ZIndex=1,
-}, SG)
-new("UIScale", { Scale = 0.9 }, main)
+main = new("Frame", { Name="Main", Size=UDim2.fromOffset(BAR_W, BAR_H), AnchorPoint=Vector2.new(0.5,0), Position=UDim2.new(0.5,0,0,10), BackgroundColor3=C.bg, BackgroundTransparency=1, BorderSizePixel=0, ClipsDescendants=true, ZIndex=1 }, SG)
+mainScale = new("UIScale", { Scale = uiScaleValue }, main)
 cornerP(main, 18); stroke(main, C.cardBorder, 1.5, 0.25)
-
-local bgImage = new("ImageLabel", {
-    Name = "BgImage",
-    Size = UDim2.fromScale(1, 1),
-    Position = UDim2.fromOffset(0, 0),
-    BackgroundTransparency = 1,
-    Image = "rbxassetid://119367673810376",
-    ImageTransparency = 0.25,
-    ScaleType = Enum.ScaleType.Crop,
-    ZIndex = 0,
-}, main)
+bgImage = new("ImageLabel", { Name="BgImage", Size=UDim2.fromScale(1,1), BackgroundTransparency=1, Image="rbxassetid://119367673810376", ImageTransparency=0.25, ScaleType=Enum.ScaleType.Crop, ZIndex=0 }, main)
 cornerP(bgImage, 18)
-
-local bgOverlay = new("Frame", {
-    Name = "BgOverlay",
-    Size = UDim2.fromScale(1, 1),
-    Position = UDim2.fromOffset(0, 0),
-    BackgroundColor3 = C.bg,
-    BackgroundTransparency = 0.35,
-    BorderSizePixel = 0,
-    ZIndex = 1,
-}, main)
+bgOverlay = new("Frame", { Name="BgOverlay", Size=UDim2.fromScale(1,1), BackgroundColor3=C.bg, BackgroundTransparency=0.35, BorderSizePixel=0, ZIndex=1 }, main)
 cornerP(bgOverlay, 18)
 
-local header = new("Frame", { Size=UDim2.new(1,0,0,48), BackgroundColor3=C.headerBg, BackgroundTransparency=0.15, BorderSizePixel=0, ZIndex=3 }, main)
+header = new("Frame", { Size=UDim2.new(1,0,0,48), BackgroundColor3=C.headerBg, BackgroundTransparency=0.15, BorderSizePixel=0, ZIndex=3 }, main)
 cornerP(header, 18)
 new("Frame", { Size=UDim2.new(1,0,0,14), Position=UDim2.new(0,0,1,-14), BackgroundColor3=C.headerBg, BackgroundTransparency=0.15, BorderSizePixel=0, ZIndex=3 }, header)
-
-local dragHandle = new("Frame", { Size=UDim2.new(1,0,0,48), BackgroundTransparency=1, BorderSizePixel=0, ZIndex=4 }, header)
+dragHandle = new("Frame", { Size=UDim2.new(1,0,0,48), BackgroundTransparency=1, BorderSizePixel=0, ZIndex=4 }, header)
 drag(dragHandle, main)
-
-local logoCircle = new("ImageLabel", {
-    Name = "Logo",
-    Size = UDim2.fromOffset(30,30),
-    Position = UDim2.fromOffset(12,9),
-    BackgroundTransparency = 1,
-    Image = "rbxassetid://131446492552619",
-    ScaleType = Enum.ScaleType.Crop,
-    ZIndex = 5,
-}, header)
+logoCircle = new("ImageLabel", { Name="Logo", Size=UDim2.fromOffset(30,30), Position=UDim2.fromOffset(12,9), BackgroundTransparency=1, Image="rbxassetid://131446492552619", ScaleType=Enum.ScaleType.Crop, ZIndex=5 }, header)
 corner(logoCircle)
-
-local titleLbl = label("VFX SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
-titleLbl.Size = UDim2.fromOffset(120, 20); titleLbl.Position = UDim2.fromOffset(50, 8); titleLbl.ZIndex=5
-local titleSub = label("Strict Offline Solver", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
-titleSub.Size = UDim2.fromOffset(150, 14); titleSub.Position = UDim2.fromOffset(50, 26); titleSub.ZIndex=5
-
-local gearBtn = new("TextButton", { Size=UDim2.fromOffset(26,24), Position=UDim2.new(1,-68,0,12), BackgroundColor3=C.pillBg, BorderSizePixel=0, AutoButtonColor=false, Text="⚙️", Font=FB, TextSize=12, TextColor3=C.txt, ZIndex=6 }, header)
+titleLbl = label("VFX CODE SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
+titleLbl.Size = UDim2.fromOffset(120,20); titleLbl.Position = UDim2.fromOffset(50,8); titleLbl.ZIndex = 5
+titleSub = label("#1 CODE SNIPER", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
+titleSub.Size = UDim2.fromOffset(150,14); titleSub.Position = UDim2.fromOffset(50,26); titleSub.ZIndex = 5
+gearBtn = new("TextButton", { Size=UDim2.fromOffset(26,24), Position=UDim2.new(1,-68,0,12), BackgroundColor3=C.pillBg, BorderSizePixel=0, AutoButtonColor=false, Text="⚙️", Font=FB, TextSize=12, TextColor3=C.txt, ZIndex=6 }, header)
 corner(gearBtn, 12); stroke(gearBtn, C.cardBorder, 1, 0.5)
-
-local collapseBtn = new("TextButton", { Size=UDim2.fromOffset(26,24), Position=UDim2.new(1,-38,0,12), BackgroundColor3=C.pillBg, BorderSizePixel=0, AutoButtonColor=false, Text="—", Font=FBK, TextSize=12, TextColor3=C.txt, ZIndex=6 }, header)
+collapseBtn = new("TextButton", { Size=UDim2.fromOffset(26,24), Position=UDim2.new(1,-38,0,12), BackgroundColor3=C.pillBg, BorderSizePixel=0, AutoButtonColor=false, Text="—", Font=FBK, TextSize=12, TextColor3=C.txt, ZIndex=6 }, header)
 corner(collapseBtn, 12); stroke(collapseBtn, C.cardBorder, 1, 0.5)
 
-local statusPill = new("Frame", { Size=UDim2.new(1,-24,0,32), Position=UDim2.fromOffset(12,58), BackgroundColor3=C.pillBg, BackgroundTransparency=0.15, BorderSizePixel=0, ZIndex=3 }, main)
+statusPill = new("Frame", { Size=UDim2.new(1,-24,0,32), Position=UDim2.fromOffset(12,58), BackgroundColor3=C.pillBg, BackgroundTransparency=0.15, BorderSizePixel=0, ZIndex=3 }, main)
 cornerP(statusPill, 10); stroke(statusPill, C.cardBorder, 1, 0.55)
-local statusDot = new("Frame", { Size=UDim2.fromOffset(8,8), Position=UDim2.fromOffset(14,12), BackgroundColor3=C.green, BorderSizePixel=0, ZIndex=4 }, statusPill)
+statusDot = new("Frame", { Size=UDim2.fromOffset(8,8), Position=UDim2.fromOffset(14,12), BackgroundColor3=C.green, BorderSizePixel=0, ZIndex=4 }, statusPill)
 corner(statusDot)
-local statusLbl = label("Listening for questions", 11, C.sub, FB, Enum.TextXAlignment.Left, statusPill)
+statusLbl = label("Listening for questions", 11, C.sub, FB, Enum.TextXAlignment.Left, statusPill)
 statusLbl.Size=UDim2.new(1,-40,1,0); statusLbl.Position=UDim2.fromOffset(30,0); statusLbl.ZIndex=4
 
-local currentY = 98
-local ROW_H = 40
-local ROW_GAP = 8
+currentY = 98
+ROW_H, ROW_GAP = 40, 8
 
-local function makeCard(labelText)
+function makeCard(labelText)
     local card = new("Frame", { Size=UDim2.new(1,-24,0,ROW_H), Position=UDim2.fromOffset(12,currentY), BackgroundColor3=C.card, BackgroundTransparency=0.15, BorderSizePixel=0, ZIndex=3 }, main)
     cornerP(card, 12); stroke(card, C.cardBorder, 1.2, 0.35)
     local lbl = label(labelText, 12, C.txt, FBK, Enum.TextXAlignment.Left, card)
@@ -1150,106 +918,87 @@ local function makeCard(labelText)
     currentY = currentY + ROW_H + ROW_GAP
     return card, sw, knob, lbl
 end
-
-local function setToggleVisual(sw, knob, enabled)
+function setToggleVisual(sw, knob, enabled)
     tween(sw, 0.18, { BackgroundColor3 = enabled and C.toggleOn or C.toggleOff })
     tween(knob, 0.16, { Position = toggleKnobPosition(enabled), BackgroundColor3 = enabled and C.knobOn or C.knobOff })
     local ts = sw:FindFirstChildOfClass("UIStroke")
     if ts then tween(ts, 0.16, { Color = enabled and C.toggleOn or C.cardBorder, Transparency = enabled and 0.2 or 0.4 }) end
 end
 
-local snipeCard, snipeSw, snipeKnob, snipeLbl = makeCard("SNIPE · LISTEN")
-local riddleCard, riddleSw, riddleKnob, riddleLbl = makeCard("OFFLINE RIDDLER")
-local copyCard, copySw, copyKnob, copyLbl = makeCard("AUTO COPY")
+snipeCard, snipeSw, snipeKnob, snipeLbl = makeCard("SNIPE · LISTEN")
+riddleCard, riddleSw, riddleKnob, riddleLbl = makeCard("OFFLINE RIDDLER")
+copyCard, copySw, copyKnob, copyLbl = makeCard("AUTO COPY")
 setToggleVisual(riddleSw, riddleKnob, riddleSolverEnabled)
 
-local qLabel = label("QUESTION", 9, C.accent2, FBK, Enum.TextXAlignment.Left, main)
+qLabel = label("QUESTION", 9, C.accent2, FBK, Enum.TextXAlignment.Left, main)
 qLabel.Size=UDim2.fromOffset(100,14); qLabel.Position=UDim2.fromOffset(16,currentY); qLabel.ZIndex=4
 currentY = currentY + 16
-local qBox = new("Frame", { Size=UDim2.new(1,-24,0,42), Position=UDim2.fromOffset(12,currentY), BackgroundColor3=C.inputBg, BackgroundTransparency=0.05, BorderSizePixel=0, ZIndex=3 }, main)
+qBox = new("Frame", { Size=UDim2.new(1,-24,0,42), Position=UDim2.fromOffset(12,currentY), BackgroundColor3=C.inputBg, BackgroundTransparency=0.05, BorderSizePixel=0, ZIndex=3 }, main)
 cornerP(qBox, 10); stroke(qBox, C.cardBorder, 1, 0.5)
-local qText = label("waiting…", 11, C.sub, FM, Enum.TextXAlignment.Left, qBox)
+qText = label("waiting…", 11, C.sub, FM, Enum.TextXAlignment.Left, qBox)
 qText.Size=UDim2.new(1,-20,1,0); qText.Position=UDim2.fromOffset(12,0)
 qText.TextWrapped=true; qText.TextYAlignment=Enum.TextYAlignment.Center; qText.ZIndex=4
 currentY = currentY + 42 + 8
-
-local aLabel = label("ANSWER", 9, C.accent2, FBK, Enum.TextXAlignment.Left, main)
+aLabel = label("ANSWER", 9, C.accent2, FBK, Enum.TextXAlignment.Left, main)
 aLabel.Size=UDim2.fromOffset(100,14); aLabel.Position=UDim2.fromOffset(16,currentY); aLabel.ZIndex=4
 currentY = currentY + 16
-local aBox = new("Frame", { Size=UDim2.new(1,-24,0,48), Position=UDim2.fromOffset(12,currentY), BackgroundColor3=C.codeBg, BackgroundTransparency=0.05, BorderSizePixel=0, ZIndex=3 }, main)
+aBox = new("Frame", { Size=UDim2.new(1,-24,0,48), Position=UDim2.fromOffset(12,currentY), BackgroundColor3=C.codeBg, BackgroundTransparency=0.05, BorderSizePixel=0, ZIndex=3 }, main)
 cornerP(aBox, 10); stroke(aBox, C.cardBorder, 1.2, 0.4)
-local aText = label("answer appears here…", 13, C.txt, FBK, Enum.TextXAlignment.Left, aBox)
+aText = label("answer appears here…", 13, C.txt, FBK, Enum.TextXAlignment.Left, aBox)
 aText.Size=UDim2.new(1,-20,1,0); aText.Position=UDim2.fromOffset(12,0)
 aText.TextWrapped=true; aText.TextYAlignment=Enum.TextYAlignment.Center; aText.ZIndex=4
 currentY = currentY + 48 + 10
 
-local BTN_H = 30
-local BTN_GAP = 6
-local BTN_W = (BAR_W - 24 - BTN_GAP*2) / 3
-
-local copyBtn = new("TextButton", { Size=UDim2.fromOffset(BTN_W,BTN_H), Position=UDim2.fromOffset(12,currentY), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="COPY", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, main)
+BTN_H, BTN_GAP = 30, 6
+BTN_W = (BAR_W - 24 - BTN_GAP*2) / 3
+copyBtn = new("TextButton", { Size=UDim2.fromOffset(BTN_W,BTN_H), Position=UDim2.fromOffset(12,currentY), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="COPY", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, main)
 cornerP(copyBtn, 8); stroke(copyBtn, C.cardBorder, 1, 0.5)
-local clearBtn = new("TextButton", { Size=UDim2.fromOffset(BTN_W,BTN_H), Position=UDim2.fromOffset(12+BTN_W+BTN_GAP,currentY), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="CLEAR", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, main)
+clearBtn = new("TextButton", { Size=UDim2.fromOffset(BTN_W,BTN_H), Position=UDim2.fromOffset(12+BTN_W+BTN_GAP,currentY), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="CLEAR", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, main)
 cornerP(clearBtn, 8); stroke(clearBtn, C.cardBorder, 1, 0.5)
-local redeemBtn = new("TextButton", { Size=UDim2.fromOffset(BTN_W,BTN_H), Position=UDim2.fromOffset(12+(BTN_W+BTN_GAP)*2,currentY), BackgroundColor3=C.accent, BorderSizePixel=0, AutoButtonColor=false, Text="REDEEM", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, main)
+redeemBtn = new("TextButton", { Size=UDim2.fromOffset(BTN_W,BTN_H), Position=UDim2.fromOffset(12+(BTN_W+BTN_GAP)*2,currentY), BackgroundColor3=C.accent, BorderSizePixel=0, AutoButtonColor=false, Text="REDEEM", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, main)
 cornerP(redeemBtn, 8); stroke(redeemBtn, C.accent2, 1, 0.3)
 currentY = currentY + BTN_H + 10
 
-local consoleHdr = new("Frame", { Size=UDim2.new(1,-24,0,18), Position=UDim2.fromOffset(12,currentY), BackgroundTransparency=1, BorderSizePixel=0, ZIndex=3 }, main)
-local chLbl = label("CONSOLE", 9, C.accent2, FBK, Enum.TextXAlignment.Left, consoleHdr)
+consoleHdr = new("Frame", { Size=UDim2.new(1,-24,0,18), Position=UDim2.fromOffset(12,currentY), BackgroundTransparency=1, BorderSizePixel=0, ZIndex=3 }, main)
+chLbl = label("CONSOLE", 9, C.accent2, FBK, Enum.TextXAlignment.Left, consoleHdr)
 chLbl.Size=UDim2.fromOffset(80,18); chLbl.Position=UDim2.fromOffset(4,0); chLbl.ZIndex=4
-local clearConsoleBtn = new("TextButton", { Size=UDim2.fromOffset(50,16), Position=UDim2.new(1,-54,0,1), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="CLEAR", Font=FBK, TextSize=8, TextColor3=C.sub, ZIndex=4 }, consoleHdr)
+clearConsoleBtn = new("TextButton", { Size=UDim2.fromOffset(50,16), Position=UDim2.new(1,-54,0,1), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="CLEAR", Font=FBK, TextSize=8, TextColor3=C.sub, ZIndex=4 }, consoleHdr)
 cornerP(clearConsoleBtn, 6); stroke(clearConsoleBtn, C.cardBorder, 1, 0.55)
 currentY = currentY + 22
-local CONSOLE_H = BAR_H - currentY - 12
-
-local console = new("ScrollingFrame", {
-    Size=UDim2.new(1,-24,0,CONSOLE_H), Position=UDim2.fromOffset(12,currentY),
-    BackgroundColor3=C.inputBg, BackgroundTransparency=0.05, BorderSizePixel=0,
-    ScrollBarThickness=3, ScrollBarImageColor3=C.accent,
-    CanvasSize=UDim2.new(0,0,0,0), AutomaticCanvasSize=Enum.AutomaticSize.Y,
-    ScrollingDirection=Enum.ScrollingDirection.Y, ClipsDescendants=true, ZIndex=3,
-}, main)
+CONSOLE_H = BAR_H - currentY - 12
+console = new("ScrollingFrame", { Size=UDim2.new(1,-24,0,CONSOLE_H), Position=UDim2.fromOffset(12,currentY), BackgroundColor3=C.inputBg, BackgroundTransparency=0.05, BorderSizePixel=0, ScrollBarThickness=3, ScrollBarImageColor3=C.accent, CanvasSize=UDim2.new(0,0,0,0), AutomaticCanvasSize=Enum.AutomaticSize.Y, ScrollingDirection=Enum.ScrollingDirection.Y, ClipsDescendants=true, ZIndex=3 }, main)
 cornerP(console, 10); stroke(console, C.cardBorder, 1, 0.5)
 new("UIListLayout", { Padding=UDim.new(0,3), SortOrder=Enum.SortOrder.LayoutOrder }, console)
 new("UIPadding", { PaddingTop=UDim.new(0,8), PaddingLeft=UDim.new(0,10), PaddingRight=UDim.new(0,10), PaddingBottom=UDim.new(0,8) }, console)
 
-local consoleOrder = 0
-local consoleColors = {
+consoleOrder = 0
+consoleColors = {
     info=C.accent, success=C.green, error=C.red, warn=C.yellow,
     code=Color3.fromRGB(150,220,255), riddle=C.accent2,
     system=C.dim, dim=Color3.fromRGB(120,100,150), ai=Color3.fromRGB(180,255,200),
 }
-local function addConsoleLine(text, colorKey)
+function addConsoleLine(text, colorKey)
     consoleOrder += 1
     local color = consoleColors[colorKey] or C.txt
     local time = os.date("%H:%M:%S")
-    local line = new("TextLabel", {
-        Size=UDim2.new(1,0,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1,
+    local line = new("TextLabel", { Size=UDim2.new(1,0,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1,
         Text=string.format("[%s] %s", time, text), Font=FM, TextSize=10, TextColor3=color,
         TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, RichText=true,
-        LayoutOrder=consoleOrder, ZIndex=4,
-    }, console)
+        LayoutOrder=consoleOrder, ZIndex=4 }, console)
     task.defer(function()
-        if console and console.Parent then
-            console.CanvasPosition = Vector2.new(0, math.max(0, console.AbsoluteCanvasSize.Y - console.AbsoluteSize.Y))
-        end
+        if console and console.Parent then console.CanvasPosition = Vector2.new(0, math.max(0, console.AbsoluteCanvasSize.Y - console.AbsoluteSize.Y)) end
     end)
     return line
 end
-
-local function typewriterLine(text, colorKey, speed)
+function typewriterLine(text, colorKey, speed)
     speed = speed or 0.08
     consoleOrder += 1
     local color = consoleColors[colorKey] or C.txt
-    local time = os.date("%H:%M:%S")
-    local prefix = string.format("[%s] ", time)
-    local line = new("TextLabel", {
-        Size=UDim2.new(1,0,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1,
+    local prefix = string.format("[%s] ", os.date("%H:%M:%S"))
+    local line = new("TextLabel", { Size=UDim2.new(1,0,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1,
         Text = prefix, Font=FBK, TextSize=14, TextColor3=color,
         TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true,
-        LayoutOrder=consoleOrder, ZIndex=4,
-    }, console)
+        LayoutOrder=consoleOrder, ZIndex=4 }, console)
     task.spawn(function()
         for i = 1, #text do
             if not line.Parent then return end
@@ -1257,26 +1006,18 @@ local function typewriterLine(text, colorKey, speed)
             task.wait(speed)
         end
     end)
-    task.defer(function()
-        if console and console.Parent then
-            console.CanvasPosition = Vector2.new(0, math.max(0, console.AbsoluteCanvasSize.Y - console.AbsoluteSize.Y))
-        end
-    end)
+    task.defer(function() if console and console.Parent then console.CanvasPosition = Vector2.new(0, math.max(0, console.AbsoluteCanvasSize.Y - console.AbsoluteSize.Y)) end end)
     return line
 end
-
-local function shineLine(text, colorKey, speed)
+function shineLine(text, colorKey, speed)
     speed = speed or 0.08
     consoleOrder += 1
     local color = consoleColors[colorKey] or C.txt
-    local time = os.date("%H:%M:%S")
-    local prefix = string.format("[%s] ", time)
-    local line = new("TextLabel", {
-        Size=UDim2.new(1,0,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1,
-        Text = prefix, Font=FBK, TextSize=14, TextColor3=Color3.fromRGB(255, 255, 255),
+    local prefix = string.format("[%s] ", os.date("%H:%M:%S"))
+    local line = new("TextLabel", { Size=UDim2.new(1,0,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundTransparency=1,
+        Text = prefix, Font=FBK, TextSize=14, TextColor3=Color3.fromRGB(255,255,255),
         TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true,
-        LayoutOrder=consoleOrder, ZIndex=4,
-    }, console)
+        LayoutOrder=consoleOrder, ZIndex=4 }, console)
     task.spawn(function()
         for i = 1, #text do
             if not line.Parent then return end
@@ -1285,23 +1026,15 @@ local function shineLine(text, colorKey, speed)
         end
         task.wait(0.25)
         if not line.Parent then return end
-        local grad = new("UIGradient", {
-            Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0.00, color),
-                ColorSequenceKeypoint.new(0.35, color),
-                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255, 255, 255)),
-                ColorSequenceKeypoint.new(0.65, color),
-                ColorSequenceKeypoint.new(1.00, color),
-            }),
-            Transparency = NumberSequence.new({
-                NumberSequenceKeypoint.new(0.00, 0.55),
-                NumberSequenceKeypoint.new(0.35, 0.55),
-                NumberSequenceKeypoint.new(0.50, 0.00),
-                NumberSequenceKeypoint.new(0.65, 0.55),
-                NumberSequenceKeypoint.new(1.00, 0.55),
-            }),
-            Rotation = 45,
-        }, line)
+        local grad = new("UIGradient", { Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0.00, color), ColorSequenceKeypoint.new(0.35, color),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255,255,255)),
+            ColorSequenceKeypoint.new(0.65, color), ColorSequenceKeypoint.new(1.00, color),
+        }), Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0.00, 0.55), NumberSequenceKeypoint.new(0.35, 0.55),
+            NumberSequenceKeypoint.new(0.50, 0.00), NumberSequenceKeypoint.new(0.65, 0.55),
+            NumberSequenceKeypoint.new(1.00, 0.55),
+        }), Rotation = 45 }, line)
         task.spawn(function()
             while line.Parent do
                 grad.Offset = Vector2.new(-1, 0)
@@ -1310,60 +1043,33 @@ local function shineLine(text, colorKey, speed)
             end
         end)
     end)
-    task.defer(function()
-        if console and console.Parent then
-            console.CanvasPosition = Vector2.new(0, math.max(0, console.AbsoluteCanvasSize.Y - console.AbsoluteSize.Y))
-        end
-    end)
+    task.defer(function() if console and console.Parent then console.CanvasPosition = Vector2.new(0, math.max(0, console.AbsoluteCanvasSize.Y - console.AbsoluteSize.Y)) end end)
     return line
 end
-
-local function clearConsole()
+function clearConsole()
     for _, c in ipairs(console:GetChildren()) do if c:IsA("TextLabel") then c:Destroy() end end
     consoleOrder = 0
 end
 
-local settingsPanel = new("Frame", {
-    Name="SettingsPanel", Size=UDim2.fromOffset(BAR_W,420),
-    AnchorPoint=Vector2.new(0,0), Position=UDim2.new(0.5, BAR_W+10, 0, 10),
-    BackgroundColor3=C.bg, BackgroundTransparency=1,
-    BorderSizePixel=0, Active=true, Visible=false, ZIndex=5,
-}, SG)
-new("UIScale", { Scale = 0.9 }, settingsPanel)
+-- SETTINGS PANEL
+settingsPanel = new("Frame", { Name="SettingsPanel", Size=UDim2.fromOffset(BAR_W,470), AnchorPoint=Vector2.new(0,0), Position=UDim2.new(0.5, BAR_W+10, 0, 10), BackgroundColor3=C.bg, BackgroundTransparency=1, BorderSizePixel=0, Active=true, Visible=false, ZIndex=5 }, SG)
+settingsScale = new("UIScale", { Scale = uiScaleValue }, settingsPanel)
 cornerP(settingsPanel, 18); stroke(settingsPanel, C.cardBorder, 1.5, 0.25)
-
-local bgImage2 = new("ImageLabel", {
-    Name = "BgImage2",
-    Size = UDim2.fromScale(1, 1),
-    BackgroundTransparency = 1,
-    Image = "rbxassetid://119367673810376",
-    ImageTransparency = 0.25,
-    ScaleType = Enum.ScaleType.Crop,
-    ZIndex = 0,
-}, settingsPanel)
+bgImage2 = new("ImageLabel", { Size=UDim2.fromScale(1,1), BackgroundTransparency=1, Image="rbxassetid://119367673810376", ImageTransparency=0.25, ScaleType=Enum.ScaleType.Crop, ZIndex=0 }, settingsPanel)
 cornerP(bgImage2, 18)
-
-local bgOverlay2 = new("Frame", {
-    Name = "BgOverlay2",
-    Size = UDim2.fromScale(1, 1),
-    BackgroundColor3 = C.bg,
-    BackgroundTransparency = 0.35,
-    BorderSizePixel = 0,
-    ZIndex = 1,
-}, settingsPanel)
+bgOverlay2 = new("Frame", { Size=UDim2.fromScale(1,1), BackgroundColor3=C.bg, BackgroundTransparency=0.35, BorderSizePixel=0, ZIndex=1 }, settingsPanel)
 cornerP(bgOverlay2, 18)
-
-local settingsHeader = new("Frame", { Size=UDim2.new(1,0,0,36), BackgroundColor3=C.headerBg, BackgroundTransparency=0.15, BorderSizePixel=0, Active=true, ZIndex=3 }, settingsPanel)
+settingsHeader = new("Frame", { Size=UDim2.new(1,0,0,36), BackgroundColor3=C.headerBg, BackgroundTransparency=0.15, BorderSizePixel=0, Active=true, ZIndex=3 }, settingsPanel)
 cornerP(settingsHeader, 18)
 new("Frame", { Size=UDim2.new(1,0,0,12), Position=UDim2.new(0,0,1,-12), BackgroundColor3=C.headerBg, BackgroundTransparency=0.15, BorderSizePixel=0, ZIndex=3 }, settingsHeader)
-local settingsTitle = label("⚙️ SETTINGS", 12, C.txt, FBK, Enum.TextXAlignment.Left, settingsHeader)
+settingsTitle = label("⚙️ SETTINGS", 12, C.txt, FBK, Enum.TextXAlignment.Left, settingsHeader)
 settingsTitle.Size=UDim2.new(1,-50,1,0); settingsTitle.Position=UDim2.fromOffset(14,0); settingsTitle.ZIndex=5
-local settingsCloseBtn = new("TextButton", { Size=UDim2.fromOffset(22,22), Position=UDim2.new(1,-30,0,7), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="X", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=5 }, settingsHeader)
+settingsCloseBtn = new("TextButton", { Size=UDim2.fromOffset(22,22), Position=UDim2.new(1,-30,0,7), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="X", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=5 }, settingsHeader)
 cornerP(settingsCloseBtn, 6); stroke(settingsCloseBtn, C.cardBorder, 1, 0.5)
-local dragSettings = new("Frame", { Size=UDim2.new(1,0,0,36), BackgroundTransparency=1, BorderSizePixel=0, ZIndex=4 }, settingsHeader)
+dragSettings = new("Frame", { Size=UDim2.new(1,0,0,36), BackgroundTransparency=1, BorderSizePixel=0, ZIndex=4 }, settingsHeader)
 drag(dragSettings, settingsPanel)
 
-local function makeSettingsRow(y, labelText, parent)
+function makeSettingsRow(y, labelText, parent)
     local card = new("Frame", { Size=UDim2.new(1,-24,0,36), Position=UDim2.fromOffset(12,y), BackgroundColor3=C.card, BackgroundTransparency=0.15, BorderSizePixel=0, ZIndex=3 }, parent)
     cornerP(card, 10); stroke(card, C.cardBorder, 1, 0.4)
     local lbl = label(labelText, 11, C.txt, FB, Enum.TextXAlignment.Left, card)
@@ -1377,36 +1083,48 @@ local function makeSettingsRow(y, labelText, parent)
     return card, sw, knob, lbl, keyBtn
 end
 
-local settingsY = 46
-local autoBuyCard, autoBuySw, autoBuyKnob, autoBuyLbl = makeSettingsRow(settingsY, "Auto Buy", settingsPanel)
+settingsY = 46
+autoBuyCard, autoBuySw, autoBuyKnob, autoBuyLbl = makeSettingsRow(settingsY, "Auto Buy", settingsPanel)
 settingsY = settingsY + 36 + 6
-local anchorCard, anchorSw, anchorKnob, anchorLbl, anchorKeyBtn = makeSettingsRow(settingsY, "Anchor", settingsPanel)
+anchorCard, anchorSw, anchorKnob, anchorLbl, anchorKeyBtn = makeSettingsRow(settingsY, "Anchor", settingsPanel)
 anchorKeyBtn.Text = anchorKey.Name
 settingsY = settingsY + 36 + 6
-local radiusCard, radiusSw, radiusKnob, radiusLbl = makeSettingsRow(settingsY, "Auto-Buy Radius", settingsPanel)
+radiusCard, radiusSw, radiusKnob, radiusLbl = makeSettingsRow(settingsY, "Auto-Buy Radius", settingsPanel)
+settingsY = settingsY + 36 + 6
+uiScaleCard = new("Frame", { Size=UDim2.new(1,-24,0,36), Position=UDim2.fromOffset(12,settingsY), BackgroundColor3=C.card, BackgroundTransparency=0.15, BorderSizePixel=0, ZIndex=3 }, settingsPanel)
+cornerP(uiScaleCard, 10); stroke(uiScaleCard, C.cardBorder, 1, 0.4)
+uiScaleLbl = label("UI Scale", 11, C.txt, FB, Enum.TextXAlignment.Left, uiScaleCard)
+uiScaleLbl.Size=UDim2.new(1,-140,1,0); uiScaleLbl.Position=UDim2.fromOffset(12,0); uiScaleLbl.ZIndex=4
+uiScaleShell = new("Frame", { Size=UDim2.fromOffset(110,24), Position=UDim2.new(1,-118,0.5,-12), BackgroundColor3=C.inputBg, BackgroundTransparency=0.05, BorderSizePixel=0, ZIndex=4 }, uiScaleCard)
+cornerP(uiScaleShell, 8); stroke(uiScaleShell, C.cardBorder, 1, 0.4)
+uiMinusBtn = new("TextButton", { Size=UDim2.fromOffset(24,22), Position=UDim2.fromOffset(1,1), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="-", Font=FBK, TextSize=14, TextColor3=C.txt, ZIndex=5 }, uiScaleShell)
+cornerP(uiMinusBtn, 6)
+uiScaleValLbl = label(tostring(math.floor(uiScaleValue * 100)).."%", 11, C.accent2, FBK, Enum.TextXAlignment.Center, uiScaleShell)
+uiScaleValLbl.Size=UDim2.fromOffset(56,22); uiScaleValLbl.Position=UDim2.fromOffset(27,1); uiScaleValLbl.ZIndex=5
+uiPlusBtn = new("TextButton", { Size=UDim2.fromOffset(24,22), Position=UDim2.fromOffset(85,1), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="+", Font=FBK, TextSize=14, TextColor3=C.txt, ZIndex=5 }, uiScaleShell)
+cornerP(uiPlusBtn, 6)
+function applyUiScale(s)
+    uiScaleValue = math.clamp(s, UI_SCALE_MIN, UI_SCALE_MAX)
+    mainScale.Scale = uiScaleValue
+    settingsScale.Scale = uiScaleValue
+    uiScaleValLbl.Text = tostring(math.floor(uiScaleValue * 100)).."%"
+end
+uiMinusBtn.MouseButton1Click:Connect(function() applyUiScale(uiScaleValue - UI_SCALE_STEP) end)
+uiPlusBtn.MouseButton1Click:Connect(function() applyUiScale(uiScaleValue + UI_SCALE_STEP) end)
 settingsY = settingsY + 36 + 14
-
-local testLbl = label("TEST SENDER", 9, C.accent2, FBK, Enum.TextXAlignment.Left, settingsPanel)
+testLbl = label("TEST SENDER", 9, C.accent2, FBK, Enum.TextXAlignment.Left, settingsPanel)
 testLbl.Size=UDim2.fromOffset(100,14); testLbl.Position=UDim2.fromOffset(14,settingsY); testLbl.ZIndex=4
 settingsY = settingsY + 16
-
-local inlineTestBox = new("TextBox", {
-    Size=UDim2.new(1,-24,0,30), Position=UDim2.fromOffset(12,settingsY),
-    BackgroundColor3=C.inputBg, BorderSizePixel=0,
-    PlaceholderText="type a message…", PlaceholderColor3=C.dim,
-    Text="", TextColor3=C.txt, ClearTextOnFocus=false,
-    Font=FBK, TextSize=10, TextXAlignment=Enum.TextXAlignment.Left, ZIndex=4,
-}, settingsPanel)
+inlineTestBox = new("TextBox", { Size=UDim2.new(1,-24,0,30), Position=UDim2.fromOffset(12,settingsY), BackgroundColor3=C.inputBg, BorderSizePixel=0, PlaceholderText="type a message…", PlaceholderColor3=C.dim, Text="", TextColor3=C.txt, ClearTextOnFocus=false, Font=FBK, TextSize=10, TextXAlignment=Enum.TextXAlignment.Left, ZIndex=4 }, settingsPanel)
 cornerP(inlineTestBox, 8); stroke(inlineTestBox, C.cardBorder, 1, 0.4)
 new("UIPadding", { PaddingLeft=UDim.new(0,10), PaddingRight=UDim.new(0,10) }, inlineTestBox)
 settingsY = settingsY + 36
-
-local inlineSendTest = new("TextButton", { Size=UDim2.fromOffset((BAR_W-24-6)/2,30), Position=UDim2.fromOffset(12,settingsY), BackgroundColor3=C.accent, BorderSizePixel=0, AutoButtonColor=false, Text="SEND", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, settingsPanel)
+inlineSendTest = new("TextButton", { Size=UDim2.fromOffset((BAR_W-24-6)/2,30), Position=UDim2.fromOffset(12,settingsY), BackgroundColor3=C.accent, BorderSizePixel=0, AutoButtonColor=false, Text="SEND", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, settingsPanel)
 cornerP(inlineSendTest, 8); stroke(inlineSendTest, C.accent2, 1, 0.3)
-local inlineRandomTest = new("TextButton", { Size=UDim2.fromOffset((BAR_W-24-6)/2,30), Position=UDim2.fromOffset(12+(BAR_W-24-6)/2+6,settingsY), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="TEST CODE", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, settingsPanel)
+inlineRandomTest = new("TextButton", { Size=UDim2.fromOffset((BAR_W-24-6)/2,30), Position=UDim2.fromOffset(12+(BAR_W-24-6)/2+6,settingsY), BackgroundColor3=C.btnDark, BorderSizePixel=0, AutoButtonColor=false, Text="TEST CODE", Font=FBK, TextSize=10, TextColor3=C.txt, ZIndex=4 }, settingsPanel)
 cornerP(inlineRandomTest, 8); stroke(inlineRandomTest, C.cardBorder, 1, 0.5)
 
-local function setSettingsVisible(value)
+function setSettingsVisible(value)
     if value then
         local p = main.Position
         settingsPanel.Position = UDim2.new(p.X.Scale, p.X.Offset + BAR_W + 12, p.Y.Scale, p.Y.Offset)
@@ -1423,19 +1141,14 @@ collapseBtn.MouseButton1Click:Connect(function()
     snipeCard.Visible = not collapsed
     riddleCard.Visible = not collapsed
     copyCard.Visible = not collapsed
-    qLabel.Visible = not collapsed
-    qBox.Visible = not collapsed
-    aLabel.Visible = not collapsed
-    aBox.Visible = not collapsed
-    copyBtn.Visible = not collapsed
-    clearBtn.Visible = not collapsed
-    redeemBtn.Visible = not collapsed
-    consoleHdr.Visible = not collapsed
-    console.Visible = not collapsed
+    qLabel.Visible = not collapsed; qBox.Visible = not collapsed
+    aLabel.Visible = not collapsed; aBox.Visible = not collapsed
+    copyBtn.Visible = not collapsed; clearBtn.Visible = not collapsed; redeemBtn.Visible = not collapsed
+    consoleHdr.Visible = not collapsed; console.Visible = not collapsed
     tween(main, 0.2, { Size = UDim2.fromOffset(BAR_W, collapsed and 48 or BAR_H) })
 end)
 
-local function setListening(v)
+function setListening(v)
     listening = v
     setToggleVisual(snipeSw, snipeKnob, v)
     snipeLbl.TextColor3 = v and C.txt or C.sub
@@ -1444,40 +1157,30 @@ local function setListening(v)
     if v then collectBuffer = {} end
 end
 snipeSw.MouseButton1Click:Connect(function() if listening then setListening(false) else setListening(true) end end)
-
-local function setRiddleSolver(v)
-    riddleSolverEnabled = v
-    setToggleVisual(riddleSw, riddleKnob, v)
-    riddleLbl.TextColor3 = v and C.txt or C.sub
-end
+function setRiddleSolver(v) riddleSolverEnabled = v; setToggleVisual(riddleSw, riddleKnob, v); riddleLbl.TextColor3 = v and C.txt or C.sub end
 riddleSw.MouseButton1Click:Connect(function() setRiddleSolver(not riddleSolverEnabled) end)
-
-local function setAutoCopy(v)
+function setAutoCopy(v)
     autoCopyCode = v
     setToggleVisual(copySw, copyKnob, v)
     copyLbl.TextColor3 = v and C.txt or C.sub
     addConsoleLine(v and "Auto Copy ON" or "Auto Copy OFF", v and "success" or "warn")
 end
 copySw.MouseButton1Click:Connect(function() setAutoCopy(not autoCopyCode) end)
-
 gearBtn.MouseButton1Click:Connect(function() setSettingsVisible(not settingsPanel.Visible) end)
 settingsCloseBtn.MouseButton1Click:Connect(function() setSettingsVisible(false) end)
 
-local function autoEnableOnCodeCue()
+function autoEnableOnCodeCue()
     local now = os.clock()
     if now - lastAutoEnable < 2 then return end
     lastAutoEnable = now
     local changed = false
     if not listening then setListening(true); changed = true end
     if not riddleSolverEnabled then setRiddleSolver(true); changed = true end
-    if changed then
-        typewriterLine("AUTO-ENABLED · SNIPE + RIDDLER", "success", 0.05)
-    end
+    if changed then typewriterLine("AUTO-ENABLED · SNIPE + RIDDLER", "success", 0.05) end
 end
 
-local redeemQueue, redeemWorkerRunning = {}, false
-
-local function doRedeem(code)
+redeemQueue, redeemWorkerRunning = {}, false
+function doRedeem(code)
     code = trim(code)
     if code == "" then return false end
     if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then return false end
@@ -1485,8 +1188,7 @@ local function doRedeem(code)
     addConsoleLine(pendingCode.." submitted", "code")
     return redeem(code)
 end
-
-local function queueRedeem(code)
+function queueRedeem(code)
     code = trim(code)
     if code == "" then return end
     if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then return end
@@ -1496,109 +1198,71 @@ local function queueRedeem(code)
     task.spawn(function()
         while #redeemQueue > 0 do
             local item = table.remove(redeemQueue, 1)
-            if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then
-                redeemQueue = {}
-                break
-            end
+            if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then redeemQueue = {}; break end
             doRedeem(item)
             task.wait(0.15)
         end
         redeemWorkerRunning = false
     end)
 end
-
-local function clearFeed()
+function clearFeed()
     collectBuffer = {}
     lastRiddleText, lastRiddleAnswer = nil, nil
     pendingCode = nil
     recentWebhooks = {}
     redeemQueue = {}
     clearConsole()
-    aText.Text = "answer appears here…"
-    aText.TextColor3 = C.txt
-    qText.Text = "waiting…"
-    qText.TextColor3 = C.sub
+    aText.Text = "answer appears here…"; aText.TextColor3 = C.txt
+    qText.Text = "waiting…"; qText.TextColor3 = C.sub
     addConsoleLine("Feed cleared · console reset", "system")
 end
-
-local function handleSuccess(rawText)
+function handleSuccess(rawText)
     local now = os.clock()
     if now - scriptLoadedAt < STARTUP_GRACE then return end
     if not pendingCode and not lastRiddleAnswer then return end
     if now - lastSuccessfulRedeem < REDEEM_LOCKOUT then return end
-
     local key = normalizeMsgKey(rawText)
     if key == "" then return end
     if recentWebhooks[key] and (now - recentWebhooks[key]) < WEBHOOK_DEDUP_WINDOW then return end
     recentWebhooks[key] = now
-    for k, t in pairs(recentWebhooks) do
-        if now - t > WEBHOOK_DEDUP_WINDOW * 2 then recentWebhooks[k] = nil end
-    end
-
+    for k, t in pairs(recentWebhooks) do if now - t > WEBHOOK_DEDUP_WINDOW * 2 then recentWebhooks[k] = nil end end
     lastSuccessfulRedeem = now
-
     local isRiddle = (lastRiddleAnswer ~= nil) and pendingCode and
         tostring(lastRiddleAnswer):gsub("%s+",""):upper() == tostring(pendingCode):gsub("%s+",""):upper()
-
     local redeemedCode = pendingCode
     local riddleQ = lastRiddleText
     local redeemType = isRiddle and "Riddle" or "Code"
     local brainrotName = extractBrainrotFromSpawn(rawText)
     local income = extractIncome(rawText)
-
-    pendingCode = nil
-    lastRiddleText, lastRiddleAnswer = nil, nil
-    redeemQueue = {}
-    collectBuffer = {}
-
-    if isRiddle then
-        addConsoleLine("Riddle Redeemed Successfully", "riddle")
-    elseif brainrotName then
-        addConsoleLine("Code Redeemed Successfully · "..brainrotName, "success")
-    else
-        addConsoleLine("Code Redeemed Successfully", "success")
-    end
-    if brainrotName then
-        addConsoleLine("   Brainrot: "..brainrotName..(income and (" · $"..income.."/s") or ""), "success")
-    end
-
+    pendingCode = nil; lastRiddleText, lastRiddleAnswer = nil, nil
+    redeemQueue = {}; collectBuffer = {}
+    if isRiddle then addConsoleLine("Riddle Redeemed Successfully", "riddle")
+    elseif brainrotName then addConsoleLine("Code Redeemed Successfully · "..brainrotName, "success")
+    else addConsoleLine("Code Redeemed Successfully", "success") end
+    if brainrotName then addConsoleLine("   Brainrot: "..brainrotName..(income and (" · $"..income.."/s") or ""), "success") end
     sendRedeemWebhook(redeemedCode, brainrotName, income, redeemType, riddleQ)
 end
-
-local function handleRiddle(rawText)
-    qText.Text = rawText
-    qText.TextColor3 = C.txt
-
-    if not riddleSolverEnabled then
-        aText.Text = "Riddler is OFF"
-        aText.TextColor3 = C.dim
-        return
-    end
-
+function handleRiddle(rawText)
+    qText.Text = rawText; qText.TextColor3 = C.txt
+    if not riddleSolverEnabled then aText.Text = "Riddler is OFF"; aText.TextColor3 = C.dim; return end
     if not isActualRiddle(rawText) then return end
-
     addConsoleLine("Riddle: "..rawText, "riddle")
-    aText.Text = "solving…"
-    aText.TextColor3 = C.yellow
-
+    aText.Text = "solving…"; aText.TextColor3 = C.yellow
     local answer = solveOfflineRiddle(rawText)
     if answer and #answer > 0 then
-        lastRiddleText = rawText
-        lastRiddleAnswer = answer
-        aText.Text = answer
-        aText.TextColor3 = C.green
+        lastRiddleText = rawText; lastRiddleAnswer = answer
+        aText.Text = answer; aText.TextColor3 = C.green
         addConsoleLine("📚 Answer: "..answer, "success")
         queueRedeem(answer)
         if autoCopyCode then pcall(setclipboard, answer) end
     else
-        aText.Text = "No answer found"
-        aText.TextColor3 = C.red
+        aText.Text = "No answer found"; aText.TextColor3 = C.red
         addConsoleLine("⚠️ Could not solve riddle", "warn")
     end
 end
 
 local POSITIONS = {Top=true, Bottom=true, Center=true, Middle=true, Left=true, Right=true, TopRight=true, TopLeft=true, BottomRight=true, BottomLeft=true}
-local function extractAnnouncementText(...)
+function extractAnnouncementText(...)
     local packed = table.pack(...)
     local best
     for i = 1, packed.n do
@@ -1615,34 +1279,22 @@ local function extractAnnouncementText(...)
 end
 
 local riddleCooldown = {}
-local function onAnnouncement(...)
+function onAnnouncement(...)
     local rawText = extractAnnouncementText(...)
     if rawText == "" then return end
     if isBlacklistedPhrase(rawText) then return end
     if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then return end
-
     local lower = rawText:lower()
-    -- ⭐ Step 1: Trigger check on ORIGINAL text (includes cue words)
-    if lower:find("code is", 1, true) 
-       or lower:find("the code is", 1, true) 
-       or lower:find("use code", 1, true) 
-       or lower:find("use this code", 1, true)
-       or lower:find("riddle is", 1, true)
-       or lower:find("the riddle is", 1, true)
-       or lower:find("ok code is", 1, true)
-       or lower:find("question is", 1, true)
-       or isActualRiddle(rawText) then
-        autoEnableOnCodeCue()
-    end
-
-    -- ⭐ Step 2: Strip cue prefixes so "the riddle is my name and 67" → "my name and 67"
+    if lower:find("code is", 1, true) or lower:find("the code is", 1, true) 
+       or lower:find("use code", 1, true) or lower:find("use this code", 1, true)
+       or lower:find("riddle is", 1, true) or lower:find("the riddle is", 1, true)
+       or lower:find("ok code is", 1, true) or lower:find("question is", 1, true)
+       or isActualRiddle(rawText) then autoEnableOnCodeCue() end
     local stripped = stripCuePrefix(rawText)
     if stripped ~= "" and stripped ~= rawText then
         addConsoleLine("Stripped cue: '"..rawText.."' → '"..stripped.."'", "system")
-        rawText = stripped
-        lower = rawText:lower()
+        rawText = stripped; lower = rawText:lower()
     end
-
     if listening and riddleSolverEnabled and rawText:find("%s") and not isCodeCueText(rawText) then
         local key = rawText:lower():gsub("%s+", " ")
         local now = os.clock()
@@ -1652,19 +1304,16 @@ local function onAnnouncement(...)
             return
         end
     end
-
     if listening then
-        local wordCount = 0
-        for _ in rawText:gmatch("%S+") do wordCount = wordCount + 1 end
-        if wordCount > 1 then return end
-        
+        local wc = 0
+        for _ in rawText:gmatch("%S+") do wc = wc + 1 end
+        if wc > 1 then return end
         local words = tokenize(rawText)
         if #words == 0 then return end
         for _, w in ipairs(words) do
             collectBuffer[#collectBuffer + 1] = w
             local joined = table.concat(collectBuffer)
-            aText.Text = string.upper(joined)
-            aText.TextColor3 = C.txt
+            aText.Text = string.upper(joined); aText.TextColor3 = C.txt
             queueRedeem(joined)
             if autoCopyCode then pcall(setclipboard, joined) end
         end
@@ -1672,7 +1321,7 @@ local function onAnnouncement(...)
 end
 
 local watchedObjects = {}
-local function watchFB(obj, isInitialScan)
+function watchFB(obj, isInitialScan)
     if not (obj:IsA("TextLabel") or obj:IsA("TextButton")) then return end
     if obj:IsDescendantOf(SG) then return end
     if watchedObjects[obj] then return end
@@ -1687,17 +1336,13 @@ local function watchFB(obj, isInitialScan)
     if not isInitialScan then handleText() end
     obj:GetPropertyChangedSignal("Text"):Connect(handleText)
 end
-local function scanAll(obj)
-    for _, d in ipairs(obj:GetDescendants()) do watchFB(d, true) end
-end
+function scanAll(obj) for _, d in ipairs(obj:GetDescendants()) do watchFB(d, true) end end
 if parentGui ~= PG then scanAll(PG) end
 scanAll(parentGui)
 PG.DescendantAdded:Connect(function(obj) task.wait(0.04); watchFB(obj, false) end)
-if parentGui ~= PG then
-    parentGui.DescendantAdded:Connect(function(obj) task.wait(0.04); watchFB(obj, false) end)
-end
+if parentGui ~= PG then parentGui.DescendantAdded:Connect(function(obj) task.wait(0.04); watchFB(obj, false) end) end
 
-local listenConn
+listenConn = nil
 NotifyRemote = resolveNotifyRemote()
 if NotifyRemote then
     listenConn = NotifyRemote.OnClientEvent:Connect(function(...)
@@ -1710,11 +1355,10 @@ if NotifyRemote then
     end)
 end
 
-local autoBuyActive, anchored, radiusVisible = false, false, false
-local autoBuyRadius = 15
-local setAnchorToggle
-
-local function inlineToggleController(hit, onChange)
+autoBuyActive, anchored, radiusVisible = false, false, false
+autoBuyRadius = 15
+setAnchorToggle = nil
+function inlineToggleController(hit, onChange)
     if not hit then return function() end end
     local hitStroke = hit:FindFirstChildOfClass("UIStroke")
     local knob = hit:FindFirstChild("Knob")
@@ -1735,18 +1379,16 @@ setAnchorToggle = inlineToggleController(anchorSw, function(value)
     anchored = value
     local character = LP.Character
     if character then
-        for _, part in ipairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then part.Anchored = value end
-        end
+        for _, part in ipairs(character:GetDescendants()) do if part:IsA("BasePart") then part.Anchored = value end end
     end
 end)
 inlineToggleController(radiusSw, function(value) radiusVisible = value end)
 
-local radiusFolder = new("Folder", { Name = "__VFXAutoBuyRadius" }, workspace)
-local radiusModel  = new("Model", { Name = "GroundHalo" }, radiusFolder)
+radiusFolder = new("Folder", { Name = "__VFXAutoBuyRadius" }, workspace)
+radiusModel = new("Model", { Name = "GroundHalo" }, radiusFolder)
 radiusModel.WorldPivot = CFrame.new()
-local radiusRingBuilt, radiusRingEnabled = false, false
-local ensureRadiusRing, setRadiusRingEnabled
+radiusRingBuilt, radiusRingEnabled = false, false
+ensureRadiusRing, setRadiusRingEnabled = nil, nil
 do
     local radiusAnchor, attachments, beams = nil, {}, {}
     local LAYERS = { { name="PurpleOutline", width=2.35, color=Color3.fromRGB(200,60,220), transparency=0.06, emission=0.80 } }
@@ -1775,13 +1417,11 @@ do
 end
 
 local proximityPrompts = {}
-for _, descendant in ipairs(workspace:GetDescendants()) do
-    if descendant:IsA("ProximityPrompt") then proximityPrompts[descendant] = true end
-end
+for _, descendant in ipairs(workspace:GetDescendants()) do if descendant:IsA("ProximityPrompt") then proximityPrompts[descendant] = true end end
 workspace.DescendantAdded:Connect(function(d) if d:IsA("ProximityPrompt") then proximityPrompts[d] = true end end)
 workspace.DescendantRemoving:Connect(function(d) if proximityPrompts[d] then proximityPrompts[d] = nil end end)
+lastAutoBuy = 0
 
-local lastAutoBuy = 0
 RunService.Stepped:Connect(function()
     if not autoBuyActive or os.clock() - lastAutoBuy < 0.1 then return end
     lastAutoBuy = os.clock()
@@ -1795,10 +1435,7 @@ RunService.Stepped:Connect(function()
         local pos
         if pp and pp:IsA("Attachment") then pos = pp.WorldPosition
         elseif pp and pp:IsA("BasePart") then pos = pp.Position
-        else
-            local wp = pp and pp:FindFirstAncestorWhichIsA("BasePart")
-            pos = wp and wp.Position
-        end
+        else local wp = pp and pp:FindFirstAncestorWhichIsA("BasePart"); pos = wp and wp.Position end
         if prompt.Parent and prompt.Enabled and isPurchase and pos and (root.Position-pos).Magnitude <= autoBuyRadius then
             prompt.HoldDuration = 0
             pcall(function()
@@ -1837,34 +1474,25 @@ redeemBtn.MouseButton1Click:Connect(function()
         queueRedeem(aText.Text)
     end
 end)
-clearConsoleBtn.MouseButton1Click:Connect(function()
-    clearConsole()
-    addConsoleLine("Console cleared", "system")
-end)
+clearConsoleBtn.MouseButton1Click:Connect(function() clearConsole(); addConsoleLine("Console cleared", "system") end)
 
-local function fireTestAnnouncement(text)
+function fireTestAnnouncement(text)
     text = trim(text); if text == "" then return false end
     if typeof(firesignal) ~= "function" then return false end
     if not NotifyRemote or not NotifyRemote.Parent then return false end
     return pcall(firesignal, NotifyRemote.OnClientEvent, text, 5.5, "Sounds.Sfx.Blop", "Top", 2678001507)
 end
-inlineSendTest.MouseButton1Click:Connect(function()
-    if fireTestAnnouncement(inlineTestBox.Text) then inlineTestBox.Text = "" end
-end)
-inlineTestBox.FocusLost:Connect(function(enter)
-    if enter and fireTestAnnouncement(inlineTestBox.Text) then inlineTestBox.Text = "" end
-end)
+inlineSendTest.MouseButton1Click:Connect(function() if fireTestAnnouncement(inlineTestBox.Text) then inlineTestBox.Text = "" end end)
+inlineTestBox.FocusLost:Connect(function(enter) if enter and fireTestAnnouncement(inlineTestBox.Text) then inlineTestBox.Text = "" end end)
 inlineRandomTest.MouseButton1Click:Connect(function()
     local code = "TESTCODE" .. tostring(math.random(1000, 9999))
     if fireTestAnnouncement(code) then addConsoleLine("Random test: "..code, "info") end
 end)
 
-local inputConn = UserInputService.InputBegan:Connect(function(input, gpe)
+inputConn = UserInputService.InputBegan:Connect(function(input, gpe)
     if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
     if gpe then return end
-    if input.KeyCode == bindKey then
-        if listening then setListening(false) else setListening(true) end
-    end
+    if input.KeyCode == bindKey then if listening then setListening(false) else setListening(true) end end
     if input.KeyCode == clearKey then clearFeed() end
     if input.KeyCode == anchorKey then if setAnchorToggle then setAnchorToggle(not anchored) end end
 end)
@@ -1880,7 +1508,7 @@ task.spawn(function()
     end
 end)
 
-local function stopAll()
+function stopAll()
     if listenConn then pcall(function() listenConn:Disconnect() end); listenConn = nil end
     if inputConn then pcall(function() inputConn:Disconnect() end); inputConn = nil end
     if radiusFolder then pcall(function() radiusFolder:Destroy() end) end
