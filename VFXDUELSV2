@@ -1,3 +1,6 @@
+-----------------------------------------------------
+--          INTRO SONG 
+-----------------------------------------------------
 local url = "https://files.catbox.moe/hpw2f2.mp3"
 local fileName = "VFXHubMusic.mp3"
 
@@ -1613,10 +1616,10 @@ task.spawn(function()
     pcall(M.startVyncSkinWatch)
 end)
 
-M.NS = 59.5 -- from second source NormalSpeed
-M.CS = 28.8 -- from second source CarrySpeed
-M.LAGGER_SPEED = 24.5 -- from second source LaggerSpeed
-M.LAGGER_CARRY_SPEED = 15 -- from second source LaggerCarrySpeed
+M.NS = 63 -- from second source NormalSpeed
+M.CS = 32 -- from second source CarrySpeed
+M.LAGGER_SPEED = 45 -- from second source LaggerSpeed
+M.LAGGER_CARRY_SPEED = 23.5 -- from second source LaggerCarrySpeed
 M.BYPASS_SPEED = 40
 M.BYPASS_CARRY_SPEED = 22
 M.speedMethod = "LinearVelocity" -- RitualHub plane LV
@@ -1660,7 +1663,7 @@ M.speedBoosterMain = nil
 
 M.antiRagdollEnabled = false
 M.hardHitEnabled = false
-M.hardHitRadius = 10
+M.hardHitRadius = 9
 M.antiRagdollMode = "Splatter"
 M.infJumpEnabled = false
 M.infJumpMode = "manual"
@@ -17313,5 +17316,4 @@ function M.applyOceanSky()
 end
 
 print("VFX loaded successfully!")
-
 return M
