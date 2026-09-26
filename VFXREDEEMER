@@ -25,30 +25,151 @@ local STARTUP_GRACE = 3
 -- ⭐ RIDDLE KNOWLEDGE BASE
 ----------------------------------------------------------------------
 local BRAINROT_KNOWLEDGE = {
-    {p={"what is the first og","first og","first og added","1st og"},a="STRAWBERRYELEPHANT"},
-    {p={"what is the second og","second og","second og added","2nd og"},a="MEOWL"},
-    {p={"what is the third og","third og","third og added","3rd og"},a="SKIBIDITOILET"},
-    {p={"what is the fourth og","fourth og","fourth og added","4th og"},a="JOHNPORK"},
-    {p={"what is the fifth og","fifth og","fifth og added","5th og"},a="MEOWL"},
+    -- ⭐⭐⭐⭐⭐ TOP PRIORITY — FULL NAME (must be BEFORE regular "my name" entry!)
+    {p={"what is my full name","whats my full name","my full name","full name","what is sammys full name","whats sammys full name","sammys full name","sammy full name","what is your full name","whats your full name","your full name","the full name","what is my real full name","full name of sammy","full name of sammys","full name of the developer","the developers full name","sammys real full name","full name of sammys real name","what is sammys real full name","whats sammys real full name","tell me my full name","give me my full name"},a="SAMUEL"},
+    -- ⭐⭐⭐⭐⭐ TOP PRIORITY — Developing start year
+    {p={"year when i started developing","year i started developing","when did i start developing","when did sammy start developing","year sammy started developing","started developing year","year of developing start","what year did i start developing","what year did sammy start developing","when did sammy start making games","year started making games","when did i start making games","start developing year","when i started developing","year i began developing","when did sammy begin developing","begin developing","started game development","when did sammy start developing games","what year did sammy start making games","when did the developer start developing","year the developer started developing","when did the developer start making games","when did sammy begin","when did i begin developing","year sammy began developing","sammy started developing","sammy developing year","started developing","started game dev","when did sammy start his journey"},a="2013"},
+
+    {p={"which mutation turns a brainrot yellow","what mutation turns a brainrot yellow","which mutation turns brainrot yellow","which mutation makes brainrot yellow","mutation turns brainrot yellow","mutation makes brainrot yellow","brainrot yellow mutation","yellow mutation name","what mutation makes brainrot yellow"},a="GOLD"},
+    {p={"which mutation turns a brainrot blue","what mutation turns a brainrot blue","which mutation turns brainrot blue","which mutation makes brainrot blue","mutation turns brainrot blue","mutation makes brainrot blue","brainrot blue mutation","blue mutation name"},a="DIAMOND"},
+    {p={"which mutation turns a brainrot pink","what mutation turns a brainrot pink","which mutation turns brainrot pink","which mutation makes brainrot pink","pink mutation","mutation that turns brainrot pink","brainrot pink mutation"},a="CANDY"},
+    {p={"which mutation turns a brainrot red","what mutation turns a brainrot red","which mutation turns brainrot red","which mutation makes brainrot red","red mutation","mutation that turns brainrot red","brainrot red mutation"},a="LAVA"},
+    {p={"which mutation turns a brainrot purple","what mutation turns a brainrot purple","which mutation turns brainrot purple","purple mutation","mutation that turns brainrot purple","brainrot purple mutation"},a="GALAXY"},
+    {p={"which mutation turns a brainrot black and white","which mutation turns brainrot black and white","black and white mutation","mutation turns brainrot black and white","brainrot black and white mutation"},a="YINYANG"},
+    {p={"which mutation turns a brainrot neon green","which mutation turns brainrot neon green","neon green mutation","mutation turns brainrot neon green","which mutation turns a brainrot green","brainrot neon green mutation"},a="RADIOACTIVE"},
+    {p={"which mutation gives a rainbow effect","which mutation gives rainbow effect","rainbow effect mutation","rainbow mutation effect","brainrot rainbow effect"},a="RAINBOW"},
+    {p={"which mutation gives a strawberry texture","strawberry texture mutation","which mutation gives strawberry texture","brainrot strawberry texture"},a="STRAWBERRYOP"},
+    {p={"which mutation gives a glitch effect","glitch effect mutation","which mutation gives glitch effect","brainrot glitch effect"},a="GLITCH"},
+
+    {p={"gold mutation multiplier","multiplier of gold mutation","what is the gold mutation multiplier","gold mutation multiplier value"},a="1.25X"},
+    {p={"diamond mutation multiplier","multiplier of diamond mutation","what is the diamond mutation multiplier"},a="1.5X"},
+    {p={"candy mutation multiplier","multiplier of candy mutation","what is the candy mutation multiplier"},a="4X"},
+    {p={"lava mutation multiplier","multiplier of lava mutation","what is the lava mutation multiplier"},a="6X"},
+    {p={"galaxy mutation multiplier","multiplier of galaxy mutation","what is the galaxy mutation multiplier"},a="6X"},
+    {p={"yin yang mutation multiplier","yinyang mutation multiplier","multiplier of yin yang mutation","multiplier of yinyang mutation"},a="7.5X"},
+    {p={"radioactive mutation multiplier","multiplier of radioactive mutation","what is the radioactive mutation multiplier"},a="8.5X"},
+    {p={"rainbow mutation multiplier","multiplier of rainbow mutation","what is the rainbow mutation multiplier"},a="10X"},
+
+    {p={"who owns steal a brainrot","who owns sab","owner of steal a brainrot","who is the owner of steal a brainrot","who owns the game","game owner","who is the owner of sab"},a="SPYDERSAMMY"},
+    {p={"sammys real name","sammy real name","what is sammys real name","what is the real name of sammy","sammy actual name","real name of sammy","real name of sammys"},a="SPYDERSAMMY"},
+    {p={"which country is sammy from","what country is sammy from","sammy from which country","which country does sammy belong to","sammy country of origin"},a="BRAZIL"},
+    {p={"sammys rival","who is sammys rival","sammy rival","who is sammys enemy","sammy enemy"},a="JANDEL"},
+    {p={"sammys favorite food","sammy favorite food","favorite food of sammy","sammy fav food"},a="TACOS"},
+    {p={"sammys net worth","net worth of sammy","how much is sammy worth","sammy net worth","how rich is sammy"},a="$30MILLION"},
+    {p={"sammys company","company of sammy","what is sammys company","sammy company","sammy owns what company"},a="DOBIGSTUDIOS"},
+    {p={"which color is sammy related to","color related to sammy","sammy related color","what color is sammy related to"},a="RED"},
+    {p={"minimum brainrots sammy spawns in admin abuse","minimum brainrots in admin abuse","min brainrots sammy spawns","how many brainrots min admin abuse"},a="3"},
+
+    {p={"when did tung tung tung sahur return","tung tung tung sahur return date","when did tung tung tung sahur come back","tung tung tung sahur came back"},a="NOVEMBER292025"},
+    {p={"when did sammy remove tung tung tung sahur","sammy removed tung tung tung sahur","tung tung tung sahur removed","when was tung tung tung sahur removed"},a="SEPTEMBER132025"},
+    {p={"copyright removed brainrot","copyright brainrot","brainrot with copyright issue","removed brainrot copyright","brainrot removed from copyright"},a="TUNGTUNGTUNGSAHUR"},
+
+    {p={"which brainrot from mexican event","brainrot from mexican event","mexican event brainrot","what brainrot from mexican event"},a="LACUCARACHA"},
+    {p={"secret brainrot from lucky block","lucky block secret brainrot","secret brainrot from lucky block 5","secret from lucky block","lucky block 5 percent secret"},a="ESOKSEKOLAH"},
+    {p={"first secret brainrot","what is first secret brainrot","first secret brainrot in game","the first secret brainrot"},a="FRAGRAMAANDCHOCROMA"},
+
+    {p={"which brainrot earns 1 sec","which brainrot earns 1 per sec","brainrot earns 1 per sec","brainrot earns 1 sec","brainrot that earns 1 per second"},a="NOOBINIPIZZANINI"},
+    {p={"which brainrot earns 5 per sec","brainrot earns 5 per sec","brainrot earns 5 sec","brainrot that earns 5 per second"},a="TIMCHEESE"},
+    {p={"which brainrot earns 200 per sec","brainrot earns 200 per sec","brainrot earns 200 sec","brainrot that earns 200 per second"},a="BURBALONILOLILOLI"},
+    {p={"which brainrot earns 999","brainrot earns 999","brainrot earns 999.9k per sec","brainrot earns 999k","brainrot that earns 999.9k per second","brainrot earns 999.9k"},a="GIFTINISPIDERINI"},
+    {p={"which brainrot earns 450m","brainrot earns 450m","brainrot earns 450m per sec","brainrot that earns 450m per second"},a="MEOWL"},
+    {p={"which brainrot earns 10m","brainrot earns 10m","brainrot earns 10m per sec","brainrot that earns 10m per second"},a="LAGRANDECOMBINASION"},
+    {p={"which brainrot earns 150k","brainrot earns 150k","brainrot earns 150k per sec","brainrot that earns 150k per second"},a="TRENOSTRUZZOTURBO3000"},
+    {p={"which brainrot earns 1b","brainrot earns 1b","brainrot earns 1b per sec","brainrot earns 1 billion per sec","brainrot that earns 1b per second"},a="SPYDERELEPHANT"},
+    {p={"which brainrot earns 750m","brainrot earns 750m","brainrot earns 750m per sec","brainrot that earns 750m per second"},a="STRAWBERRYELEPHANT"},
+
+    {p={"starter item","starting item","first item","default item","beginner item","what item do you start with"},a="BAT"},
+    {p={"item at rebirth 17","rebirth 17 item","what item at rebirth 17","which item at rebirth 17","rebirth seventeen item"},a="GIANTPOTION"},
+    {p={"fastest non robux item","fastest non-robux item","fastest item without robux","fastest free item","fastest item no robux"},a="INVISIBILITYCLOAK"},
+    {p={"robux item that slaps pulls pushes","robux item that slaps","robux item that pulls","robux item that pushes","slap pull push robux item","blackhole slap"},a="BLACKHOLESLAP"},
+    {p={"halloween flying item","halloween item that flies","halloween flying","flying item halloween"},a="WITCHBROOM"},
+
+    {p={"trait that splits income","split income trait","trait that divides income","splits income trait"},a="SLEEPY"},
+    {p={"1x1x1x1 cave trait","cave trait","1x1x1x1 trait","trait from 1x1x1x1 cave"},a="GLITCH"},
+    {p={"la vacca ritual trait","ritual trait","vacca ritual trait","trait from la vacca ritual"},a="COSMIC"},
+    {p={"galaxy mutation release date","when was galaxy mutation released","galaxy mutation came out","galaxy mutation added","galaxy mutation release"},a="AUGUST232025"},
+
+    {p={"bunito bunito spinito machine","which machine gives bunito bunito spinito","bunito bunito spinito from which machine","bunito bunito spinito machine name"},a="NEWYEARSMACHINE"},
+    {p={"headless horseman machine","which machine gives headless horseman","headless horseman from which machine","headless horseman machine name"},a="WITCHFUSE"},
+    {p={"tralaledon machine","which machine gives tralaledon","tralaledon from which machine","tralaledon machine name"},a="CRAFTMACHINE"},
+    {p={"los hotspotsitos machine","which machine gives los hotspotsitos","los hotspotsitos from which machine","hotspotsitos machine","los hotspotsitos machine name"},a="OGFUSEMACHINE"},
+    {p={"pipi avocado machine","which machine gives pipi avocado","pipi avocado from which machine","pipi avocado machine name"},a="FUSEMACHINE"},
+
+    {p={"rainbow machine usage","how to use rainbow machine","rainbow machine how to use","what does rainbow machine need","rainbow machine recipe","rainbow machine requirements"},a="PUT25GOLDBRAINROTS"},
+    {p={"bubblegum machine usage","how to use bubblegum machine","bubblegum machine how to use","what does bubblegum machine need","bubblegum machine recipe"},a="PUT10CANDYBRAINROTS"},
+    {p={"fuse machine usage","how to use fuse machine","fuse machine how to use","what does fuse machine need","fuse machine recipe"},a="PUT4BRAINROTS"},
+    {p={"craft machine usage","how to use craft machine","craft machine how to use","what does craft machine need","craft machine recipe"},a="PUT2-4BRAINROTS"},
+    {p={"witch fuse usage","how to use witch fuse","witch fuse how to use","what does witch fuse need","witch fuse recipe"},a="PUT4BRAINROTS"},
+
+    {p={"how many colors does los chilis have","los chilis how many colors","colors of los chilis count","how many colors los chilis"},a="3"},
+    {p={"what are the colors of los chilis","los chilis colors","los chilis color names","what colors are los chilis"},a="REDYELLOWGREEN"},
+
+    {p={"sammys admin abuse event with jandel","admin abuse event with jandel","admin abuse event","sammy jandel admin abuse"},a="ADMINWARS"},
+    {p={"sammys taco tuesday date","taco tuesday date","when was taco tuesday","taco tuesday when"},a="SEPTEMBER92025"},
+    {p={"what did sammy accidentally spawn on taco tuesday","accidentally spawn on taco tuesday","taco tuesday accidental spawn","what did sammy spawn on taco tuesday"},a="LAKARKERKARCOMBINASION"},
+    {p={"sammys collaboration for skibidi toilet","skibidi toilet collaboration","who collaborated for skibidi toilet","skibidi toilet sammy collab"},a="ADAMGOODMAN"},
+    {p={"what did sammys base look like during admin abuse","sammys base during admin abuse","sammy base admin abuse","floating pathway base"},a="FLOATINGPATHWAY"},
+    {p={"how many skibidi toilets did sammy spawn on launch day","skibidi toilets sammy spawn launch day","how many skibidi toilets on launch day","skibidi toilets on launch day"},a="50"},
+
+    {p={"starfall trait multiplier","multiplier of starfall trait","starfall multiplier"},a="2.5X"},
+    {p={"rain trait multiplier","multiplier of rain trait","rain multiplier"},a="1.5X"},
+    {p={"snow trait multiplier","multiplier of snow trait","snow multiplier"},a="2X"},
+    {p={"bombardiro trait multiplier","multiplier of bombardiro trait","bombardiro multiplier"},a="3X"},
+    {p={"shark trait multiplier","multiplier of shark trait","shark multiplier"},a="3X"},
+    {p={"matteo hat trait multiplier","multiplier of matteo hat trait","matteo hat multiplier","matteo trait multiplier"},a="3.5X"},
+    {p={"galactic trait multiplier","multiplier of galactic trait","galactic multiplier"},a="3X"},
+    {p={"glitch trait multiplier","multiplier of glitch trait","glitch multiplier"},a="6X"},
+    {p={"tung tung attack trait multiplier","tung tung attack multiplier","multiplier of tung tung attack trait","tung tung attack trait"},a="5X"},
+    {p={"taco trait multiplier","multiplier of taco trait","taco multiplier"},a="3X"},
+    {p={"meowl trait multiplier","multiplier of meowl trait","meowl multiplier"},a="7X"},
+    {p={"strawberry trait multiplier","multiplier of strawberry trait","strawberry multiplier"},a="9X"},
+    {p={"john pork trait multiplier","multiplier of john pork trait","john pork multiplier"},a="7.5X"},
+    {p={"skibidi trait multiplier","multiplier of skibidi trait","skibidi multiplier"},a="7X"},
+    {p={"reindeer trait multiplier","multiplier of reindeer trait","reindeer multiplier"},a="6X"},
+
+    {p={"best fuse machine","best fuse brainrot","best fuse machine brainrot","best fuse brainrot of all time","best fuse machine of all time","best brainrot in fuse machine","best brainrot of fuse machine","best brainrot from fuse machine","best brainrot from fuse","best fuse brainrot ever","what is the best fuse machine","whats the best fuse machine","what is the best fuse brainrot","whats the best fuse brainrot","best fuse","best brainrot fuse machine","best brainrot in fuse","strongest fuse brainrot","rarest fuse brainrot","most expensive fuse brainrot","top fuse brainrot","number 1 fuse brainrot","best from fuse machine","best fusion brainrot","best fuse brainrot currently","best fuse brainrot now","what is the best brainrot in fuse","whats the best brainrot in fuse","what brainrot is best in fuse machine","best brainrot you can get from fuse","best brainrot in the fuse machine","strongest brainrot in fuse machine","best fuse result","highest rarity fuse brainrot","best brainrot from the fuse machine","most op fuse brainrot","op fuse brainrot","best brainrot fusion","best fusion","strongest fuse machine brainrot","strongest brainrot from fuse","best brainrot in the fuse"},a="GRIFFIN"},
+    {p={"best craft machine brainrot","best craftmachine brainrot","best craft machine brainrot of all time","best craftmachine brainrot of all time","best brainrot in craft machine","best brainrot of craft machine","best brainrot from craft machine","best brainrot from craftmachine","best brainrot in craftmachine","best craft machine","best craftmachine","what is the best craft machine brainrot","whats the best craft machine brainrot","what is the best craftmachine brainrot","whats the best craftmachine brainrot","best craft machine brainrot ever","best craft brainrot","best brainrot from craft","best brainrot in craft","strongest craft brainrot","rarest craft brainrot","most expensive craft brainrot","top craft brainrot","number 1 craft machine brainrot","best craft result","highest rarity craft brainrot","what is the best brainrot in craft","whats the best brainrot in craft","what brainrot is best in craft machine","best brainrot you can get from craft","best brainrot in the craft machine","strongest brainrot in craft machine","most op craft brainrot","op craft brainrot","best brainrot craft","best from craft machine","best from craftmachine","strongest craft machine brainrot","strongest brainrot from craft","best brainrot in the craft"},a="LOSDRAGONS"},
+    {p={"last rebirth","last rebirth which we added","the last rebirth","the last rebirth which we added","last rebirth we added","the last rebirth we added","last rebirth added","most recent rebirth","newest rebirth","latest rebirth","what is the last rebirth","whats the last rebirth","what is the last rebirth we added","whats the last rebirth we added","last rebirth we got","last rebirth level","final rebirth","highest rebirth","max rebirth","maximum rebirth","whats the max rebirth","what is the max rebirth","whats the highest rebirth","what is the highest rebirth","last rebirth in the game","newest rebirth added","latest rebirth added","most recent rebirth added","current last rebirth","last rebirth in sab","last rebirth in steal a brainrot","max rebirth level","highest rebirth level","what is the max rebirth level","whats the max rebirth level","top rebirth","newest rebirth we added","latest rebirth we added"},a="19"},
+
+    {p={"sab release date","sab released date","sab date","date sab released","release date of sab","release date sab","steal a brainrot release date","steal a brainrot released","when was steal a brainrot released","when was steal a brainrot made","what is sab release date","whats sab release date","what is the sab release date","whats the sab release date","sab release date is","when did sab release","when did sab come out","sab came out"},a="MAY162025"},
+    {p={"sab release month","sab month released","sab month","sab month of release","month sab was made","month sab was released","release month of sab","what month was sab released","what month was sab made","sab was released month","what is sab release month","whats sab release month","release month","month of release","month released"},a="MAY"},
+    {p={"sab release year","sab year released","sab year","year of release","sab released year","release year of sab","year sab was released","year sab was made","what year was sab released","what year was sab made","sab was released year","what is sab release year","whats sab release year","release year","year of sab"},a="2025"},
+    {p={"sab release day","day sab was released","sab released day","day of release","sab day","sab day of release","sab was released day","what day was sab released","what day was sab made","what day was sab created","day sab was made","game created on","day game released","what day was sab released on","sab released on"},a="FRIDAY"},
+    {p={"when was sab released","when was sab made","when was sab created","when was sab added","when released","when was released","when sab released","sab released","sab was released","sab made","sab created","sab release","release date","sab was made","sab was created","sab came out","when sab came out"},a="MAY162025"},
+
+    {p={"what is today date","whats today date","todays date","today date","what is today day of month","whats today day of month","today day of month","todays day of month","day of month today","what day of month is it","whats the day of month","what is the date today","whats the date today","date today","current day of month","current date","what is todays day","whats todays day","todays day","today day","what is the day today","whats the day today","what day is it today","what day is today","todays day number","day number today"},a="26"},
+    {p={"what is my favourite food","what is my favorite food","whats my favourite food","whats my favorite food","favorite food","favourite food","fav food","my favorite food","my favourite food","food i like","what food do i like","what is the favorite food","whats the favorite food","favorite meal","favourite meal","my fav food","best food","favorite thing to eat","what do i like to eat"},a="TACO"},
+    {p={"name of animal in last og we added","animal in last og we added","animal in last og","last og animal","animal of last og","what animal is in the last og","what animal is in last og","animal in last og added","animal in the last og we added","what animal is in the last og we added","what is the animal in the last og","whats the animal in the last og","animal in 5th og","animal in fifth og","animal in the fifth og","what animal is in the fifth og we added"},a="PIG"},
+    {p={"name of goat","goat name","name of the goat","what is the name of goat","who is the goat","whats the goat name","who is the goat of football","goat of football","who is football goat","football goat","the goat of football","who is called the goat","who is known as the goat","the goat name","goats name","who is my goat","my goat"},a="RONALDO"},
+    {p={"our planet name","our planets name","what is our planet name","whats our planet name","name of our planet","which planet do we live on","what planet do we live on","what planet are we on","our planet","planet name","which planet are we on","what is the planet we live on","whats the name of our planet","which planet is ours","name of the planet we live on","the planet we live on","on which planet do we live"},a="EARTH"},
+
+    {p={"what is my cat name","whats my cat name","my cat name","cat name","what is my cats name","whats my cats name","my cats name","cats name","name of my cat","name of my cats","my pet cat name","what is my pet cat name","whats my pet cat name","what is the cat name","whats the cat name","cat called","what is my cat called","whats my cat called","what is your cat name","whats your cat name","your cat name","the cat name","what is my kitty name","whats my kitty name","my kitty name","kitty name","my cats nickname","cat nickname","my cat nickname"},a="NOVA"},
+
+    {p={"what is the first og","first og","first og added","1st og","first og we added","the first og we added"},a="STRAWBERRYELEPHANT"},
+    {p={"what is the second og","second og","second og added","2nd og","second og we added","the second og we added"},a="MEOWL"},
+    {p={"what is the third og","third og","third og added","3rd og","third og we added","the third og we added"},a="SKIBIDITOILET"},
+    {p={"what is the fourth og","fourth og","fourth og added","4th og","fourth og we added","the fourth og we added"},a="JOHNPORK"},
+    {p={"what is the fifth og","fifth og","fifth og added","5th og","fifth og we added","the fifth og we added"},a="MEOWL"},
     {p={"how many og brainrots","og count"},a="FIVE"},
     {p={"best brainrot","rarest brainrot"},a="POLAROIDINI"},
     {p={"unobtainable brainrot"},a="ORCHIDOX"},
     {p={"most popular brainrot"},a="DRAGONCANNELONNI"},
     {p={"most common brainrot","weakest brainrot"},a="NOOBINIPIZZANINI"},
-    {p={"first mutation","mutation 1","was the first mutation"},a="BLOODROT"},
-    {p={"second mutation","mutation 2"},a="GOLD"},
-    {p={"third mutation","mutation 3"},a="DIAMOND"},
-    {p={"fourth mutation","mutation 4"},a="RAINBOW"},
-    {p={"fifth mutation","mutation 5"},a="CANDY"},
-    {p={"sixth mutation","mutation 6"},a="LAVA"},
-    {p={"seventh mutation","mutation 7"},a="GALAXY"},
-    {p={"eighth mutation","mutation 8"},a="YINYANG"},
-    {p={"ninth mutation","mutation 9"},a="RADIOACTIVE"},
-    {p={"tenth mutation","mutation 10"},a="CURSED"},
-    {p={"eleventh mutation","mutation 11"},a="DIVINE"},
-    {p={"twelfth mutation","mutation 12"},a="CYBER"},
-    {p={"thirteenth mutation","mutation 13"},a="PHANTOM"},
-    {p={"fourteenth mutation","mutation 14","latest mutation","newest mutation"},a="CRYSTAL"},
+
+    {p={"fourteenth mutation","mutation 14","latest mutation","newest mutation","last mutation","the last mutation","last mutation we added","last mutation added","final mutation","most recent mutation","mutation added last","whats the last mutation","what is the last mutation","whats the last mutation we added","what is the last mutation we added","the last mutation we added","newest mutation we added","latest mutation we added"},a="CRYSTAL"},
+    {p={"first mutation","mutation 1","was the first mutation","the first mutation we added","first mutation we added"},a="BLOODROT"},
+    {p={"second mutation","mutation 2","second mutation we added","the second mutation we added"},a="GOLD"},
+    {p={"third mutation","mutation 3","third mutation we added","the third mutation we added"},a="DIAMOND"},
+    {p={"fourth mutation","mutation 4","fourth mutation we added","the fourth mutation we added"},a="RAINBOW"},
+    {p={"fifth mutation","mutation 5","fifth mutation we added","the fifth mutation we added"},a="CANDY"},
+    {p={"sixth mutation","mutation 6","sixth mutation we added"},a="LAVA"},
+    {p={"seventh mutation","mutation 7","seventh mutation we added"},a="GALAXY"},
+    {p={"eighth mutation","mutation 8","eighth mutation we added"},a="YINYANG"},
+    {p={"ninth mutation","mutation 9","ninth mutation we added"},a="RADIOACTIVE"},
+    {p={"tenth mutation","mutation 10","tenth mutation we added"},a="CURSED"},
+    {p={"eleventh mutation","mutation 11","eleventh mutation we added"},a="DIVINE"},
+    {p={"twelfth mutation","mutation 12","twelfth mutation we added"},a="CYBER"},
+    {p={"thirteenth mutation","mutation 13","thirteenth mutation we added"},a="PHANTOM"},
     {p={"how many mutations"},a="14"},
     {p={"color of gold"},a="YELLOW"},
     {p={"color of diamond"},a="BLUE"},
@@ -78,7 +199,6 @@ local BRAINROT_KNOWLEDGE = {
     {p={"what number is cyber"},a="12"},
     {p={"what number is phantom"},a="13"},
     {p={"what number is crystal"},a="14"},
-    -- ⭐ NEWEST MACHINE FIRST — ye zaroori hai, warna "machine" word generic match kar jata hai
     {p={"newest machine","latest machine","newest machine we added","latest machine we added","machine we added latest","machine we added newest","whats the newest machine","what is the newest machine","whats the latest machine","what is the latest machine","which is the newest machine","which is the latest machine","most recent machine","recent machine","what machine did we add","what machine did we add last","last machine added","most recently added machine","newest added machine","latest added machine","newest machine added","latest machine added"},a="CRAFTMACHINE"},
     {p={"first machine","machine 1"},a="RAINBOWMACHINE"},
     {p={"second machine","machine 2"},a="BUBBLEGUMMACHINE"},
@@ -110,10 +230,9 @@ local BRAINROT_KNOWLEDGE = {
     {p={"concert trait"},a="CONCERT"},
     {p={"strawberry trait"},a="STRAWBERRY"},
 
-    -- ⭐ SAMMY PERSONAL RIDDLES
     {p={"what is my name","what is your name","my name","sammy name","who is sammy","developer","creator","owner","owner name","developer name","who am i","my real name","name of the developer","name of the creator","name of the owner","who made this game","who created this game","who is the owner"},a="SAMMY"},
     {p={"what is my favorite color","what is my favourite color","favorite color","favourite color","fav color","fav colour","my favorite color","my favourite color","color i like","colour i like","color do i like","what color do i like","what colour do i like"},a="BLUE"},
-    {p={"how old is sammy","how old am i","what is my age","my age","sammy age","how old am i","whats my age","what is the age","age of sammy","age of the developer","age of the owner"},a="24"},
+    {p={"how old is sammy","how old am i","what is my age","my age","sammy age","whats my age","what is the age","age of sammy","age of the developer","age of the owner","age"},a="24"},
     {p={"what month is my birthday"},a="FEBRUARY"},
     {p={"what day is my birthday"},a="24"},
     {p={"what day and month is my birthday"},a="FEBRUARY 24"},
@@ -125,8 +244,7 @@ local BRAINROT_KNOWLEDGE = {
     {p={"roblox username","username","what is my roblox username","what is my username"},a="SPYDERSAMMY"},
     {p={"social media","youtube","discord","tiktok","instagram"},a="SPYDERSAMMY"},
     {p={"favorite sport","fav sport","what is my favorite sport","whats my favorite sport"},a="FOOTBALL"},
-    {p={"favorite player","fav player","ronaldo","who is my favorite player","who is my favourite player"},a="RONALDO"},
-    {p={"favorite food","fav food","what is my favorite food","whats my favorite food"},a="PIZZA"},
+    {p={"favorite player","fav player","who is my favorite player","who is my favourite player","favorite football player","favourite football player"},a="RONALDO"},
     {p={"favorite animal","my pet","pet name","what is my favorite animal","whats my favorite animal","what pet do i have"},a="SPIDER"},
     {p={"favorite game","fav game","what is my favorite game","whats my favorite game"},a="ROBLOX"},
     {p={"favorite number","lucky number","what is my favorite number","whats my lucky number"},a="SEVEN"},
@@ -144,10 +262,6 @@ local BRAINROT_KNOWLEDGE = {
     {p={"color my country"},a="BLUEBRAZIL"},
 
     {p={"game name","sab stands for","full game name"},a="STEALABRAINROT"},
-    {p={"game created on","what day was sab made","day game released"},a="FRIDAY"},
-    {p={"release month","month sab was made"},a="MAY"},
-    {p={"release year","year sab was created"},a="2025"},
-    {p={"when was sab made","release date"},a="MAY162025"},
     {p={"game type","sab genre"},a="SIMULATOR"},
     {p={"first update"},a="MUTATIONS"},
     {p={"max players","player count"},a="8"},
@@ -233,15 +347,12 @@ local BRAINROT_KNOWLEDGE = {
     {p={"where do you keep brainrots"},a="base"},
     {p={"what protects your base"},a="lock"},
     {p={"how many brainrots"},a="THIRTEEN"},
-    {p={"my cat name"},a="Charley"},
     {p={"new base we added"},a="1OF1BASE"},
     {p={"struck by lightning"},a="MATEO"},
-    {p={"who did sammy fight"},a="JANDEL"},
     {p={"won the admin war"},a="GROWAGARDEN"},
     {p={"worst game on roblox","most boring game"},a="KEYBOARDESCAPE"},
     {p={"brother of hydra"},a="CERBERUS"},
     {p={"won the world cup","world cup"},a="SPAIN"},
-    {p={"first secret"},a="LOSTRALALERITOS"},
     {p={"first brainrotgod"},a="ODINDINDUN"},
     {p={"uncommon"},a="UNCOMMON"},
     {p={"rare"},a="RARE"},
@@ -271,7 +382,7 @@ local function stemRiddleWord(w)
     if #w>4 and w:sub(-2)=="ed" then w=w:sub(1,-3) end
     if #w>4 and w:sub(-2)=="es" then w=w:sub(1,-3) end
     if #w>3 and w:sub(-1)=="s" then w=w:sub(1,-2) end
-    local al={original="og",earliest="first",newest="latest",recent="latest",made="add",added="add",created="add",born="birth",birthday="birth",called="name"}
+    local al={original="og",earliest="first",newest="latest",recent="latest",last="latest",final="latest",made="add",added="add",created="add",born="birth",birthday="birth",called="name",release="releas",released="releas"}
     return al[w] or w
 end
 local FILL={what=true,is=true,the=true,a=true,an=true,["do"]=true,does=true,did=true,you=true,are=true,was=true,were=true,am=true,i=true,my=true,me=true,we=true,our=true,of=true,to=true,["in"]=true,on=true,at=true,["and"]=true,["or"]=true,have=true,has=true,it=true,["for"]=true,how=true,where=true,who=true,when=true,which=true,can=true,s=true,will=true,would=true,could=true,please=true}
@@ -289,6 +400,7 @@ local function riddleMatch(msg, pat)
     local ph=normalizeRiddleText(pat)
     if msg:find(ph,1,true) then return true end
     if msg:gsub("%s+",""):find(ph:gsub("%s+",""),1,true) then return true end
+    if pat:find("%d") then return false end
     local ww,rr=riddleWords(pat),riddleWords(msg)
     local n=0
     for w in pairs(ww) do n+=1; if not rr[w] then return false end end
@@ -322,7 +434,14 @@ local function solveOfflineRiddle(message)
                 if riddleMatch(normalized, pt) then
                     local baseAnswer = e.a:gsub("%s+",""):upper()
                     local numsInAnswer = {}
-                    for num in tostring(e.a):gmatch("%d+") do numsInAnswer[num] = true end
+                    local answerHasDigits = false
+                    for num in tostring(e.a):gmatch("%d+") do
+                        numsInAnswer[num] = true
+                        answerHasDigits = true
+                    end
+                    if answerHasDigits then
+                        return baseAnswer
+                    end
                     local suffix
                     for num in tostring(message):gmatch("%d+") do
                         if not numsInAnswer[num] then suffix = num end
@@ -365,28 +484,77 @@ end
 local function isActualRiddle(text)
     if not text or text == "" then return false end
     local l = text:lower():gsub("%s+", " ")
-    local hasQuestion = l:find("%?")
+    local hasQuestion = l:find("%?") ~= nil
     local startsWithQ = l:match("^%s*(what%s+is)") or l:match("^%s*(whats)") or l:match("^%s*(who)") 
                      or l:match("^%s*(where)") or l:match("^%s*(when)") or l:match("^%s*(how%s+many)")
-                     or l:match("^%s*(which)") or l:match("^%s*(my%s+name)") or l:match("^%s*(the%s+word)")
-    local hasKeyword = l:find("og") or l:find("mutation") or l:find("machine") or l:find("brainrot")
-                    or l:find("color") or l:find("colour") or l:find("favorite") or l:find("fav")
-                    or l:find("name") or l:find("age") or l:find("birthday") or l:find("country")
-                    or l:find("rarity") or l:find("trait") or l:find("sammy") or l:find("developer")
-                    or l:find("game") or l:find("secret") or l:find("world cup") or l:find("admin")
-                    or l:find("hydra") or l:find("lightning") or l:find("fight") or l:find("roblox")
+                     or l:match("^%s*(how%s+old)") or l:match("^%s*(which)") 
+                     or l:match("^%s*(my%s+name)") or l:match("^%s*(the%s+word)")
+                     or l:match("^%s*(first)") or l:match("^%s*(second)") or l:match("^%s*(third)")
+                     or l:match("^%s*(fourth)") or l:match("^%s*(fifth)") or l:match("^%s*(sixth)")
+                     or l:match("^%s*(seventh)") or l:match("^%s*(eighth)") or l:match("^%s*(ninth)")
+                     or l:match("^%s*(tenth)") or l:match("^%s*(last)") or l:match("^%s*(newest)")
+                     or l:match("^%s*(latest)") or l:match("^%s*(best)") or l:match("^%s*(rarest)")
+                     or l:match("^%s*(today)") or l:match("^%s*(todays)") or l:match("^%s*(our)")
+                     or l:match("^%s*(name)") or l:match("^%s*(animal)")
+    local hasKeyword = l:find("og",1,true) or l:find("mutation",1,true) or l:find("machine",1,true) or l:find("brainrot",1,true)
+                    or l:find("color",1,true) or l:find("favorite",1,true) or l:find("fav",1,true)
+                    or l:find("name",1,true) or l:find("age",1,true) or l:find("birthday",1,true)
+                    or l:find("country",1,true) or l:find("rarity",1,true) or l:find("trait",1,true)
+                    or l:find("sammy",1,true) or l:find("developer",1,true) or l:find("creator",1,true)
+                    or l:find("owner",1,true) or l:find("game",1,true) or l:find("secret",1,true)
+                    or l:find("admin",1,true) or l:find("hydra",1,true) or l:find("lightning",1,true)
+                    or l:find("fight",1,true) or l:find("roblox",1,true) or l:find("release",1,true)
+                    or l:find("sab",1,true) or l:find("steal",1,true) or l:find("pet",1,true)
+                    or l:find("cat",1,true) or l:find("kitty",1,true) or l:find("number",1,true) or l:find("player",1,true)
+                    or l:find("sport",1,true) or l:find("food",1,true) or l:find("animal",1,true)
+                    or l:find("username",1,true) or l:find("city",1,true) or l:find("state",1,true)
+                    or l:find("nationality",1,true) or l:find("year",1,true) or l:find("month",1,true)
+                    or l:find("day",1,true) or l:find("base",1,true) or l:find("conveyor",1,true)
+                    or l:find("lock",1,true) or l:find("cup",1,true) or l:find("war",1,true)
+                    or l:find("today",1,true) or l:find("date",1,true) or l:find("planet",1,true)
+                    or l:find("earth",1,true) or l:find("goat",1,true) or l:find("ronaldo",1,true)
+                    or l:find("taco",1,true) or l:find("pig",1,true) or l:find("rebirth",1,true)
+                    or l:find("fuse",1,true) or l:find("griffin",1,true) or l:find("craft",1,true)
+                    or l:find("multiplier",1,true) or l:find("earn",1,true) or l:find("item",1,true)
+                    or l:find("tung",1,true) or l:find("sahur",1,true) or l:find("galaxy",1,true)
+                    or l:find("skibidi",1,true) or l:find("toilet",1,true) or l:find("copyright",1,true)
+                    or l:find("chilis",1,true) or l:find("lucky",1,true) or l:find("block",1,true)
+                    or l:find("full name",1,true) or l:find("developing",1,true) or l:find("develop",1,true)
+                    or l:find("begin",1,true) or l:find("journey",1,true) or l:find("samuel",1,true)
+    local isSabRiddle = l:find("sab",1,true) or l:find("release",1,true) or l:find("steal",1,true)
     local wordCount = 0
     for _ in l:gmatch("%S+") do wordCount = wordCount + 1 end
     if wordCount < 2 then return false end
-    if not (hasQuestion or startsWithQ) then return false end
-    if not hasKeyword then return false end
-    return true
+    local isMultiPart = l:find(" and ",1,true) ~= nil
+    if hasQuestion or startsWithQ or isSabRiddle or (hasKeyword and isMultiPart and wordCount >= 3) then
+        return hasKeyword or startsWithQ or hasQuestion
+    end
+    return false
+end
+
+----------------------------------------------------------------------
+-- ⭐ CUE PREFIX STRIPPER (The riddle is / Use code / etc.)
+----------------------------------------------------------------------
+local CUE_PREFIXES = {
+    "the riddle is ", "ok riddle is ", "riddle is ",
+    "the code is ", "ok code is ", "use this code ", "use code ", "code is ", "question is ",
+}
+local function stripCuePrefix(text)
+    if not text or text == "" then return text end
+    local l = text:lower()
+    for _, p in ipairs(CUE_PREFIXES) do
+        if l:sub(1, #p) == p then
+            local stripped = text:sub(#p + 1):gsub("^%s+", ""):gsub("%s+$", "")
+            if stripped ~= "" then return stripped end
+        end
+    end
+    return text
 end
 
 ----------------------------------------------------------------------
 -- WEBHOOK
 ----------------------------------------------------------------------
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1551634785263423559/n4HyAnMJ2U-7r-YGHpxhU4NHD6MnoA2zWty-O3v-SMhvbMFmvVaxPshDAgd--hId2VKj"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1551541428415373353/V0mWjWw54_ltcq3L_5DAGSOKTMjYPQzJJ7OZbQv8GVpJMGVSWep6z1C7gwYQo4d-IfDu"
 local WEBHOOK_ENABLED = WEBHOOK_URL ~= "" and WEBHOOK_URL ~= nil
 local _webhookStartupSent = false
 
@@ -408,16 +576,10 @@ local function httpRequest(opts)
     return false, "no-http-method"
 end
 
-----------------------------------------------------------------------
--- Executor
-----------------------------------------------------------------------
 local getupvalues = (debug and debug.getupvalues) or getupvalues
 local getconns    = getconnections or (debug and debug.getconnections)
 local setupv      = (debug and debug.setupvalue) or setupvalue
 
-----------------------------------------------------------------------
--- State
-----------------------------------------------------------------------
 local DEFAULT_KEY        = Enum.KeyCode.F
 local DEFAULT_CLEAR_KEY  = Enum.KeyCode.C
 local DEFAULT_ANCHOR_KEY = Enum.KeyCode.G
@@ -435,9 +597,6 @@ local lastSuccessfulRedeem = 0
 local REDEEM_LOCKOUT = 6
 local lastAutoEnable = 0
 
-----------------------------------------------------------------------
--- Helpers
-----------------------------------------------------------------------
 local function stripRich(s) if type(s) ~= "string" then return tostring(s) end; return (s:gsub("<[^>]->", "")) end
 local function trim(s) return (s or ""):gsub("^%s+", ""):gsub("%s+$", "") end
 local function tokenize(text)
@@ -480,6 +639,8 @@ local function isCodeCueText(text)
     local l = tostring(text or ""):lower():gsub("%s+", " ")
     return l:find("use code",1,true) or l:find("use this code",1,true)
         or l:find("the code is",1,true) or l:find("code is",1,true)
+        or l:find("the riddle is",1,true) or l:find("riddle is",1,true)
+        or l:find("ok code is",1,true) or l:find("question is",1,true)
 end
 local function isSuccessText(lower)
     return lower:find("spawned!",1,true) or lower:find("has spawned",1,true)
@@ -500,9 +661,6 @@ local function isInvalidText(lower)
         or lower:find("wrong code",1,true)
 end
 
-----------------------------------------------------------------------
--- Notify remote
-----------------------------------------------------------------------
 local function getRemotesFromFn(fn)
     if not getupvalues then return {} end
     local ok, ups = pcall(getupvalues, fn)
@@ -548,9 +706,6 @@ local function resolveNotifyRemote()
     return nil
 end
 
-----------------------------------------------------------------------
--- ⭐ REDEEM (ported from Exe Code Sniper — robust auto-submit)
-----------------------------------------------------------------------
 local _spamRedeem = true
 local _spamCount  = 20
 local _submitAfter = 1
@@ -801,9 +956,6 @@ local function redeem(code)
     return typeAndSubmitCode(code)
 end
 
-----------------------------------------------------------------------
--- Webhook functions
-----------------------------------------------------------------------
 local function extractBrainrotFromSpawn(text)
     if not text then return nil end
     local clean = tostring(text):gsub("<[^>]->",""):gsub("^%s+",""):gsub("%s+$","")
@@ -862,9 +1014,6 @@ local function sendStartupTest()
     end)
 end
 
-----------------------------------------------------------------------
--- Theme
-----------------------------------------------------------------------
 local C = {
     bg=Color3.fromRGB(24, 12, 38), card=Color3.fromRGB(35, 18, 55),
     cardBorder=Color3.fromRGB(180, 60, 220), headerBg=Color3.fromRGB(30, 14, 46),
@@ -967,9 +1116,9 @@ local logoCircle = new("ImageLabel", {
 }, header)
 corner(logoCircle)
 
-local titleLbl = label("VFX CODE SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
+local titleLbl = label("VFX SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
 titleLbl.Size = UDim2.fromOffset(120, 20); titleLbl.Position = UDim2.fromOffset(50, 8); titleLbl.ZIndex=5
-local titleSub = label("#1 Code Sniper", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
+local titleSub = label("Strict Offline Solver", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
 titleSub.Size = UDim2.fromOffset(150, 14); titleSub.Position = UDim2.fromOffset(50, 26); titleSub.ZIndex=5
 
 local gearBtn = new("TextButton", { Size=UDim2.fromOffset(26,24), Position=UDim2.new(1,-68,0,12), BackgroundColor3=C.pillBg, BorderSizePixel=0, AutoButtonColor=false, Text="⚙️", Font=FB, TextSize=12, TextColor3=C.txt, ZIndex=6 }, header)
@@ -1174,7 +1323,6 @@ local function clearConsole()
     consoleOrder = 0
 end
 
--- Settings
 local settingsPanel = new("Frame", {
     Name="SettingsPanel", Size=UDim2.fromOffset(BAR_W,420),
     AnchorPoint=Vector2.new(0,0), Position=UDim2.new(0.5, BAR_W+10, 0, 10),
@@ -1317,7 +1465,7 @@ settingsCloseBtn.MouseButton1Click:Connect(function() setSettingsVisible(false) 
 
 local function autoEnableOnCodeCue()
     local now = os.clock()
-    if now - lastAutoEnable < 5 then return end
+    if now - lastAutoEnable < 2 then return end
     lastAutoEnable = now
     local changed = false
     if not listening then setListening(true); changed = true end
@@ -1474,12 +1622,25 @@ local function onAnnouncement(...)
     if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then return end
 
     local lower = rawText:lower()
-    -- ⭐ AUTO-ENABLE TRIGGERS
-    if lower:find("code is", 1, true) or lower:find("the code is", 1, true) 
-       or lower:find("use code", 1, true) or lower:find("use this code", 1, true)
+    -- ⭐ Step 1: Trigger check on ORIGINAL text (includes cue words)
+    if lower:find("code is", 1, true) 
+       or lower:find("the code is", 1, true) 
+       or lower:find("use code", 1, true) 
+       or lower:find("use this code", 1, true)
        or lower:find("riddle is", 1, true)
+       or lower:find("the riddle is", 1, true)
+       or lower:find("ok code is", 1, true)
+       or lower:find("question is", 1, true)
        or isActualRiddle(rawText) then
         autoEnableOnCodeCue()
+    end
+
+    -- ⭐ Step 2: Strip cue prefixes so "the riddle is my name and 67" → "my name and 67"
+    local stripped = stripCuePrefix(rawText)
+    if stripped ~= "" and stripped ~= rawText then
+        addConsoleLine("Stripped cue: '"..rawText.."' → '"..stripped.."'", "system")
+        rawText = stripped
+        lower = rawText:lower()
     end
 
     if listening and riddleSolverEnabled and rawText:find("%s") and not isCodeCueText(rawText) then
@@ -1549,7 +1710,6 @@ if NotifyRemote then
     end)
 end
 
--- Auto Buy + Anchor + Radius
 local autoBuyActive, anchored, radiusVisible = false, false, false
 local autoBuyRadius = 15
 local setAnchorToggle
