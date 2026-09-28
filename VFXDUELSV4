@@ -1,4 +1,4 @@
--- Vfx Duels --
+-- Vfx Volt (Luarmor auth removed)
 local n25, n26 = 3740, 6000
 local flag2, flag3 = true, true
 local colors = nil
@@ -16905,22 +16905,6 @@ end
 									end
 								end)
 
-								createTextButton2(resetButtons, function()
-									fn65()
-									_G._VfxMobileBtnPos = {}
-									_G._VfxMobileBtnPositions = _G._VfxMobileBtnPositions or {}
-									_G._VfxMobileBtnPositions[vfxMobilePositionProfile] = _G._VfxMobileBtnPos
-
-									if tbl25.auto then
-										task.spawn(function()
-											pcall(fn29)
-										end)
-									end
-
-									local textLabel2 = resetButtons:FindFirstChildOfClass("TextLabel")
-
-									if textLabel2 then
-										local text = textLabel2.Text
 -- ═══ MOVE BUTTONS — DIRECT HANDLER ═══
 do
     local mbLabel = moveButtons:FindFirstChildOfClass("TextLabel")
