@@ -16889,92 +16889,109 @@ end
 								end)
 
 
--- ═══ MOVE BUTTONS — DIRECT HANDLER ═══
+                                -- ═══════════════════════════════════════════════════════════════
+-- MOVE + RESET BUTTONS — GLOBAL TAP HANDLER (100% reliable mobile)
+-- ═══════════════════════════════════════════════════════════════
 do
-    local mbLabel = moveButtons:FindFirstChildOfClass("TextLabel")
-
-    local mvClick = Instance.new("TextButton")
-    mvClick.Name = "MvClick"
-    mvClick.BackgroundTransparency = 1
-    mvClick.Text = ""
-    mvClick.Size = UDim2.new(1, 0, 1, 0)
-    mvClick.Position = UDim2.new(0, 0, 0, 0)
-    mvClick.ZIndex = 500
-    mvClick.Active = true
-    mvClick.Selectable = true
-    pcall(function() mvClick.Interactable = true end)
-    mvClick.AutoButtonColor = false
-    mvClick.Parent = moveButtons
-
-    local mvFire = false
-    local function mvGo()
-        if mvFire then return end
-        mvFire = true
-        task.delay(0.15, function() mvFire = false end)
-
-        vfxMobileBtnLocked = not vfxMobileBtnLocked
-        _G._VfxMobileBtnLocked = vfxMobileBtnLocked
-
-        if mbLabel then
-            mbLabel.Text = vfxMobileBtnLocked and "Move Buttons" or "Lock Buttons"
+    -- Poora visible chain check karo (parent bhi visible hona chahiye)
+    local function isFullyVisible(gui)
+        local g = gui
+        while g and g ~= game do
+            if g:IsA("GuiObject") and g.Visible == false then
+                return false
+            end
+            g = g.Parent
         end
-
-        print("[VFX] Move Buttons =", vfxMobileBtnLocked and "LOCKED" or "UNLOCKED (drag enabled)")
-
-        if tbl25.auto then
-            task.spawn(function() pcall(fn29) end)
-        end
+        return true
     end
 
-    mvClick.Activated:Connect(mvGo)
-    mvClick.MouseButton1Down:Connect(mvGo)
-end
-
--- ═══ RESET BUTTONS — DIRECT HANDLER ═══
-do
-    local rbLabel = resetButtons:FindFirstChildOfClass("TextLabel")
-
-    local rbClick = Instance.new("TextButton")
-    rbClick.Name = "RbClick"
-    rbClick.BackgroundTransparency = 1
-    rbClick.Text = ""
-    rbClick.Size = UDim2.new(1, 0, 1, 0)
-    rbClick.Position = UDim2.new(0, 0, 0, 0)
-    rbClick.ZIndex = 500
-    rbClick.Active = true
-    rbClick.Selectable = true
-    pcall(function() rbClick.Interactable = true end)
-    rbClick.AutoButtonColor = false
-    rbClick.Parent = resetButtons
-
-    local rbFire = false
-    local function rbGo()
-        if rbFire then return end
-        rbFire = true
-        task.delay(0.15, function() rbFire = false end)
-
-        fn65()
-        _G._VfxMobileBtnPos = {}
-        _G._VfxMobileBtnPositions = _G._VfxMobileBtnPositions or {}
-        _G._VfxMobileBtnPositions[vfxMobilePositionProfile] = _G._VfxMobileBtnPos
-
-        if tbl25.auto then
-            task.spawn(function() pcall(fn29) end)
-        end
-
-        if rbLabel then
-            local t = rbLabel.Text
-            rbLabel.Text = "RESET ✓"
-            task.delay(1.2, function()
-                pcall(function() rbLabel.Text = t end)
-            end)
-        end
+    -- Check karo tap screen position kis row ke andar hui
+    local function isInside(gui, screenPos)
+        if not gui or not gui.Parent then return false end
+        if not isFullyVisible(gui) then return false end
+        local p = gui.AbsolutePosition
+        local s = gui.AbsoluteSize
+        if s.X <= 0 or s.Y <= 0 then return false end
+        return screenPos.X >= p.X and screenPos.X <= p.X + s.X
+           and screenPos.Y >= p.Y and screenPos.Y <= p.Y + s.Y
     end
 
-    rbClick.Activated:Connect(rbGo)
-    rbClick.MouseButton1Down:Connect(rbGo)
-end
+    local pending = nil
 
+    -- Global touch start — kabhi miss nahi hota
+    UserInputService.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch
+        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            pending = {
+                startPos = input.Position,
+                startTime = os.clock(),
+            }
+        end
+    end)
+
+    -- Global touch end — tap confirm karo
+    UserInputService.InputEnded:Connect(function(input)
+        if not pending then return end
+        if input.UserInputType ~= Enum.UserInputType.Touch
+        and input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+            return
+        end
+
+        local dx = math.abs(input.Position.X - pending.startPos.X)
+        local dy = math.abs(input.Position.Y - pending.startPos.Y)
+        local held = os.clock() - pending.startTime
+        pending = nil
+
+        -- Agar 20px se zyada hila = scroll tha, tap nahi
+        if dx > 20 or dy > 20 then return end
+        -- Agar 1.5s se zyada hold = long press, ignore
+        if held > 1.5 then return end
+
+        -- Check MOVE BUTTONS row
+        if isInside(moveButtons, input.Position) then
+            vfxMobileBtnLocked = not vfxMobileBtnLocked
+            _G._VfxMobileBtnLocked = vfxMobileBtnLocked
+
+            local lbl = moveButtons:FindFirstChildOfClass("TextLabel")
+            if lbl then
+                lbl.Text = vfxMobileBtnLocked and "Move Buttons" or "Lock Buttons"
+            end
+
+            print("[VFX] Move Buttons =", vfxMobileBtnLocked and "LOCKED (buttons act)" or "UNLOCKED (drag enabled)")
+
+            if tbl25.auto then
+                task.spawn(function() pcall(fn29) end)
+            end
+            return
+        end
+
+        -- Check RESET BUTTONS row
+        if isInside(resetButtons, input.Position) then
+            fn65()
+            _G._VfxMobileBtnPos = {}
+            _G._VfxMobileBtnPositions = _G._VfxMobileBtnPositions or {}
+            _G._VfxMobileBtnPositions[vfxMobilePositionProfile] = _G._VfxMobileBtnPos
+
+            local lbl = resetButtons:FindFirstChildOfClass("TextLabel")
+            if lbl then
+                local t = lbl.Text
+                lbl.Text = "RESET ✓"
+                task.delay(1.2, function()
+                    pcall(function() lbl.Text = t end)
+                end)
+            end
+
+            print("[VFX] Reset Buttons done")
+
+            if tbl25.auto then
+                task.spawn(function() pcall(fn29) end)
+            end
+            return
+        end
+    end)
+
+    print("[VFX] Move/Reset button tap handlers attached")
+end
 
 
 								local function fn76(arg)
