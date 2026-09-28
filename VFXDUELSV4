@@ -16888,22 +16888,6 @@ end
 									fn75(1)
 								end)
 
-								local textLabel = moveButtons:FindFirstChildOfClass("TextLabel")
-
-								createTextButton2(moveButtons, function()
-									vfxMobileBtnLocked = not vfxMobileBtnLocked
-									_G._VfxMobileBtnLocked = vfxMobileBtnLocked
-
-									if textLabel then
-										textLabel.Text = vfxMobileBtnLocked and "Move Buttons" or "Lock Buttons"
-									end
-
-									if tbl25.auto then
-										task.spawn(function()
-											pcall(fn29)
-										end)
-									end
-								end)
 
 -- ═══ MOVE BUTTONS — DIRECT HANDLER ═══
 do
