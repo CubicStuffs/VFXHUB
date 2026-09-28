@@ -14164,7 +14164,7 @@ end)
 									fn62(v95, UDim2.new(0, 34, 1, 0), udim24(1, -38, 0, v96))
 								end
 
-								vfxMobileBtnLocked = true
+								vfxMobileBtnLocked = false
 								_G._VfxMobileBtnLocked = vfxMobileBtnLocked
 								tbl43 = {}
 								local frame4 = Instance.new("Frame")
@@ -16888,115 +16888,122 @@ end
 									fn75(1)
 								end)
 
-
                                 do
-    local function isFullyVisible(gui)
-        local g = gui
-        while g and g ~= game do
-            if g:IsA("GuiObject") and g.Visible == false then
-                return false
-            end
-            g = g.Parent
+    -- ═══════════════════════════════════════════════════════
+    -- DEDICATED BUTTON OVERLAY (reliable toggle)
+    -- ═══════════════════════════════════════════════════════
+    local function addRowButton(row, callback)
+        if not row then return nil end
+
+        -- remove old overlay (re-execute safety)
+        local old = row:FindFirstChild("VfxRowOverlay")
+        if old then old:Destroy() end
+
+        local btn = Instance.new("TextButton")
+        btn.Name = "VfxRowOverlay"
+        btn.BackgroundTransparency = 1
+        btn.Text = ""
+        btn.Size = UDim2.new(1, 0, 1, 0)
+        btn.Position = UDim2.new(0, 0, 0, 0)
+        btn.ZIndex = 250
+        btn.AutoButtonColor = false
+        btn.Active = true
+        btn.Selectable = true
+        pcall(function() btn.Interactable = true end)
+        btn.Parent = row
+
+        local fired = false
+        local function fire()
+            if fired then return end
+            fired = true
+            task.delay(0.15, function() fired = false end)
+            pcall(callback)
         end
-        return true
+
+        btn.Activated:Connect(fire)
+        btn.MouseButton1Down:Connect(fire)
+
+        return btn
     end
 
-    local function isInside(gui, screenPos)
-        if not gui or not gui.Parent then return false end
-        if not isFullyVisible(gui) then return false end
-        local p = gui.AbsolutePosition
-        local s = gui.AbsoluteSize
-        if s.X <= 0 or s.Y <= 0 then return false end
-        return screenPos.X >= p.X and screenPos.X <= p.X + s.X
-           and screenPos.Y >= p.Y and screenPos.Y <= p.Y + s.Y
+    -- ═══════════════════════════════════════════════════════
+    -- VISUAL UPDATER
+    -- ═══════════════════════════════════════════════════════
+    local function updateMoveBtnVisual()
+        if not moveButtons then return end
+        local lbl = moveButtons:FindFirstChildWhichIsA("TextLabel")
+        if lbl then
+            if vfxMobileBtnLocked then
+                lbl.Text = "MOVE BUTTONS"
+                lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+            else
+                lbl.Text = "LOCK BUTTONS ●"
+                lbl.TextColor3 = Color3.fromRGB(255, 200, 80)
+            end
+        end
     end
 
-    local pendingInput = nil
-    local pendingStartPos = nil
-    local pendingStartTime = 0
-    local lastMoveToggle = 0
-    local lastResetToggle = 0
+    local function updateResetBtnVisual()
+        if not resetButtons then return end
+        local lbl = resetButtons:FindFirstChildWhichIsA("TextLabel")
+        if lbl then
+            lbl.Text = "RESET BUTTONS"
+        end
+    end
 
-    UserInputService.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.Touch
-        or input.UserInputType == Enum.UserInputType.MouseButton1 then
-            pendingInput = input
-            pendingStartPos = input.Position
-            pendingStartTime = os.clock()
+    updateMoveBtnVisual()
+    updateResetBtnVisual()
+
+    -- ═══════════════════════════════════════════════════════
+    -- MOVE BUTTONS TOGGLE
+    -- ═══════════════════════════════════════════════════════
+    addRowButton(moveButtons, function()
+        vfxMobileBtnLocked = not vfxMobileBtnLocked
+        _G._VfxMobileBtnLocked = vfxMobileBtnLocked
+
+        updateMoveBtnVisual()
+
+        print("[VFX] Mobile Buttons = " ..
+            (vfxMobileBtnLocked and "🔒 LOCKED" or "🔓 UNLOCKED - DRAG NOW"))
+
+        if tbl25.auto then
+            task.spawn(function() pcall(fn29) end)
         end
     end)
 
-    UserInputService.InputEnded:Connect(function(input)
-        if not pendingInput then return end
-        if pendingInput ~= input then return end   -- same input hi process karo
+    -- ═══════════════════════════════════════════════════════
+    -- RESET BUTTONS
+    -- ═══════════════════════════════════════════════════════
+    addRowButton(resetButtons, function()
+        fn65()
 
-        local startPos = pendingStartPos
-        local startTime = pendingStartTime
-        pendingInput = nil
-        pendingStartPos = nil
+        _G._VfxMobileBtnPos = {}
+        _G._VfxMobileBtnPositions = _G._VfxMobileBtnPositions or {}
+        _G._VfxMobileBtnPositions[vfxMobilePositionProfile] = _G._VfxMobileBtnPos
 
-        local dx = math.abs(input.Position.X - startPos.X)
-        local dy = math.abs(input.Position.Y - startPos.Y)
-        local held = os.clock() - startTime
-
-        if dx > 20 or dy > 20 then return end       -- scroll tha
-        if held > 1.5 then return end               -- long press, ignore
-
-        local now = os.clock()
-
-        -- ══ MOVE BUTTONS (debounce 350ms) ══
-        if isInside(moveButtons, startPos) then
-            if now - lastMoveToggle < 0.35 then return end
-            lastMoveToggle = now
-
-            vfxMobileBtnLocked = not vfxMobileBtnLocked
-            _G._VfxMobileBtnLocked = vfxMobileBtnLocked
-
-            local lbl = moveButtons:FindFirstChildOfClass("TextLabel")
+        if resetButtons then
+            local lbl = resetButtons:FindFirstChildWhichIsA("TextLabel")
             if lbl then
-                lbl.Text = vfxMobileBtnLocked and "Move Buttons" or "Lock Buttons"
-            end
-
-            print("[VFX] Move Buttons =",
-                vfxMobileBtnLocked and "LOCKED" or "UNLOCKED")
-
-            if tbl25.auto then
-                task.spawn(function() pcall(fn29) end)
-            end
-            return
-        end
-
-        -- ══ RESET BUTTONS (debounce 350ms) ══
-        if isInside(resetButtons, startPos) then
-            if now - lastResetToggle < 0.35 then return end
-            lastResetToggle = now
-
-            fn65()
-            _G._VfxMobileBtnPos = {}
-            _G._VfxMobileBtnPositions = _G._VfxMobileBtnPositions or {}
-            _G._VfxMobileBtnPositions[vfxMobilePositionProfile] = _G._VfxMobileBtnPos
-
-            local lbl = resetButtons:FindFirstChildOfClass("TextLabel")
-            if lbl then
-                local t = lbl.Text
-                lbl.Text = "RESET ✓"
+                lbl.Text = "RESET DONE ✓"
+                lbl.TextColor3 = Color3.fromRGB(120, 255, 120)
                 task.delay(1.2, function()
-                    pcall(function() lbl.Text = t end)
+                    pcall(function()
+                        lbl.Text = "RESET BUTTONS"
+                        lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    end)
                 end)
             end
+        end
 
-            print("[VFX] Reset Buttons done")
+        print("[VFX] Reset Buttons done")
 
-            if tbl25.auto then
-                task.spawn(function() pcall(fn29) end)
-            end
-            return
+        if tbl25.auto then
+            task.spawn(function() pcall(fn29) end)
         end
     end)
 
-    print("[VFX] Move/Reset button tap handlers attached")
+    print("[VFX] Move/Reset button handlers attached")
 end
-
 
 								local function fn76(arg)
 									for k, v94 in pairs(tbl39) do
