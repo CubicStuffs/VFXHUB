@@ -1,4 +1,4 @@
--- Vfx Volt (Luarmor auth removed)
+-- Vfx Duels --
 local n25, n26 = 3740, 6000
 local flag2, flag3 = true, true
 local colors = nil
@@ -16921,15 +16921,91 @@ end
 
 									if textLabel2 then
 										local text = textLabel2.Text
-										textLabel2.Text = "RESET ✓"
+-- ═══ MOVE BUTTONS — DIRECT HANDLER ═══
+do
+    local mbLabel = moveButtons:FindFirstChildOfClass("TextLabel")
 
-										task.delay(1.2, function()
-											pcall(function()
-												textLabel2.Text = text
-											end)
-										end)
-									end
-								end)
+    local mvClick = Instance.new("TextButton")
+    mvClick.Name = "MvClick"
+    mvClick.BackgroundTransparency = 1
+    mvClick.Text = ""
+    mvClick.Size = UDim2.new(1, 0, 1, 0)
+    mvClick.Position = UDim2.new(0, 0, 0, 0)
+    mvClick.ZIndex = 500
+    mvClick.Active = true
+    mvClick.Selectable = true
+    pcall(function() mvClick.Interactable = true end)
+    mvClick.AutoButtonColor = false
+    mvClick.Parent = moveButtons
+
+    local mvFire = false
+    local function mvGo()
+        if mvFire then return end
+        mvFire = true
+        task.delay(0.15, function() mvFire = false end)
+
+        vfxMobileBtnLocked = not vfxMobileBtnLocked
+        _G._VfxMobileBtnLocked = vfxMobileBtnLocked
+
+        if mbLabel then
+            mbLabel.Text = vfxMobileBtnLocked and "Move Buttons" or "Lock Buttons"
+        end
+
+        print("[VFX] Move Buttons =", vfxMobileBtnLocked and "LOCKED" or "UNLOCKED (drag enabled)")
+
+        if tbl25.auto then
+            task.spawn(function() pcall(fn29) end)
+        end
+    end
+
+    mvClick.Activated:Connect(mvGo)
+    mvClick.MouseButton1Down:Connect(mvGo)
+end
+
+-- ═══ RESET BUTTONS — DIRECT HANDLER ═══
+do
+    local rbLabel = resetButtons:FindFirstChildOfClass("TextLabel")
+
+    local rbClick = Instance.new("TextButton")
+    rbClick.Name = "RbClick"
+    rbClick.BackgroundTransparency = 1
+    rbClick.Text = ""
+    rbClick.Size = UDim2.new(1, 0, 1, 0)
+    rbClick.Position = UDim2.new(0, 0, 0, 0)
+    rbClick.ZIndex = 500
+    rbClick.Active = true
+    rbClick.Selectable = true
+    pcall(function() rbClick.Interactable = true end)
+    rbClick.AutoButtonColor = false
+    rbClick.Parent = resetButtons
+
+    local rbFire = false
+    local function rbGo()
+        if rbFire then return end
+        rbFire = true
+        task.delay(0.15, function() rbFire = false end)
+
+        fn65()
+        _G._VfxMobileBtnPos = {}
+        _G._VfxMobileBtnPositions = _G._VfxMobileBtnPositions or {}
+        _G._VfxMobileBtnPositions[vfxMobilePositionProfile] = _G._VfxMobileBtnPos
+
+        if tbl25.auto then
+            task.spawn(function() pcall(fn29) end)
+        end
+
+        if rbLabel then
+            local t = rbLabel.Text
+            rbLabel.Text = "RESET ✓"
+            task.delay(1.2, function()
+                pcall(function() rbLabel.Text = t end)
+            end)
+        end
+    end
+
+    rbClick.Activated:Connect(rbGo)
+    rbClick.MouseButton1Down:Connect(rbGo)
+end
 
 
 
