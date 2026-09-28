@@ -14797,16 +14797,29 @@ end)
 								vfxApplyMobileButtonShape()
 
 								createTextButton2 = function(parent, arg)
-									local textButton2 = Instance.new("TextButton")
-									textButton2.BackgroundTransparency = 1
-									textButton2.Text = ""
-									textButton2.Size = UDim2.new(v77[69], 0, 1, 0)
-									textButton2.ZIndex = 30
-									textButton2.AutoButtonColor = false
-									textButton2.Parent = parent
-									textButton2.Activated:Connect(arg)
-									return textButton2
-								end
+    local textButton2 = Instance.new("TextButton")
+    textButton2.BackgroundTransparency = 1
+    textButton2.Text = ""
+    textButton2.Size = UDim2.new(1, 0, 1, 0)
+    textButton2.ZIndex = 100
+    textButton2.AutoButtonColor = false
+    textButton2.Active = true
+    textButton2.Selectable = true
+    pcall(function() textButton2.Interactable = true end)
+    textButton2.Parent = parent
+
+    local _fired = false
+    local function _fire()
+        if _fired then return end
+        _fired = true
+        task.delay(0.12, function() _fired = false end)
+        pcall(arg)
+    end
+
+    textButton2.Activated:Connect(_fire)
+    textButton2.MouseButton1Down:Connect(_fire)
+    return textButton2
+end
 
 
 
@@ -15717,6 +15730,12 @@ end)
 
 								moveButtons = fn63(Config, "Move Buttons", { button = v77[85] })
 								resetButtons = fn63(Config, "Reset Buttons", { button = v77[85] })
+
+                                -- Row ko bhi clickable banao (backup)
+                                pcall(function()
+                                   moveButtons.Active = true
+                                   moveButtons.Selectable = true
+                               end)
 
 								if not flag28 then
 									local sectionMobileButtons = Config:FindFirstChild("Section_Mobile Buttons")
