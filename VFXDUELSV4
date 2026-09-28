@@ -14377,7 +14377,7 @@ end)
 									local uiScale3 = Instance.new("UIScale")
 									uiScale3.Scale = _G._VfxMobileBtnScale or 1
 									uiScale3.Parent = textButton2
-									local canvasGroup = Instance.new("CanvasGroup")
+									local canvasGroup = Instance.new("Frame")
 									canvasGroup.Name = "RoundedVisualMask"
 									canvasGroup.BackgroundColor3 = Color3.fromRGB(2, 2, v77[73])
 									canvasGroup.BackgroundTransparency = 0
@@ -16232,7 +16232,7 @@ end)
 							local vfxBgIdx, fn68, fn69, n34, fn70
 
 							do
-								local tbl45 = { { value = 0, name = "NONE", asset = "80708025126373" } }
+								local tbl45 = { { value = 0, name = "NONE", asset = "" } }
 
 								for i, v93 in ipairs(tbl44) do
 									tbl45[#tbl45 + 1] = { value = i, name = tostring(i), asset = v93 }
@@ -16547,7 +16547,7 @@ end)
 									if v94 == "DEFAULT" then
 										for _, vfxBtnImage in ipairs(_G._VfxBtnImages) do
 											vfxBtnImage.bg:SetAttribute("_VfxNoButtonImage", v77[85])
-											vfxBtnImage.bg.Image = "80708025126373"
+											vfxBtnImage.bg.Image = ""
 											vfxBtnImage.bg.ImageRectSize = Vector2.zero
 											vfxBtnImage.bg.ImageRectOffset = Vector2.zero
 											vfxBtnImage.bg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
