@@ -14164,7 +14164,7 @@ end)
 									fn62(v95, UDim2.new(0, 34, 1, 0), udim24(1, -38, 0, v96))
 								end
 
-								vfxMobileBtnLocked = false
+								vfxMobileBtnLocked = true
 								_G._VfxMobileBtnLocked = vfxMobileBtnLocked
 								tbl43 = {}
 								local frame4 = Instance.new("Frame")
