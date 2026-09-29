@@ -1,3 +1,17 @@
+local url = "https://files.catbox.moe/s2epvz.mp3"
+local fileName = "VFXHubMusic.mp3"
+
+local data = game:HttpGet(url)
+writefile(fileName, data)
+
+local sound = Instance.new("Sound")
+sound.SoundId = getcustomasset(fileName)
+sound.Volume = 1
+sound.Parent = game:GetService("SoundService")
+sound:Play()
+-----------------------------------------------
+--            VFX DUELS   
+-----------------------------------------------
 do
     local K = _G;
     pcall(function() local R = type(getfenv); if R == "function" then K = getfenv(0); end; end);
