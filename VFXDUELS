@@ -322,95 +322,219 @@ end
         end;
         _G.__VFXTrackStopper (function() for b, b in ipairs(E) do b.cancelled = true; end; E = {}; if s then s:Disconnect(); s = nil; end; end);
     end;
+        -- ============================================================
+    -- ANTI DIE  (Duel Anti-Die Protection) — V2  [ADAPTED]
+    -- ============================================================
     do
-        local E, s = false, false;
-        _G.__VFXAntiDieGuiEnabled = nil;
-        local b, V = {};
-        local function F(N, I)
-            local P = b[N];
-            if P then
-                if P.healthConn then
-                    pcall(function() P.healthConn:Disconnect(); end);
-                end;
-                if P.diedConn then
-                    pcall(function() P.diedConn:Disconnect(); end);
-                end;
-                if P.cleanupConn then
-                    pcall(function() P.cleanupConn:Disconnect(); end);
-                end;
-                b[N] = nil;
-            end;
-            if I and N and N.Parent then
-                pcall(function() local I = N:FindFirstChildOfClass("Humanoid"); if I then I.BreakJointsOnDeath = true; I:SetStateEnabled(Enum.HumanoidStateType.Dead, true); end; end);
-            end;
-        end;
-        local function N(I)
-            if not I or not I.Parent then
-                return;
-            end;
-            local P = I:FindFirstChildOfClass("Humanoid");
-            if not P then
-                return;
-            end;
-            F(I, false);
-            P.BreakJointsOnDeath = false;
-            P:SetStateEnabled(Enum.HumanoidStateType.Dead, false);
-            local k;
-            k = {humanoid = P, healthConn = P:GetPropertyChangedSignal("Health"):Connect(function() if E and b[I] == k and P.Health <= 0 then P.Health = P.MaxHealth; end; end), diedConn = P.Died:Connect(function() task.defer(function() if E and b[I] == k and P and P.Parent then P.BreakJointsOnDeath = false; P:SetStateEnabled(Enum.HumanoidStateType.Dead, false); P.Health = P.MaxHealth; end; end); end), cleanupConn = I.AncestryChanged:Connect(function() if not I.Parent then F(I, false); end; end)};
-            b[I] = k;
-        end;
-        local function I(P)
-            P = P == true;
-            if P == E then
-                return;
-            end;
-            E = P;
-            if P then
-                local P = V;
-                if not P then
-                    V = m.CharacterAdded:Connect(function(k) task.wait(0.2); if E and k and k.Parent then N(k); end; end);
-                end;
-                P = m.Character;
-                if P and P.Parent and not b[P] then
-                    N(P);
-                end;
+        local antiDie = {
+            enabled          = false,
+            loop             = nil,
+            healthConn       = nil,
+            charConn         = nil,
+            lastHealTime     = 0,
+            invincibleUntil  = 0,
+            config = {
+                healthThreshold      = 50,
+                invincibilityFrames  = 0.75,
+                fallDamageProtection = false,
+                ragdollProtection    = true,
+                autoRevive           = true,
+            },
+        };
+        _G.__VFXAntiDieSystem = antiDie;
+
+        -- Super Heal — health full + attribute sync
+        local function superHeal(humanoid)
+            if not humanoid or not humanoid.Parent then return end
+            local maxHealth = humanoid.MaxHealth or 100
+            if maxHealth <= 0 then maxHealth = 100 end
+            pcall(function()
+                humanoid.Health = maxHealth
+                if humanoid.MaxHealth < maxHealth then
+                    humanoid.MaxHealth = maxHealth
+                end
+            end)
+            antiDie.invincibleUntil = os.clock() + antiDie.config.invincibilityFrames
+            antiDie.lastHealTime    = os.clock()
+            pcall(function()
+                local parent = humanoid.Parent
+                if not parent then return end
+                for _, child in ipairs(parent:GetChildren()) do
+                    if child:IsA("NumberValue") then
+                        local n = child.Name:lower()
+                        if n:find("health") or n:find("hp") or n:find("life") then
+                            child.Value = maxHealth
+                        end
+                    end
+                    if child:IsA("BoolValue") and child.Name:lower():find("dead") then
+                        child.Value = false
+                    end
+                end
+            end)
+        end
+        _G.__VFXAntiDieSuperHeal = superHeal;
+
+        -- Auto Revive
+        local function autoRevive()
+            if not antiDie.config.autoRevive then return end
+            local char = m.Character
+            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+            local root     = char and char:FindFirstChild("HumanoidRootPart")
+            if not humanoid or humanoid.Health > 0 then return end
+            superHeal(humanoid)
+            -- Don't fight TP Bat's own state machine
+            if _G.__VFXStandaloneBatTP and _G.__VFXStandaloneBatTP.IsActive and _G.__VFXStandaloneBatTP.IsActive() then return end
+            pcall(function()
+                humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+                humanoid:ChangeState(Enum.HumanoidStateType.Running)
+            end)
+            if root then
+                pcall(function()
+                    root.CFrame = CFrame.new(root.Position + Vector3.new(0, 3, 0))
+                    root.AssemblyLinearVelocity = Vector3.zero
+                end)
+            end
+        end
+        _G.__VFXAntiDieAutoRevive = autoRevive;
+
+        -- Prevent Damage — heartbeat tick
+        local function preventDamage(root, humanoid)
+            if not humanoid then return end
+            local maxHealth = humanoid.MaxHealth or 100
+            if humanoid.Health < maxHealth then
+                superHeal(humanoid)
+            end
+            if os.clock() < antiDie.invincibleUntil and humanoid.Health < maxHealth then
+                humanoid.Health = maxHealth
+            end
+            if antiDie.config.ragdollProtection then
+                local state = humanoid:GetState()
+                if state == Enum.HumanoidStateType.Physics
+                    or state == Enum.HumanoidStateType.Ragdoll
+                    or state == Enum.HumanoidStateType.FallingDown
+                    or state == Enum.HumanoidStateType.Dead then
+                    pcall(function()
+                        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+                        humanoid:ChangeState(Enum.HumanoidStateType.Running)
+                    end)
+                    superHeal(humanoid)
+                    if root then
+                        pcall(function()
+                            root.AssemblyAngularVelocity = Vector3.zero
+                        end)
+                    end
+                end
+            end
+            if humanoid.Health <= 0 then
+                superHeal(humanoid)
+                pcall(function()
+                    humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+                    humanoid:ChangeState(Enum.HumanoidStateType.Running)
+                end)
+                if root then
+                    pcall(function()
+                        root.CFrame = CFrame.new(root.Position + Vector3.new(0, 2, 0))
+                        root.AssemblyLinearVelocity = Vector3.zero
+                    end)
+                end
+            end
+        end
+
+        -- Stop
+        local function antiDieStop()
+            antiDie.enabled = false
+            if antiDie.loop then antiDie.loop:Disconnect(); antiDie.loop = nil end
+            if antiDie.healthConn then antiDie.healthConn:Disconnect(); antiDie.healthConn = nil end
+            if antiDie.charConn then antiDie.charConn:Disconnect(); antiDie.charConn = nil end
+        end
+
+        -- Start
+        local function antiDieStart()
+            if not antiDie.enabled then return end
+            if antiDie.loop then antiDie.loop:Disconnect(); antiDie.loop = nil end
+            if antiDie.healthConn then antiDie.healthConn:Disconnect(); antiDie.healthConn = nil end
+
+            local function bindHealth(char)
+                if antiDie.healthConn then
+                    antiDie.healthConn:Disconnect()
+                    antiDie.healthConn = nil
+                end
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if not humanoid and char then
+                    humanoid = char:WaitForChild("Humanoid", 3)
+                end
+                if not humanoid then return end
+                antiDie.healthConn = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+                    if not antiDie.enabled then return end
+                    if humanoid.Health < (humanoid.MaxHealth or 100) then
+                        superHeal(humanoid)
+                    end
+                    if humanoid.Health <= 0 then
+                        autoRevive()
+                    end
+                end)
+                if humanoid.Health < (humanoid.MaxHealth or 100) then
+                    superHeal(humanoid)
+                end
+            end
+
+            antiDie.loop = c.Heartbeat:Connect(function()
+                if not antiDie.enabled then return end
+                local char = m.Character
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                local root     = char and char:FindFirstChild("HumanoidRootPart")
+                if not humanoid then return end
+                if humanoid.Health <= 0 then
+                    autoRevive()
+                elseif humanoid.Health <= antiDie.config.healthThreshold
+                    or humanoid.Health < (humanoid.MaxHealth or 100) then
+                    superHeal(humanoid)
+                end
+                preventDamage(root, humanoid)
+            end)
+
+            if m.Character then bindHealth(m.Character) end
+
+            antiDie.charConn = m.CharacterAdded:Connect(function(char)
+                if not antiDie.enabled then return end
+                task.wait(0.05)
+                bindHealth(char)
+                local humanoid = char:FindFirstChildOfClass("Humanoid")
+                if humanoid then superHeal(humanoid) end
+            end)
+
+            -- Track in global state so it gets cleaned on unload
+            if _G.__VFXTrackConn then
+                _G.__VFXTrackConn(antiDie.loop)
+                _G.__VFXTrackConn(antiDie.charConn)
+                if antiDie.healthConn then _G.__VFXTrackConn(antiDie.healthConn) end
+            end
+        end
+
+        -- Public API (compatible with old names)
+        function _G.__VFXAntiDieSet(on)
+            antiDie.enabled = on == true
+            if antiDie.enabled then
+                antiDieStart()
             else
-                for P in pairs(b) do
-                    F(P, true);
-                end;
-            end;
-        end;
-        local F = {toggle = false, autobat = false};
-        local function P()
-            if s then
-                return;
-            end;
-            local k = F.toggle;
-            I((if _G.__VFXAntiDieGuiEnabled then _G.__VFXAntiDieGuiEnabled () == true else k) or F.autobat);
-        end;
-        function _G.__VFXAntiDieSource (k, x)
-            if s or F[k] == nil then
-                return;
-            end;
-            F[k] = x == true;
-            P();
-        end;
-        function _G.__VFXAntiDieSet (k)
-            _G.__VFXAntiDieSource ("autobat", k);
-        end;
-        function _G.__VFXAntiDieIsEnabled ()
-            return E;
-        end;
-        _G.__VFXTrackStopper (function() s = true; F.toggle = false; F.autobat = false; I(false); end);
-        local F, k = false, I;
-        I = function(I)
-            k(I);
-            if V and not F then
-                F = true;
-                _G.__VFXTrackConn (V);
-            end;
-        end;
-        _G.__VFXTrackConn (c.Heartbeat:Connect(function() if s then return; end; P(); if not E then return; end; local E = m.Character; local s = E and E.Parent and(E:FindFirstChildOfClass("Humanoid")); if not s then return; end; local V = b[E]; if not V or V.humanoid ~= s then N(E); end; if s.BreakJointsOnDeath then s.BreakJointsOnDeath = false; end; if s:GetStateEnabled(Enum.HumanoidStateType.Dead) then s:SetStateEnabled(Enum.HumanoidStateType.Dead, false); end; if s.Health <= 0 then s.Health = s.MaxHealth; end; end));
+                antiDieStop()
+            end
+        end
+
+        function _G.__VFXAntiDieSource(key, val)
+            if key == "toggle" or key == "autobat" then
+                _G.__VFXAntiDieSet(val);
+            end
+        end
+
+        function _G.__VFXAntiDieIsEnabled()
+            return antiDie.enabled
+        end
+
+        -- Track stopper so unload kills it
+        if _G.__VFXTrackStopper then
+            _G.__VFXTrackStopper(antiDieStop)
+        end
     end;
     FeatureToggles = FeatureToggles or {};
     local E, s, b, V, F = {}, {Aimbot = true, ["Lagger Aimbot"] = true, Autoplay = true, Lagger = true}, {Aimbot = true, Drop = true, ["TP Down"] = true, Autoplay = true, ["ESP Players"] = true, ["Player Tracers"] = true}, {}, {};
