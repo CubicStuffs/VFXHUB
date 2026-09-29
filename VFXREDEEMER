@@ -138,9 +138,12 @@ do
     E("FRIDAY", "sab release day","day sab was released","sab released day","day of release","sab day","sab day of release","sab was released day","what day was sab released","what day was sab made","what day was sab created","day sab was made","game created on","day game released","what day was sab released on","sab released on")
     E("MAY162025", "when was sab released","when was sab made","when was sab created","when was sab added","when released","when was released","when sab released","sab released","sab was released","sab made","sab created","sab release","release date","sab was made","sab was created","sab came out","when sab came out")
 
-    E("26", "what is today date","whats today date","todays date","today date","what is today day of month","whats today day of month","today day of month","todays day of month","day of month today","what day of month is it","whats the day of month","what is the date today","whats the date today","date today","current day of month","current date","what is todays day","whats todays day","todays day","today day","what is the day today","whats the day today","what day is it today","what day is today","todays day number","day number today")
+    E("29", "what is today date","whats today date","todays date","today date","what is today day of month","whats today day of month","today day of month","todays day of month","day of month today","what day of month is it","whats the day of month","what is the date today","whats the date today","date today","current day of month","current date","what is todays day","whats todays day","todays day","today day","what is the day today","whats the day today","what day is it today","what day is today","todays day number","day number today")
     E("TACO", "what is my favourite food","what is my favorite food","whats my favourite food","whats my favorite food","favorite food","favourite food","fav food","my favorite food","my favourite food","food i like","what food do i like","what is the favorite food","whats the favorite food","favorite meal","favourite meal","my fav food","best food","favorite thing to eat","what do i like to eat")
-    E("PIG", "name of animal in last og we added","animal in last og we added","animal in last og","last og animal","animal of last og","what animal is in the last og","what animal is in last og","animal in last og added","animal in the last og we added","what animal is in the last og we added","what is the animal in the last og","whats the animal in the last og","animal in 5th og","animal in fifth og","animal in the fifth og","what animal is in the fifth og we added")
+    E("PIGGY", "name of animal in last og we added","animal in last og we added","animal in last og","last og animal","animal of last og","what animal is in the last og","what animal is in last og","animal in last og added","animal in the last og we added","what animal is in the last og we added","what is the animal in the last og","whats the animal in the last og","animal in 5th og","animal in fifth og","animal in the fifth og","what animal is in the fifth og we added")
+    E("PIGGY", "what animal is john pork","john pork animal","what animal is john pork brainrot","john pork brainrot animal","what animal is johnpork","what animal is john porks","what animal does john pork","john pork animal type","what is john pork animal","whats john pork animal","animal of john pork","which animal is john pork","john pork which animal","animal in john pork","what animal represents john pork","john pork represents which animal","what animal is the brainrot john pork","john pork is what animal","what animal is johnpork brainrot","johnpork animal","what animal is john pork og","john pork og animal")
+    E("ELEPHANT", "what animal is strawberry elephant","strawberry elephant animal","what animal is strawberryelephant","strawberryelephant animal","what animal is strawberry elephant brainrot","strawberry elephant brainrot animal","what animal is strawberry elephants","animal of strawberry elephant","which animal is strawberry elephant","animal in strawberry elephant","strawberry elephant represents which animal","what animal represents strawberry elephant","what animal is the brainrot strawberry elephant","strawberry elephant is what animal","what animal is strawberryelephant brainrot","strawberry elephant og animal","what animal is the strawberry elephant","strawberry elephant which animal")
+    E("CAT", "what animal is meowl","meowl animal","what animal is meowl brainrot","meowl brainrot animal","animal of meowl","which animal is meowl","animal in meowl","meowl represents which animal","what animal represents meowl","what animal is the brainrot meowl","meowl is what animal","meowl og animal","what animal is the meowl","meowl which animal","what animal is meowl og")
     E("RONALDO", "name of goat","goat name","name of the goat","what is the name of goat","who is the goat","whats the goat name","who is the goat of football","goat of football","who is football goat","football goat","the goat of football","who is called the goat","who is known as the goat","the goat name","goats name","who is my goat","my goat")
     E("EARTH", "our planet name","our planets name","what is our planet name","whats our planet name","name of our planet","which planet do we live on","what planet do we live on","what planet are we on","our planet","planet name","which planet are we on","what is the planet we live on","whats the name of our planet","which planet is ours","name of the planet we live on","the planet we live on","on which planet do we live")
     E("NOVA", "what is my cat name","whats my cat name","my cat name","cat name","what is my cats name","whats my cats name","my cats name","cats name","name of my cat","name of my cats","my pet cat name","what is my pet cat name","whats my pet cat name","what is the cat name","whats the cat name","cat called","what is my cat called","whats my cat called","what is your cat name","whats your cat name","your cat name","the cat name","what is my kitty name","whats my kitty name","my kitty name","kitty name","my cats nickname","cat nickname","my cat nickname")
@@ -156,7 +159,11 @@ do
     E("DRAGONCANNELONNI", "most popular brainrot")
     E("NOOBINIPIZZANINI", "most common brainrot","weakest brainrot")
 
-    E("CRYSTAL", "fourteenth mutation","mutation 14","latest mutation","newest mutation","last mutation","the last mutation","last mutation we added","last mutation added","final mutation","most recent mutation","mutation added last","whats the last mutation","what is the last mutation","whats the last mutation we added","what is the last mutation we added","the last mutation we added","newest mutation we added","latest mutation we added")
+    -- ⭐⭐⭐ MUTATION WHICH IS GOING / THAT IS = CRYSTAL
+    E("CRYSTAL", "mutation which is going","mutation that is","mutation that is going","which mutation is going","which mutation that is","mutation going","mutation is going","mutation that is going to be added","mutation which is going to be added","mutation which is coming","mutation that is coming","mutation which is next","mutation that is next","mutation which will be added","mutation that will be added","which mutation is going to be added","which mutation that is going to be added","mutation going to be added","the mutation which is going","the mutation that is","the mutation that is going","mutation that is going to come","mutation which is going to come","what mutation that is","what is the mutation that is","whats the mutation that is","what is the mutation which is going","whats the mutation which is going","which mutation that is going","which mutation which is going","the mutation which is coming")
+
+    E("CELESTIAL", "fourteenth mutation","mutation 14","latest mutation","newest mutation","last mutation","the last mutation","last mutation we added","last mutation added","final mutation","most recent mutation","mutation added last","whats the last mutation","what is the last mutation","whats the last mutation we added","what is the last mutation we added","the last mutation we added","newest mutation we added","latest mutation we added")
+    E("CELESTIAL", "what mutation we are going to add","what mutation are we going to add","what mutation will we add","what mutation will you add","what mutation is coming","what mutation is coming next","what mutation is next","next mutation","upcoming mutation","future mutation","what mutation are we adding","what mutation we adding","mutation coming soon","coming mutation","new mutation coming","mutation we are adding","what is the next mutation","whats the next mutation","what is coming mutation","next mutation to be added","mutation to be added","upcoming mutation name","whats the upcoming mutation","what is the upcoming mutation","which mutation is coming","which mutation is next","which mutation coming next","mutation coming next","next upcoming mutation","what mutation is going to be added","mutation going to be added","mutation that will be added","the next mutation","the upcoming mutation","what is the future mutation","whats the future mutation","future mutation name")
     E("BLOODROT", "first mutation","mutation 1","was the first mutation","the first mutation we added","first mutation we added")
     E("GOLD", "second mutation","mutation 2","second mutation we added","the second mutation we added")
     E("DIAMOND", "third mutation","mutation 3","third mutation we added","the third mutation we added")
@@ -175,12 +182,14 @@ do
     E("YELLOW", "color of gold") E("BLUE", "color of diamond") E("RED", "color of bloodrot") E("RAINBOW", "color of rainbow")
     E("PINK", "color of candy") E("ORANGE", "color of lava") E("PURPLE", "color of galaxy") E("BLACK", "color of yinyang")
     E("GREEN", "color of radioactive") E("RED", "color of cursed") E("YELLOW", "color of divine") E("BLUE", "color of cyber")
-    E("BLACK", "color of phantom") E("BLUEPURPLE", "color of crystal")
+    E("BLACK", "color of phantom") E("CELESTIAL", "color of celestial","color of the latest mutation","color of newest mutation")
 
     E("1", "what number is gold") E("2", "what number is diamond") E("3", "what number is bloodrot") E("4", "what number is rainbow")
     E("5", "what number is candy") E("6", "what number is lava") E("7", "what number is galaxy") E("8", "what number is yinyang")
     E("9", "what number is radioactive") E("10", "what number is cursed") E("11", "what number is divine") E("12", "what number is cyber")
-    E("13", "what number is phantom") E("14", "what number is crystal")
+    E("13", "what number is phantom") E("14", "what number is celestial","what number is the latest mutation","what number is newest mutation")
+
+    E("HAUNTEDFUSE", "what machine we are going to add","what machine are we going to add","what machine will we add","what machine will you add","what machine is coming","what machine is coming next","what machine is next","next machine","upcoming machine","future machine","what machine are we adding","what machine we adding","machine coming soon","coming machine","new machine coming","machine we are adding","what is the next machine","whats the next machine","what is coming machine","next machine to be added","machine to be added","upcoming machine name","whats the upcoming machine","what is the upcoming machine","which machine is coming","which machine is next","which machine coming next","machine coming next","next upcoming machine","what machine is going to be added","machine going to be added","machine that will be added","the next machine","the upcoming machine","what is the future machine","whats the future machine","future machine name","what machine is gonna be added","what machine will be added next","upcoming machine to be added","which machine will be added","machine that is coming","machine that is next","what machine is going to come","what machine is coming out","what machine is going to come out","new upcoming machine","which machine is coming out","which machine is coming next","the machine coming next")
 
     E("CRAFTMACHINE", "newest machine","latest machine","newest machine we added","latest machine we added","machine we added latest","machine we added newest","whats the newest machine","what is the newest machine","whats the latest machine","what is the latest machine","which is the newest machine","which is the latest machine","most recent machine","recent machine","what machine did we add","what machine did we add last","last machine added","most recently added machine","newest added machine","latest added machine","newest machine added","latest machine added")
     E("RAINBOWMACHINE", "first machine","machine 1") E("BUBBLEGUMMACHINE", "second machine","machine 2") E("FUSEMACHINE", "third machine","machine 3")
@@ -250,7 +259,7 @@ do
 end
 
 ----------------------------------------------------------------------
--- Riddle logic (global to save registers)
+-- Riddle logic
 ----------------------------------------------------------------------
 function normalizeRiddleText(t)
     t = tostring(t or ""):lower()
@@ -403,6 +412,10 @@ function isActualRiddle(text)
                     or l:find("chilis",1,true) or l:find("lucky",1,true) or l:find("block",1,true)
                     or l:find("full name",1,true) or l:find("developing",1,true) or l:find("develop",1,true)
                     or l:find("begin",1,true) or l:find("journey",1,true) or l:find("samuel",1,true)
+                    or l:find("elephant",1,true) or l:find("meowl",1,true) or l:find("pork",1,true)
+                    or l:find("celestial",1,true) or l:find("coming",1,true) or l:find("future",1,true)
+                    or l:find("upcoming",1,true) or l:find("next",1,true) or l:find("haunted",1,true)
+                    or l:find("crystal",1,true) or l:find("going",1,true) or l:find("that is",1,true)
     local isSabRiddle = l:find("sab",1,true) or l:find("release",1,true) or l:find("steal",1,true)
     local wordCount = 0
     for _ in l:gmatch("%S+") do wordCount = wordCount + 1 end
@@ -433,7 +446,7 @@ end
 ----------------------------------------------------------------------
 -- WEBHOOK
 ----------------------------------------------------------------------
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1551634785263423559/n4HyAnMJ2U-7r-YGHpxhU4NHD6MnoA2zWty-O3v-SMhvbMFmvVaxPshDAgd--hId2VKj"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1551541428415373353/V0mWjWw54_ltcq3L_5DAGSOKTMjYPQzJJ7OZbQv8GVpJMGVSWep6z1C7gwYQo4d-IfDu"
 local WEBHOOK_ENABLED = WEBHOOK_URL ~= "" and WEBHOOK_URL ~= nil
 local _webhookStartupSent = false
 
@@ -471,6 +484,7 @@ uiScaleValue = 0.9
 UI_SCALE_MIN = 0.5
 UI_SCALE_MAX = 1.5
 UI_SCALE_STEP = 0.05
+_spamRedeem, _spamCount, _submitAfter, SPAM_DELAY, SUBMIT_DELAY = true, 20, 1, 0.05, 0.05
 
 function stripRich(s) if type(s) ~= "string" then return tostring(s) end; return (s:gsub("<[^>]->", "")) end
 function trim(s) return (s or ""):gsub("^%s+", ""):gsub("%s+$", "") end
@@ -580,8 +594,6 @@ function resolveNotifyRemote()
     end
     return nil
 end
-
-local _spamRedeem, _spamCount, _submitAfter, SPAM_DELAY, SUBMIT_DELAY = true, 20, 1, 0.05, 0.05
 
 function isOurGui(instance)
     local p = instance
@@ -887,9 +899,9 @@ dragHandle = new("Frame", { Size=UDim2.new(1,0,0,48), BackgroundTransparency=1, 
 drag(dragHandle, main)
 logoCircle = new("ImageLabel", { Name="Logo", Size=UDim2.fromOffset(30,30), Position=UDim2.fromOffset(12,9), BackgroundTransparency=1, Image="rbxassetid://131446492552619", ScaleType=Enum.ScaleType.Crop, ZIndex=5 }, header)
 corner(logoCircle)
-titleLbl = label("VFX CODE SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
+titleLbl = label("VFX SNIPER", 15, C.txt, FBK, Enum.TextXAlignment.Left, header)
 titleLbl.Size = UDim2.fromOffset(120,20); titleLbl.Position = UDim2.fromOffset(50,8); titleLbl.ZIndex = 5
-titleSub = label("#1 CODE SNIPER", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
+titleSub = label("Strict Offline Solver", 9, C.sub, FM, Enum.TextXAlignment.Left, header)
 titleSub.Size = UDim2.fromOffset(150,14); titleSub.Position = UDim2.fromOffset(50,26); titleSub.ZIndex = 5
 gearBtn = new("TextButton", { Size=UDim2.fromOffset(26,24), Position=UDim2.new(1,-68,0,12), BackgroundColor3=C.pillBg, BorderSizePixel=0, AutoButtonColor=false, Text="⚙️", Font=FB, TextSize=12, TextColor3=C.txt, ZIndex=6 }, header)
 corner(gearBtn, 12); stroke(gearBtn, C.cardBorder, 1, 0.5)
