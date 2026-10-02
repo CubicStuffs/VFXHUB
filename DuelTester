@@ -4,6 +4,33 @@ local lookAtCFrame, getPlayersCached, waitForCharacterReady, carryController, co
 local velocityHookedRoots, registerVelocityRoot, installVelocityReadHook, isHumanoidRagdolled, applyMovementVelocity, applyAnimationPack, disableAnimationPack, autoStealConnection, autoStealState, autoStealBusy
 local getAutoStealVariantName, getAutoStealVariantIndex, teleportDown, antiRagdollController, antiRagdollV2State, enableAntiRagdollV2, disableAntiRagdollV2, antiDie, reapplyAntiDie, antiFlingShield
 local showRagdollCountdown
+local PRINTED_BRANDING = "LEAKED BY discord.gg/printed"
+local function addPrintedBranding(parent, position, size, textSize)
+    if not parent then
+        return nil
+    end
+    local existing = parent:FindFirstChild("PrintedBranding")
+    if existing then
+        return existing
+    end
+    local label = Instance.new("TextLabel")
+    label.Name = "PrintedBranding"
+    label.Parent = parent
+    label.Size = size or UDim2.new(1, -16, 0, 16)
+    label.Position = position or UDim2.new(0, 8, 1, -20)
+    label.BackgroundTransparency = 1
+    label.Text = PRINTED_BRANDING
+    label.TextColor3 = Color3.fromRGB(210, 210, 220)
+    label.TextTransparency = 0.08
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = textSize or 10
+    label.TextXAlignment = Enum.TextXAlignment.Center
+    label.TextYAlignment = Enum.TextYAlignment.Center
+    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    label.TextStrokeTransparency = 0.65
+    label.ZIndex = 999
+    return label
+end
 
 do
     local ReplicatedStorage
@@ -10564,8 +10591,8 @@ do
         imageLabel.Size = UDim2.new(1.2, 0, 1.2, 0)
         imageLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
         imageLabel.BackgroundTransparency = 1
-        imageLabel.Image = "rbxassetid://123104996264858"
-        imageLabel.ScaleType = Enum.ScaleType.Fit
+        imageLabel.Image = "rbxassetid://129749560759368"
+        imageLabel.ScaleType = Enum.ScaleType.Crop
         imageLabel.ZIndex = 21
         local textButton = Instance.new("TextButton", main)
         textButton.Size = UDim2.new(0, 32, 0, 32)
@@ -10612,8 +10639,8 @@ do
         rootPart.Size = UDim2.new(0.88, 0, 0.88, 0)
         rootPart.Position = UDim2.new(0.5, 0, 0.5, 0)
         rootPart.BackgroundTransparency = 1
-        rootPart.Image = "rbxassetid://123104996264858"
-        rootPart.ScaleType = Enum.ScaleType.Fit
+        rootPart.Image = "rbxassetid://129749560759368"
+        rootPart.ScaleType = Enum.ScaleType.Crop
         rootPart.ZIndex = 21
         local tween = nil
         local position = main.Position
