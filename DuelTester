@@ -4,7 +4,7 @@ local lookAtCFrame, getPlayersCached, waitForCharacterReady, carryController, co
 local velocityHookedRoots, registerVelocityRoot, installVelocityReadHook, isHumanoidRagdolled, applyMovementVelocity, applyAnimationPack, disableAnimationPack, autoStealConnection, autoStealState, autoStealBusy
 local getAutoStealVariantName, getAutoStealVariantIndex, teleportDown, antiRagdollController, antiRagdollV2State, enableAntiRagdollV2, disableAntiRagdollV2, antiDie, reapplyAntiDie, antiFlingShield
 local showRagdollCountdown
-local PRINTED_BRANDING = "LEAKED BY discord.gg/printed"
+local PRINTED_BRANDING = ""
 local function addPrintedBranding(parent, position, size, textSize)
     if not parent then
         return nil
@@ -35,238 +35,69 @@ end
 do
     local ReplicatedStorage
     do
-        local introTweenService, introRunService, introPlayer, introTrack, introSongFileName, introSound, introHeartbeatConnection
-        if _G.BloodHoundsRunning then
-            return
+        local introPlayersService = game:GetService("Players")
+        local introPlayer = introPlayersService.LocalPlayer
+    introSongIds = {
+        "https://files.catbox.moe/vbyghu.mp3",
+        "https://files.catbox.moe/s2epvz.mp3",
+        "https://files.catbox.moe/r29x0i.mp3",
+        "https://files.catbox.moe/n53amf.mp3",
+        "https://files.catbox.moe/o4di3j.mp3",
+        "https://files.catbox.moe/um4hgp.mp3",
+        "https://files.catbox.moe/fiiu4a.mp3",
+        "https://files.catbox.moe/mdjmee.mp3",
+        "https://files.catbox.moe/2eysnf.mp3",
+        "https://files.catbox.moe/d4uky5.mp3",
+        "https://files.catbox.moe/8v5xra.mp3",
+        "https://files.catbox.moe/aneanv.mp3",
+        "https://files.catbox.moe/pm6lne.mp3",
+        "https://files.catbox.moe/y4q5y3.mp3",
+        "https://files.catbox.moe/pcdvty.mp3",
+    }
+    currentIntroSongIndex = 1
+    pcall(function()
+        if isfile and readfile and isfile("FictionDuels.json") then
+            local settingsData = game:GetService("HttpService"):JSONDecode(readfile("FictionDuels.json"))
+            if type(settingsData.vfxDuelsSongIndex) == "number" then
+                currentIntroSongIndex = math.clamp(math.floor(settingsData.vfxDuelsSongIndex), 1, #introSongIds)
+            end
         end
-        _G.BloodHoundsRunning = true
+    end)
+    task.spawn(function()
         repeat
             task.wait()
         until game:IsLoaded()
-        do
-            local introPlayersService = game:GetService("Players")
-            introTweenService = game:GetService("TweenService")
-            introRunService = game:GetService("RunService")
-            introPlayer = introPlayersService.LocalPlayer
+        local introTrack = introSongIds[currentIntroSongIndex]
+        local introSongFileName = "vfxduels_intro_song_" .. currentIntroSongIndex .. ".mp3"
+        local function resolveAssetPath(filePath)
+            for _, entry in ipairs({ getcustomasset, getsynasset, getasset }) do
+                if typeof(entry) ~= "function" then continue end
+                local ok, result = pcall(function() return entry(filePath) end)
+                if ok and type(result) == "string" and result ~= "" then
+                    return result
+                end
+            end
+            return nil
         end
-        introSongIds = {
-            "https://files.catbox.moe/vbyghu.mp3",
-            "https://files.catbox.moe/5g2wg1.mp3",
-            "https://files.catbox.moe/r29x0i.mp3",
-            "https://files.catbox.moe/n53amf.mp3",
-            "https://files.catbox.moe/o4di3j.mp3",
-            "https://files.catbox.moe/um4hgp.mp3",
-            "https://files.catbox.moe/fiiu4a.mp3",
-            "https://files.catbox.moe/mdjmee.mp3",
-            "https://files.catbox.moe/2eysnf.mp3",
-            "https://files.catbox.moe/d4uky5.mp3",
-            "https://files.catbox.moe/8v5xra.mp3",
-            "https://files.catbox.moe/aneanv.mp3",
-            "https://files.catbox.moe/pm6lne.mp3",
-            "https://files.catbox.moe/y4q5y3.mp3",
-            "https://files.catbox.moe/pcdvty.mp3",
-        }
-        currentIntroSongIndex = 1
-        pcall(function()
-            if isfile and readfile and isfile("FictionDuels.json") then
-                local settingsData = game:GetService("HttpService"):JSONDecode(readfile("FictionDuels.json"))
-                if type(settingsData.vfxDuelsSongIndex) == "number" then
-                    local songCount = #introSongIds
-                    currentIntroSongIndex = math.clamp(math.floor(settingsData.vfxDuelsSongIndex), 1, songCount)
-                end
-            end
-        end)
-        introTrack = introSongIds[currentIntroSongIndex]
-        introSongFileName = "vfxduels_intro_song_" .. currentIntroSongIndex .. ".mp3"
-        introSound = nil
-        introHeartbeatConnection = nil
-        do
-            local introGuiParents = {}
-            local CoreGui = game:GetService("CoreGui")
-            local playerGui = introPlayer and introPlayer:FindFirstChildOfClass("PlayerGui")
-            introGuiParents[1] = CoreGui
-            introGuiParents[2] = playerGui
-            for _, guiParent in ipairs(introGuiParents) do
-                guiParent = guiParent and guiParent:FindFirstChild("VfxLettersIntro")
-                if guiParent then
-                    guiParent:Destroy()
-                end
-            end
-        end
-        do
-            local introGui, introClosed, closeIntro
-            introGui = Instance.new("ScreenGui")
-            introGui.Name = "VfxLettersIntro"
-            introGui.IgnoreGuiInset = true
-            introGui.ResetOnSpawn = false
-            introGui.DisplayOrder = 100000
-            introGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-            addPrintedBranding(introGui, UDim2.new(0, 0, 1, -42), UDim2.new(1, 0, 0, 22), 11)
-            pcall(function()
-                if syn and syn.protect_gui then
-                    syn.protect_gui(introGui)
-                end
-            end)
-            if not pcall(function()
-                introGui.Parent = game:GetService("CoreGui")
-            end) then
-                introGui.Parent = introPlayer:WaitForChild("PlayerGui")
-            end
-            do
-                local introLetters = {}
-                local introAnimationStart = os.clock()
-                local introRenderConnection = nil
-                introClosed = false
-                for i, imageAssetId in ipairs({
-                    "rbxassetid://102527460927859",
-                    "rbxassetid://115218770459100",
-                    "rbxassetid://79239854929751",
-                    "rbxassetid://132491364078344",
-                    "rbxassetid://88405482927089",
-                }) do
-                    local imageLabel = Instance.new("ImageLabel", introGui)
-                    imageLabel.Name = "VfxLetter_" .. i
-                    imageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-                    imageLabel.Size = UDim2.fromOffset(72, 72)
-                    imageLabel.Position = UDim2.new(0.5, (i - 3) * 40, 0.5, -18)
-                    imageLabel.BackgroundTransparency = 1
-                    imageLabel.Image = imageAssetId
-                    imageLabel.ScaleType = Enum.ScaleType.Fit
-                    imageLabel.ImageTransparency = 1
-                    imageLabel.ZIndex = 3
-                    introLetters[i] = {
-                        image = imageLabel,
-                        base = imageLabel.Position,
-                        VfxDuelsIndex = i,
-                    }
-                    task.delay((i - 1) * 0.07, function()
-                        if imageLabel.Parent then
-                            introTweenService
-                                :Create(
-                                    imageLabel,
-                                    TweenInfo.new(0.42, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-                                    {
-                                        ImageTransparency = 0,
-                                    }
-                                )
-                                :Play()
-                        end
-                    end)
-                end
-                closeIntro = function()
-                    if introClosed then
-                        return
-                    end
-                    introClosed = true
-                    if introRenderConnection then
-                        introRenderConnection:Disconnect()
-                    end
-                    if introHeartbeatConnection then
-                        introHeartbeatConnection:Disconnect()
-                        introHeartbeatConnection = nil
-                    end
-                    if introSound then
-                        pcall(function()
-                            introSound:Stop()
-                            introSound:Destroy()
-                        end)
-                    end
-                    for _, letterEntry in ipairs(introLetters) do
-                        if letterEntry.image.Parent then
-                            introTweenService
-                                :Create(letterEntry.image, TweenInfo.new(0.3), {
-                                    ImageTransparency = 1,
-                                })
-                                :Play()
-                        end
-                    end
-                    task.delay(0.34, function()
-                        if introGui then
-                            introGui:Destroy()
-                        end
-                    end)
-                end
-                introRenderConnection = introRunService.RenderStepped:Connect(function()
-                    local elapsedTime = os.clock() - introAnimationStart
-                    for _, letterEntry in ipairs(introLetters) do
-                        local image = letterEntry.image
-                        if image.Parent then
-                            local animationPhase = elapsedTime * 2.5 + letterEntry.VfxDuelsIndex * 1.37
-                            image.Position = letterEntry.base
-                                + UDim2.fromOffset(math.sin(animationPhase) * 18, math.cos(animationPhase * 1.5) * 22)
-                            image.Rotation = math.sin(animationPhase * 0.72) * 7
-                        end
-                    end
-                end)
-            end
-            task.spawn(function()
-                local function resolveAssetPath(filePath)
-                    for _, entry in ipairs({
-                        getcustomasset,
-                        getsynasset,
-                        getasset,
-                    }) do
-                        if typeof(entry) ~= "function" then
-                            continue
-                        end
-                        local ok, result = pcall(function()
-                            return entry(filePath)
-                        end)
-                        if ok and type(result) == "string" and result ~= "" then
-                            return result
-                        end
-                    end
-                    return nil
-                end
-                local soundAssetId = resolveAssetPath(introSongFileName)
-                if not soundAssetId and isfile and isfile(introSongFileName) then
+        local soundAssetId = resolveAssetPath(introSongFileName)
+        if not soundAssetId and writefile then
+            local ok, result = pcall(function() return game:HttpGet(introTrack) end)
+            if ok and type(result) == "string" and #result > 100 then
+                if pcall(function() writefile(introSongFileName, result) end) then
                     soundAssetId = resolveAssetPath(introSongFileName)
                 end
-                if not soundAssetId and writefile then
-                    local ok, result = pcall(function()
-                        return game:HttpGet(introTrack)
-                    end)
-                    if
-                        ok
-                        and type(result) == "string"
-                        and #result > 100
-                        and pcall(function()
-                            writefile(introSongFileName, result)
-                        end)
-                    then
-                        soundAssetId = resolveAssetPath(introSongFileName)
-                    end
-                end
-                if introClosed or not soundAssetId then
-                    return
-                end
-                introSound = Instance.new("Sound")
-                introSound.Name = "VfxIntroSong"
-                introSound.SoundId = soundAssetId
-                introSound.Volume = 1
-                introSound.Looped = false
-                introSound.Parent = game:GetService("SoundService")
-                introHeartbeatConnection = introSound.Ended:Connect(closeIntro)
-                pcall(function()
-                    introSound:Play()
-                end)
-            end)
-            do
-                local skipIntroButton = Instance.new("TextButton", introGui)
-                skipIntroButton.Size = UDim2.fromScale(1, 1)
-                skipIntroButton.BackgroundTransparency = 1
-                skipIntroButton.Text = ""
-                skipIntroButton.BorderSizePixel = 0
-                skipIntroButton.AutoButtonColor = false
-                skipIntroButton.ZIndex = 10
-                skipIntroButton.Activated:Connect(closeIntro)
-            end
-            task.delay(10, closeIntro)
-            while not introClosed do
-                task.wait(0.05)
             end
         end
-    end
+        if not soundAssetId then return end
+        local introSound = Instance.new("Sound")
+        introSound.Name = "VfxIntroSong"
+        introSound.SoundId = soundAssetId
+        introSound.Volume = 1
+        introSound.Looped = false
+        introSound.Parent = game:GetService("SoundService")
+        pcall(function() introSound:Play() end)
+    end)
+end
     do
         local raycastParams
         task.wait(0.4)
@@ -328,7 +159,7 @@ do
         BYPASS_AIMBOT_SPEED = 60
         MOBILE_PANEL_WIDTH = 128
         MOBILE_PANEL_HEIGHT = 294
-        CONFIG_FILE = "FictionDuels.json"
+        CONFIG_FILE = "VFXDuels.json"
         BAT_V2_HIT_DIST = 4.5
         _isDraggingButton = false
         backgroundIndex = 1
@@ -892,7 +723,7 @@ do
                             descendant.Text:find("discord.gg")
                             or descendant.Text:find("Spd:")
                             or descendant.Name == "DiscordText"
-                            or descendant.Name == "FictionDuelsSpeedIndicator"
+                            or descendant.Name == "VFXDuelsSpeedIndicator"
                             or descendant.Text:find("FPS")
                             or descendant.Text:find("speed")
                         then
@@ -1759,9 +1590,9 @@ do
                 if not parent or not parent:IsA("BasePart") then
                     return
                 end
-                local fictionDuelsSpeedIndicator = parent:FindFirstChild("FictionDuelsSpeedIndicator")
-                if fictionDuelsSpeedIndicator then
-                    fictionDuelsSpeedIndicator:Destroy()
+                local VFXDuelsSpeedIndicator = parent:FindFirstChild("VFXDuelsSpeedIndicator")
+                if VFXDuelsSpeedIndicator then
+                    VFXDuelsSpeedIndicator:Destroy()
                 end
                 local topAttachment = Instance.new("Attachment")
                 topAttachment.Name = "FlowerSkin_ExtraRedVFX"
@@ -3060,10 +2891,6 @@ do
             kb = Enum.KeyCode.X,
             gp = nil,
         },
-        BatV2 = {
-            kb = Enum.KeyCode.V,
-            gp = nil,
-        },
         InstaReset = {
             kb = Enum.KeyCode.H,
             gp = nil,
@@ -3105,10 +2932,6 @@ do
         TPBat = {
             kb = DEFAULT_KB.TPBat.kb,
             gp = DEFAULT_KB.TPBat.gp,
-        },
-        BatV2 = {
-            kb = DEFAULT_KB.BatV2.kb,
-            gp = DEFAULT_KB.BatV2.gp,
         },
         InstaReset = {
             kb = DEFAULT_KB.InstaReset.kb,
@@ -4658,7 +4481,7 @@ do
                                         end)
                                     end
                                     highlight = Instance.new("Highlight")
-                                    highlight.Name = "FictionDuelsESP"
+                                    highlight.Name = "VFXDuelsESP"
                                     highlight.FillColor = color
                                     highlight.FillTransparency = 0.72
                                     highlight.OutlineColor = color
@@ -5043,16 +4866,16 @@ do
         if not head then
             return
         end
-        local fictionDuelsSpeedIndicator = head:FindFirstChild("FictionDuelsSpeedIndicator")
-        if fictionDuelsSpeedIndicator then
-            fictionDuelsSpeedIndicator:Destroy()
+        local VFXDuelsSpeedIndicator = head:FindFirstChild("VFXDuelsSpeedIndicator")
+        if VFXDuelsSpeedIndicator then
+            VFXDuelsSpeedIndicator:Destroy()
         end
         local discordText = head:FindFirstChild("DiscordText")
         if discordText then
             discordText:Destroy()
         end
         local billboardGui = Instance.new("BillboardGui", head)
-        billboardGui.Name = "FictionDuelsSpeedIndicator"
+        billboardGui.Name = "VFXDuelsSpeedIndicator"
         billboardGui.Size = UDim2.new(0, 240, 0, 46)
         billboardGui.StudsOffset = newVector3(0, 2.35, 0)
         billboardGui.AlwaysOnTop = true
@@ -7228,7 +7051,7 @@ disableAntiLag = function()
         end)
     end
 end
-CUSTOM_FOV_BIND = "FictionDuelsCustomFOV"
+CUSTOM_FOV_BIND = "VFXDuelsCustomFOV"
 enableCustomFov = function()
     local currentCamera2 = workspace.CurrentCamera
     if currentCamera2 and origFOV == nil then
@@ -9440,10 +9263,6 @@ buildConfigTable = function()
             kb = KB.TPBat.kb and KB.TPBat.kb.Name,
             gp = KB.TPBat.gp and KB.TPBat.gp.Name,
         },
-        batV2Key = {
-            kb = KB.BatV2.kb and KB.BatV2.kb.Name,
-            gp = KB.BatV2.gp and KB.BatV2.gp.Name,
-        },
         instaResetKey = {
             kb = KB.InstaReset.kb and KB.InstaReset.kb.Name,
             gp = KB.InstaReset.gp and KB.InstaReset.gp.Name,
@@ -9692,7 +9511,6 @@ loadAllSettings = function()
     lk(KB.CarryToggle, result.carryToggleKey)
     lk(KB.LaggerMode, result.laggerModeKey)
     lk(KB.TPBat, result.tpBatKey)
-    lk(KB.BatV2, result.batV2Key)
     lk(KB.InstaReset, result.instaResetKey)
     if result.mobileButtonPositions then
         savedButtonPositions = result.mobileButtonPositions
@@ -9758,6 +9576,8 @@ loadAllSettings = function()
     end
     if result.backgroundIndex then
         backgroundIndex = clamp(result.backgroundIndex, 1, #BACKGROUND_IMAGES)
+    else
+        backgroundIndex = 2
     end
     if result.backgroundImageTransparency ~= nil then
         backgroundImageTransparency = clamp(result.backgroundImageTransparency, 0, 1)
@@ -9941,7 +9761,7 @@ forceResetUI = function()
     currentColorTheme = "Gris"
     selectedColor = colorThemes["Gris"]
     updateAllUIThemeColors(selectedColor)
-    backgroundIndex = 1
+    backgroundIndex = 2
     if backgroundImage then
         applyBackground(1)
     end
@@ -10266,7 +10086,7 @@ _G.AmbitiousApplyMobileButtonsHidden = function()
         InstaResetButton = "instaReset",
     }
     for _, entry in ipairs({
-        "FictionDuelsMobilePanel",
+        "VFXDuelsMobilePanel",
         "TpBatButton",
         "BatV2Button",
         "InstaResetButton",
@@ -10531,19 +10351,19 @@ do
         local textColor3 = color
         Color3.fromRGB(25, 25, 25)
         Color3.fromRGB(50, 50, 50)
-        local fictionDuels = game:GetService("CoreGui"):FindFirstChild("FictionDuels")
-        if fictionDuels then
-            fictionDuels:Destroy()
+        local VFXDuels = game:GetService("CoreGui"):FindFirstChild("VFXDuels")
+        if VFXDuels then
+            VFXDuels:Destroy()
         end
         local playerGui = localPlayer:FindFirstChild("PlayerGui")
         if playerGui then
-            local fictionDuels2 = playerGui:FindFirstChild("FictionDuels")
-            if fictionDuels2 then
-                fictionDuels2:Destroy()
+            local VFXDuels2 = playerGui:FindFirstChild("VFXDuels")
+            if VFXDuels2 then
+                VFXDuels2:Destroy()
             end
         end
         gui = Instance.new("ScreenGui")
-        gui.Name = "FictionDuels"
+        gui.Name = "VFXDuels"
         gui.ResetOnSpawn = false
         gui.DisplayOrder = 10
         gui.IgnoreGuiInset = true
@@ -10591,8 +10411,8 @@ do
         imageLabel.Size = UDim2.new(1.2, 0, 1.2, 0)
         imageLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
         imageLabel.BackgroundTransparency = 1
-        imageLabel.Image = "rbxassetid://129749560759368"
-        imageLabel.ScaleType = Enum.ScaleType.Crop
+        imageLabel.Image = "rbxassetid://123104996264858"
+        imageLabel.ScaleType = Enum.ScaleType.Fit
         imageLabel.ZIndex = 21
         local textButton = Instance.new("TextButton", main)
         textButton.Size = UDim2.new(0, 32, 0, 32)
@@ -10639,8 +10459,8 @@ do
         rootPart.Size = UDim2.new(0.88, 0, 0.88, 0)
         rootPart.Position = UDim2.new(0.5, 0, 0.5, 0)
         rootPart.BackgroundTransparency = 1
-        rootPart.Image = "rbxassetid://129749560759368"
-        rootPart.ScaleType = Enum.ScaleType.Crop
+        rootPart.Image = "rbxassetid://123104996264858"
+        rootPart.ScaleType = Enum.ScaleType.Fit
         rootPart.ZIndex = 21
         local tween = nil
         local position = main.Position
@@ -10866,7 +10686,7 @@ do
             pill.Size = UDim2.new(0, 34, 0, 18)
             pill.AnchorPoint = Vector2.new(0.5, 0.5)
             pill.Position = UDim2.new(1, -(offset or 48), 0.5, 0)
-            pill.BackgroundColor3 = Color3.fromRGB(255, 255, 85)
+            pill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             pill.BackgroundTransparency = 0.2
             pill.BorderSizePixel = 0
             pill.ZIndex = 8
@@ -11219,7 +11039,7 @@ do
             textLabel.Position = UDim2.new(0, 14, 0, 0)
             textLabel.BackgroundTransparency = 1
             textLabel.Text = tostring(currentValue)
-            textLabel.TextColor3 = Color3.fromRGB(255, 255, 85)
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
             textLabel.Font = Enum.Font.FredokaOne
             textLabel.TextSize = 12
             textLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -11407,7 +11227,7 @@ do
             textLabel.Position = UDim2.new(0, 30, 0, 0)
             textLabel.BackgroundTransparency = 1
             textLabel.Text = tostring(currentValue)
-            textLabel.TextColor3 = Color3.fromRGB(255, 255, 85)
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
             textLabel.Font = Enum.Font.GothamBold
             textLabel.TextSize = 12
             textLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -11435,8 +11255,8 @@ do
 
             frame.MouseEnter:Connect(function()
                 TweenService:Create(stroke, TweenInfo.new(0.12), {Color = Color3.fromRGB(220,220,230), Transparency = 0}):Play()
-                leftBtn.TextColor3 = Color3.fromRGB(255, 255, 85)
-                rightBtn.TextColor3 = Color3.fromRGB(255, 255, 85)
+                leftBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                rightBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
             end)
             frame.MouseLeave:Connect(function()
                 TweenService:Create(stroke, TweenInfo.new(0.12), {Color = color3, Transparency = 0.35}):Play()
@@ -11713,17 +11533,8 @@ do
         if batDesyncTpSetVisual then
             batDesyncTpSetVisual(batDesyncTpEnabled)
         end
-        autoBatV2SetVisual = mkToggle(custom, "Bat Bypass", function(on)
-            if on then
-                enableBatV2()
-            else
-                disableBatV2()
-            end
-        end)
-        if autoBatV2SetVisual then
-            autoBatV2SetVisual(autoBatV2Enabled)
-        end
-        _G.AceAimbotSetVisual = autoBatV2SetVisual
+        autoBatV2SetVisual = nil
+        _G.AceAimbotSetVisual = nil
         createFrame(custom, "Counters")
         setBatCounterVisual = mkToggle(custom, "Bat Counter", function(on)
             batCounterEnabled = on
@@ -12278,13 +12089,14 @@ do
             vector.Visible = visible
             rootPart2276.Text = visible and "▲" or "▼"
         end)
-        createFrame(settings_, "Config Management")
+                createFrame(settings_, "Config Management")
+
+        -- SAVE CONFIG
         local frame22278 = createFrame2(settings_, 44)
         frame22278.Size = UDim2.new(1, 0, 0, 44)
         local rootPart2279 = Instance.new("TextButton", frame22278)
         rootPart2279.Size = UDim2.new(1, -20, 0.82, 0)
         rootPart2279.Position = UDim2.new(0, 10, 0.09, 0)
-        rootPart2279.BackgroundColor3 = Color3.fromRGB(85, 255, 255)
         rootPart2279.BackgroundTransparency = 1
         rootPart2279.BorderSizePixel = 0
         rootPart2279.Text = ""
@@ -12296,29 +12108,11 @@ do
         label2285.BackgroundTransparency = 1
         label2285.Text = "SAVE CONFIG"
         label2285.TextColor3 = Color3.fromRGB(85, 255, 85)
-        label2285.Font = Enum.Font.GothamBlack
+        label2285.Font = Enum.Font.FredokaOne
         label2285.TextSize = 13
         label2285.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         label2285.TextStrokeTransparency = 0.55
         label2285.ZIndex = 9
-        rootPart2279.MouseEnter:Connect(function()
-            TweenService:Create(rootPart2279, TweenInfo.new(0.14, Enum.EasingStyle.Quad), {
-                Size = UDim2.new(1, -12, 0.92, 0),
-                Position = UDim2.new(0, 6, 0.04, 0),
-            }):Play()
-            TweenService:Create(uiStroke2, TweenInfo.new(0.14), {
-                Transparency = 0.05,
-            }):Play()
-        end)
-        rootPart2279.MouseLeave:Connect(function()
-            TweenService:Create(rootPart2279, TweenInfo.new(0.14, Enum.EasingStyle.Quad), {
-                Size = UDim2.new(1, -20, 0.82, 0),
-                Position = UDim2.new(0, 10, 0.09, 0),
-            }):Play()
-            TweenService:Create(uiStroke2, TweenInfo.new(0.14), {
-                Transparency = 0.35,
-            }):Play()
-        end)
         rootPart2279.MouseButton1Click:Connect(function()
             label2285.Text = saveAllSettings() and "SAVED ✓" or "ERROR"
             task.delay(1.2, function()
@@ -12327,12 +12121,13 @@ do
                 end
             end)
         end)
+
+        -- RESET POSITIONS
         local frame22286 = createFrame2(settings_, 44)
         frame22286.Size = UDim2.new(1, 0, 0, 44)
         local rootPart2287 = Instance.new("TextButton", frame22286)
         rootPart2287.Size = UDim2.new(1, -20, 0.82, 0)
         rootPart2287.Position = UDim2.new(0, 10, 0.09, 0)
-        rootPart2287.BackgroundColor3 = Color3.fromRGB(85, 255, 255)
         rootPart2287.BackgroundTransparency = 1
         rootPart2287.BorderSizePixel = 0
         rootPart2287.Text = ""
@@ -12344,29 +12139,11 @@ do
         label2293.BackgroundTransparency = 1
         label2293.Text = "RESET POSITIONS"
         label2293.TextColor3 = Color3.fromRGB(85, 255, 255)
-        label2293.Font = Enum.Font.GothamBlack
+        label2293.Font = Enum.Font.FredokaOne
         label2293.TextSize = 13
         label2293.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         label2293.TextStrokeTransparency = 0.55
         label2293.ZIndex = 9
-        rootPart2287.MouseEnter:Connect(function()
-            TweenService:Create(rootPart2287, TweenInfo.new(0.14, Enum.EasingStyle.Quad), {
-                Size = UDim2.new(1, -12, 0.92, 0),
-                Position = UDim2.new(0, 6, 0.04, 0),
-            }):Play()
-            TweenService:Create(uiStroke3, TweenInfo.new(0.14), {
-                Transparency = 0.05,
-            }):Play()
-        end)
-        rootPart2287.MouseLeave:Connect(function()
-            TweenService:Create(rootPart2287, TweenInfo.new(0.14, Enum.EasingStyle.Quad), {
-                Size = UDim2.new(1, -20, 0.82, 0),
-                Position = UDim2.new(0, 10, 0.09, 0),
-            }):Play()
-            TweenService:Create(uiStroke3, TweenInfo.new(0.14), {
-                Transparency = 0.35,
-            }):Play()
-        end)
         local isEnabled = false
         rootPart2287.MouseButton1Click:Connect(function()
             if isEnabled then
@@ -12382,12 +12159,13 @@ do
                 end
             end)
         end)
+
+        -- DELETE SETTINGS
         local frame22295 = createFrame2(settings_, 44)
         frame22295.Size = UDim2.new(1, 0, 0, 44)
         local rootPart2296 = Instance.new("TextButton", frame22295)
         rootPart2296.Size = UDim2.new(1, -20, 0.82, 0)
         rootPart2296.Position = UDim2.new(0, 10, 0.09, 0)
-        rootPart2296.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         rootPart2296.BackgroundTransparency = 1
         rootPart2296.BorderSizePixel = 0
         rootPart2296.Text = ""
@@ -12399,29 +12177,11 @@ do
         label2302.BackgroundTransparency = 1
         label2302.Text = "DELETE SETTINGS"
         label2302.TextColor3 = Color3.fromRGB(255, 255, 255)
-        label2302.Font = Enum.Font.GothamBlack
+        label2302.Font = Enum.Font.FredokaOne
         label2302.TextSize = 13
         label2302.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         label2302.TextStrokeTransparency = 0.55
         label2302.ZIndex = 9
-        rootPart2296.MouseEnter:Connect(function()
-            TweenService:Create(rootPart2296, TweenInfo.new(0.14, Enum.EasingStyle.Quad), {
-                Size = UDim2.new(1, -12, 0.92, 0),
-                Position = UDim2.new(0, 6, 0.04, 0),
-            }):Play()
-            TweenService:Create(uiStroke4, TweenInfo.new(0.14), {
-                Transparency = 0.05,
-            }):Play()
-        end)
-        rootPart2296.MouseLeave:Connect(function()
-            TweenService:Create(rootPart2296, TweenInfo.new(0.14, Enum.EasingStyle.Quad), {
-                Size = UDim2.new(1, -20, 0.82, 0),
-                Position = UDim2.new(0, 10, 0.09, 0),
-            }):Play()
-            TweenService:Create(uiStroke4, TweenInfo.new(0.14), {
-                Transparency = 0.35,
-            }):Play()
-        end)
         local value2384 = 0
         local isEnabled2385 = false
         rootPart2296.MouseButton1Click:Connect(function()
@@ -12431,26 +12191,10 @@ do
             if value2384 == 0 then
                 value2384 = 1
                 label2302.Text = "CONFIRM?"
-                local object = uiGradient3
-                local data = {}
-                local object2389 = ColorSequenceKeypoint.new(0, Color3.fromRGB(230, 70, 100))
-                local object2390 = ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 40, 70))
-                data[1] = object2389
-                data[2] = object2390
-                data[3] = ColorSequenceKeypoint.new(1, Color3.fromRGB(90, 15, 40))
-                object.Color = ColorSequence.new(data)
                 task.delay(2, function()
                     if rootPart2296 and rootPart2296.Parent and value2384 == 1 then
                         value2384 = 0
                         label2302.Text = "DELETE SETTINGS"
-                        local object = uiGradient3
-                        local data = {}
-                        local object2397 = ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 45, 80))
-                        local object2398 = ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120, 25, 55))
-                        data[1] = object2397
-                        data[2] = object2398
-                        data[3] = ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 10, 30))
-                        object.Color = ColorSequence.new(data)
                     end
                 end)
             elseif value2384 == 1 then
@@ -12460,14 +12204,6 @@ do
                 task.delay(1.5, function()
                     if label2302 and label2302.Parent then
                         label2302.Text = "DELETE SETTINGS"
-                        local object = uiGradient3
-                        local data = {}
-                        local object2406 = ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 45, 80))
-                        local object2407 = ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120, 25, 55))
-                        data[1] = object2406
-                        data[2] = object2407
-                        data[3] = ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 10, 30))
-                        object.Color = ColorSequence.new(data)
                         isEnabled2385 = false
                     end
                 end)
@@ -12481,7 +12217,7 @@ do
         createActionRow(keybinds, "Auto Right", KB.AutoRight)
         createActionRow(keybinds, "Auto Bat", KB.AutoBat)
         createActionRow(keybinds, "TP BAT", KB.TPBat)
-        createActionRow(keybinds, "Bat Bypass", KB.BatV2)
+    --    createActionRow(keybinds, "Bat Bypass", KB.BatV2)
         createActionRow(keybinds, "Insta Reset", KB.InstaReset)
         createActionRow(keybinds, "TP Down", KB.TPFloor)
         createActionRow(keybinds, "Drop Brainrot", KB.DropBrainrot)
@@ -12606,7 +12342,7 @@ do
     local isActive, object, isPlayerRagdolled, hasAnimationalEquipped, findNearbyArmedPlayer, tryHitBatCounterV2
     createMobilePanel = function()
         local screenGui = Instance.new("ScreenGui")
-        screenGui.Name = "FictionDuelsMobilePanel"
+        screenGui.Name = "VFXDuelsMobilePanel"
         screenGui.ResetOnSpawn = false
         screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
         pcall(function()
@@ -12642,7 +12378,7 @@ do
             UDim2.new(1, 0, 0, 14),
             8
         )
-        Color3.fromRGB(255, 255, 85)
+        Color3.fromRGB(255, 255, 255)
         local color = Color3.fromRGB(8, 8, 10)
         local buttons = {}
         local buttonTexts = {
@@ -13355,7 +13091,7 @@ do
         label.Size = UDim2.new(1, 0, 1, 0)
         label.BackgroundTransparency = 1
         label.Text = "INSTA\nRESET"
-        label.TextColor3 = Color3.fromRGB(255, 255, 85)
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
         label.Font = Enum.Font.GothamBlack
         label.TextSize = 11
         label.TextWrapped = true
@@ -14181,7 +13917,7 @@ end
 buildGui()
 MobilePanel = createMobilePanel()
 tpBatFloatingButton = createTpBatFloatingButton()
-batV2FloatingButton = createBatV2FloatingButton()
+batV2FloatingButton = nil
 instaResetFloatingButton = createInstaResetFloatingButton()
 do
     local function createLastPositionTracker()
@@ -14771,19 +14507,6 @@ do
             toggleBatDesyncTp()
             if batDesyncTpSetVisual then
                 batDesyncTpSetVisual(batDesyncTpEnabled)
-            end
-            return
-        end
-        if kbMatch(KB.BatV2, keyCode) then
-            toggleBatV2()
-            if autoBatV2SetVisual then
-                autoBatV2SetVisual(autoBatV2Enabled)
-            end
-            if batV2FloatingButton then
-                local btnFrame = batV2FloatingButton:FindFirstChild("Frame")
-                if btnFrame then
-                    paintFloatingBtn(btnFrame, autoBatV2Enabled)
-                end
             end
             return
         end
