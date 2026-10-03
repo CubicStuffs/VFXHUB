@@ -1,13 +1,18 @@
 --[[
-    VFX CODE SNIPER — v10 Build
+    VFX CODE SNIPER — v12 Build
     + NUM_ spam removed
     + DAY-OF-MONTH before MONTH
     + cat/pet/dog name excluded from NAME intent
     + addFact dedup (skip same value)
-    + FIX: device extraction with adjective ("laggy laptop")
+    + FIX: device extraction — "my laggy laptop" / "my laptop is lagging" / "playing on laptop" → DEVICE=LAPTOP
     + FIX: multi-part numeric passthrough ("my name and 67")
     + FIX: "my name" won't falsely match "my cat name"
+    + FIX: LOCATION spam from UI ("on super" etc) — tightened patterns + noise filter
+    + FIX: LAPTOP=LAGGING no longer stored (adjective blacklist + device guard)
     + NEW: CAT_NAME / PET_NAME / DOG_NAME intents
+    + NEW: splitMulti handles "my X my Y" (no 'and')
+    + NEW: "my favourite brainrot" → MEOWL, "my birthday month" variants
+    + NEW: PHOENIX = rarest brainrot (fire bird, 425M/s), full variations
 --]]
 
 local cloneref = cloneref or function(o) return o end
@@ -59,12 +64,60 @@ local _gethui          = getGlobal("gethui")
 ----------------------------------------------------------------------
 -- ⭐ RIDDLE KNOWLEDGE BASE
 ----------------------------------------------------------------------
--- (Unchanged — same as your v9)
 local BRAINROT_KNOWLEDGE = {
     {p={"what is my full name","whats my full name","my full name","full name","what is sammys full name","whats sammys full name","sammys full name","sammy full name","what is your full name","whats your full name","your full name","the full name","what is my real full name","full name of sammy","full name of sammys","full name of the developer","the developers full name","sammys real full name","full name of sammys real name","what is sammys real full name","whats sammys real full name","tell me my full name","give me my full name"},a="SAMUEL"},
     {p={"year when i started developing","year i started developing","when did i start developing","when did sammy start developing","year sammy started developing","started developing year","year of developing start","what year did i start developing","what year did sammy start developing","when did sammy start making games","year started making games","when did i start making games","start developing year","when i started developing","year i began developing","when did sammy begin developing","begin developing","started game development","when did sammy start developing games","what year did sammy start making games","when did the developer start developing","year the developer started developing","when did the developer start making games","when did sammy begin","when did i begin developing","year sammy began developing","sammy started developing","sammy developing year","started developing","started game dev","when did sammy start his journey"},a="2013"},
 
-    -- 🆕 SKIN COLOUR → RED
+    -- ⭐ PHOENIX — RAREST BRAINROT (fire bird, 425M/s) ⭐
+    {p={
+        "rarest brainrot","what is the rarest brainrot","whats the rarest brainrot",
+        "the rarest brainrot","which brainrot is the rarest","most rarest brainrot",
+        "rarest brainrot in game","rarest brainrot in sab","rarest brainrot in steal a brainrot",
+        "rarest brainrot currently","rarest brainrot now","what brainrot is the rarest",
+        "which is the rarest brainrot","tell me the rarest brainrot","name the rarest brainrot",
+        "rarest brainrot ever","the most rarest brainrot","the rarest one","which one is rarest",
+        "what is rarest brainrot","whats rarest brainrot","rarest of all","rarest brainrot of all time",
+        "most rare brainrot","which brainrot is most rare","rarest brainrot in the game",
+        "the rarest brainrot in sab","most rare brainrot in the game","rarest br","rarest in sab",
+        "rarest steal a brainrot","most rare steal a brainrot","rarest of them all",
+        "the rarest brainrot in the game","which is the most rare brainrot",
+        "tell me the rarest","rarest brainrot here","number 1 rarest brainrot"
+    },a="PHOENIX"},
+    {p={
+        "phoenix","what is phoenix","whats phoenix","phoenix brainrot","the phoenix",
+        "tell me about phoenix","describe phoenix","info about phoenix","phoenix info"
+    },a="PHOENIX"},
+    {p={
+        "phoenix income","how much does phoenix earn","phoenix per sec","phoenix per second",
+        "phoenix earn","phoenix earns","phoenix money","phoenix value","phoenix income per second",
+        "how much money does phoenix make","how much does the phoenix brainrot earn",
+        "what does phoenix earn","what does the phoenix earn","phoenix cash","phoenix cps",
+        "how much phoenix earns","phoenix earning","phoenix rate","phoenix income per sec",
+        "what is phoenix income","whats phoenix income","what is phoenix per second",
+        "whats phoenix per second","phoenix money per sec","phoenix earn per sec",
+        "phoenix generate","how much does phoenix generate","phoenix income value",
+        "income of phoenix","per sec of phoenix","how much is phoenix income",
+        "phoenix profit","phoenix per sec money","how much phoenix per sec",
+        "phoenix money per second","what is the income of phoenix"
+    },a="425M"},
+    {p={
+        "what does phoenix look like","phoenix model","phoenix appearance","how does phoenix look",
+        "what is phoenix model","whats phoenix model","phoenix type","phoenix animal",
+        "what animal is phoenix","what kind of brainrot is phoenix","phoenix brainrot type",
+        "phoenix bird","is phoenix a bird","is phoenix a fire bird","phoenix fire bird",
+        "what is phoenix model","describe phoenix model","phoenix model type",
+        "what type is phoenix","phoenix a bird","what animal is the phoenix",
+        "which animal is phoenix","what does the phoenix look like","phoenix species",
+        "what species is phoenix","phoenix is what animal","phoenix is a what",
+        "tell me phoenix model","what kind of animal is phoenix","is phoenix a flaming bird",
+        "is the phoenix a fire bird","fire bird phoenix","phoenix firebird"
+    },a="FIREBIRD"},
+    {p={
+        "phoenix rarity","what rarity is phoenix","which rarity is phoenix","what is phoenix rarity",
+        "whats phoenix rarity","phoenix rarity value","phoenix how rare","how rare is phoenix",
+        "how rare is the phoenix","is phoenix rare","is the phoenix rare"
+    },a="RAREST"},
+
     {p={
         "my skin colour","my skin color","what is my skin colour","what is my skin color",
         "whats my skin colour","whats my skin color","skin colour","skin color",
@@ -81,7 +134,6 @@ local BRAINROT_KNOWLEDGE = {
         "what colour am i","what color am i","what colour is my skin"
     },a="RED"},
 
-    -- 🆕 SAMMY REAL LIFE LAST NAME → BRAKTA
     {p={
         "my real life last name","my real last name","my last name",
         "real life last name","real last name","last name",
@@ -94,7 +146,6 @@ local BRAINROT_KNOWLEDGE = {
         "whats my surname","what is my real last name","whats my real last name"
     },a="BRAKTA"},
 
-    -- 🆕 TOMORROW DAY OF MONTH → dynamic
     {p={
         "day of the month tomorrow","what day of the month tomorrow",
         "what day is tomorrow","whats the day tomorrow","tomorrows day",
@@ -108,7 +159,6 @@ local BRAINROT_KNOWLEDGE = {
         "tomorrow day of the month number"
     },a=TOMORROW_DAY_STR},
 
-    -- 🆕 TODAY DAY OF MONTH → dynamic
     {p={
         "what day is today","what day is it today","what day today","whats today day",
         "whats the day today","what day of month is it","whats the day of month",
@@ -131,7 +181,6 @@ local BRAINROT_KNOWLEDGE = {
         "whats the day of the month today"
     },a=TODAY_DAY_STR},
 
-    -- 🆕 MONTH → OCTOBER
     {p={
         "what month today","whats month today","what month is today","whats month is today",
         "what month is it","whats the month","which month is it","current month",
@@ -144,7 +193,6 @@ local BRAINROT_KNOWLEDGE = {
         "which month is it now","which month are we in now","month of the year","what month of the year"
     },a="OCTOBER"},
 
-    -- 🆕 JOHN PORK ANIMAL → PIGGY
     {p={
         "what john pork animal is","what animal john pork is","what animal is john pork",
         "john pork animal","john pork what animal","john pork is what animal",
@@ -158,7 +206,6 @@ local BRAINROT_KNOWLEDGE = {
         "john pork kind animal","what kind animal john pork"
     },a="PIGGY"},
 
-    -- 🆕 HOLIDAY → HALLOWEEN
     {p={
         "whats holiday it is","what holiday is it","which holiday is it",
         "what holiday is today","whats today holiday","what is today holiday",
@@ -216,6 +263,7 @@ local BRAINROT_KNOWLEDGE = {
     {p={"which brainrot earns 150k","brainrot earns 150k","brainrot earns 150k per sec","brainrot that earns 150k per second"},a="TRENOSTRUZZOTURBO3000"},
     {p={"which brainrot earns 1b","brainrot earns 1b","brainrot earns 1b per sec","brainrot earns 1 billion per sec","brainrot that earns 1b per second"},a="SPYDERELEPHANT"},
     {p={"which brainrot earns 750m","brainrot earns 750m","brainrot earns 750m per sec","brainrot that earns 750m per second"},a="STRAWBERRYELEPHANT"},
+    {p={"which brainrot earns 425m","brainrot earns 425m","brainrot earns 425m per sec","brainrot that earns 425m per second","which brainrot earns 425 million"},a="PHOENIX"},
     {p={"starter item","starting item","first item","default item","beginner item","what item do you start with"},a="BAT"},
     {p={"item at rebirth 17","rebirth 17 item","what item at rebirth 17","which item at rebirth 17","rebirth seventeen item"},a="GIANTPOTION"},
     {p={"fastest non robux item","fastest non-robux item","fastest item without robux","fastest free item","fastest item no robux"},a="INVISIBILITYCLOAK"},
@@ -277,10 +325,18 @@ local BRAINROT_KNOWLEDGE = {
     {p={"what is the fourth og","fourth og","fourth og added","4th og","fourth og we added","the fourth og we added"},a="JOHNPORK"},
     {p={"what is the fifth og","fifth og","fifth og added","5th og","fifth og we added","the fifth og we added"},a="MEOWL"},
     {p={"how many og brainrots","og count"},a="FIVE"},
-    {p={"best brainrot","rarest brainrot"},a="POLAROIDINI"},
+    {p={"best brainrot"},a="POLAROIDINI"},
     {p={"unobtainable brainrot"},a="ORCHIDOX"},
     {p={"most popular brainrot"},a="DRAGONCANNELONNI"},
     {p={"most common brainrot","weakest brainrot"},a="NOOBINIPIZZANINI"},
+    {p={
+        "my favourite brainrot","my favorite brainrot","what is my favourite brainrot","what is my favorite brainrot",
+        "whats my favourite brainrot","whats my favorite brainrot","favourite brainrot","favorite brainrot",
+        "fav brainrot","my fav brainrot","best brainrot i like","which brainrot is my favourite",
+        "which brainrot is my favorite","brainrot i like","what brainrot do i like",
+        "sammys favourite brainrot","sammys favorite brainrot","sammy favourite brainrot","sammy favorite brainrot",
+        "my most favourite brainrot","my most favorite brainrot"
+    },a="MEOWL"},
     {p={"fourteenth mutation","mutation 14","latest mutation","newest mutation","last mutation","the last mutation","last mutation we added","last mutation added","final mutation","most recent mutation","mutation added last","whats the last mutation","what is the last mutation","whats the last mutation we added","what is the last mutation we added","the last mutation we added","newest mutation we added","latest mutation we added"},a="ECLIPSE"},
     {p={"first mutation","mutation 1","was the first mutation","the first mutation we added","first mutation we added"},a="BLOODROT"},
     {p={"second mutation","mutation 2","second mutation we added","the second mutation we added"},a="GOLD"},
@@ -357,10 +413,25 @@ local BRAINROT_KNOWLEDGE = {
     {p={"what is my name","what is your name","my name","sammy name","who is sammy","developer","creator","owner","owner name","developer name","who am i","my real name","name of the developer","name of the creator","name of the owner","who made this game","who created this game","who is the owner"},a="SAMMY"},
     {p={"what is my favorite color","what is my favourite color","favorite color","favourite color","fav color","fav colour","my favorite color","my favourite color","color i like","colour i like","color do i like","what color do i like","what colour do i like"},a="BLUE"},
     {p={"how old is sammy","how old am i","what is my age","my age","sammy age","whats my age","what is the age","age of sammy","age of the developer","age of the owner","age"},a="24"},
-    {p={"what month is my birthday"},a="FEBRUARY"},
-    {p={"what day is my birthday"},a="24"},
-    {p={"what day and month is my birthday"},a="FEBRUARY 24"},
-    {p={"what year am i born","birth year","what year was i born","when was i born"},a="2002"},
+    {p={
+        "what month is my birthday","my birthday month","what is my birthday month",
+        "whats my birthday month","which month is my birthday","birthday month",
+        "month of my birthday","my birth month","what month was i born in",
+        "which month was i born","what month i was born","what month am i born",
+        "when is my birthday month","in which month is my birthday"
+    },a="FEBRUARY"},
+    {p={
+        "what day is my birthday","my birthday day","what is my birthday day",
+        "whats my birthday day","which day is my birthday","birthday day",
+        "day of my birthday","what date is my birthday","whats my birthday date",
+        "birthday date","what day was i born","when is my birthday day"
+    },a="24"},
+    {p={
+        "what day and month is my birthday","my birthday date and month","my birthday month and day",
+        "when is my birthday","my birthday when","whats my birthday","what is my birthday",
+        "my full birthday","birthday"
+    },a="FEBRUARY 24"},
+    {p={"what year am i born","birth year","what year was i born","when was i born","my birth year","which year was i born"},a="2002"},
     {p={"where was i born","birthplace","where was sammy born","where was the developer born"},a="ALGERIA"},
     {p={"where am i from","sammy country","my country","where is sammy from","where am i from"},a="BRAZIL"},
     {p={"nationality","what is my nationality"},a="BRAZILIAN"},
@@ -532,8 +603,6 @@ do
             n = n + 1
             if not rr[w] then return false end
         end
-        -- ⭐ FIX: single-word patterns must not match queries with extra significant words
-        -- prevents "my name" from matching "my cat name"
         if n == 1 then
             for w in pairs(rr) do
                 if not ww[w] then return false end
@@ -564,17 +633,35 @@ do
         working = working:gsub("%s+plus%s+", " and "):gsub("%s+also%s+", " and ")
         working = working:gsub("%s+"," ")
         local pieces, current = {}, {}
+        local andPieces, cur = {}, {}
         for word in working:gmatch("%S+") do
             if word == "and" then
-                if #current > 0 then
-                    table.insert(pieces, table.concat(current, " "))
-                    current = {}
-                end
+                if #cur > 0 then table.insert(andPieces, table.concat(cur, " ")); cur = {} end
             else
-                table.insert(current, word)
+                table.insert(cur, word)
             end
         end
-        if #current > 0 then table.insert(pieces, table.concat(current, " ")) end
+        if #cur > 0 then table.insert(andPieces, table.concat(cur, " ")) end
+        for _, piece in ipairs(andPieces) do
+            local p = piece:match("^%s*(.-)%s*$") or ""
+            if p ~= "" then
+                local subparts = {}
+                local buf = {}
+                for word in p:gmatch("%S+") do
+                    if word == "my" and #buf > 0 then
+                        table.insert(subparts, table.concat(buf, " "))
+                        buf = { word }
+                    else
+                        table.insert(buf, word)
+                    end
+                end
+                if #buf > 0 then table.insert(subparts, table.concat(buf, " ")) end
+                for _, sp in ipairs(subparts) do
+                    sp = sp:match("^%s*(.-)%s*$") or ""
+                    if sp ~= "" then table.insert(pieces, sp) end
+                end
+            end
+        end
         if #pieces <= 1 then
             local baseAnswer, originalAnswer = findFirstMatch(message)
             if not baseAnswer then return nil end
@@ -627,6 +714,8 @@ do
                          or l:match("^%s*(day)") or l:match("^%s*(date)") or l:match("^%s*(holiday)")
                          or l:match("^%s*(tomorrow)") or l:match("^%s*(real)") or l:match("^%s*(last)")
                          or l:match("^%s*(skin)") or l:match("^%s*(colour)") or l:match("^%s*(color)")
+                         or l:match("^%s*(age)") or l:match("^%s*(birthday)") or l:match("^%s*(favorite)")
+                         or l:match("^%s*(favourite)") or l:match("^%s*(fav)") or l:match("^%s*(phoenix)")
         local hasKeyword = l:find("og",1,true) or l:find("mutation",1,true) or l:find("machine",1,true) or l:find("brainrot",1,true)
                         or l:find("color",1,true) or l:find("favorite",1,true) or l:find("fav",1,true)
                         or l:find("name",1,true) or l:find("age",1,true) or l:find("birthday",1,true)
@@ -659,6 +748,8 @@ do
                         or l:find("tomorrow",1,true) or l:find("last name",1,true) or l:find("surname",1,true)
                         or l:find("real life",1,true) or l:find("real last",1,true) or l:find("plus",1,true)
                         or l:find("skin",1,true) or l:find("colour",1,true) or l:find("tone",1,true)
+                        or l:find("phoenix",1,true) or l:find("fire bird",1,true) or l:find("firebird",1,true)
+                        or l:find("rarest",1,true) or l:find("rare",1,true)
         local isSabRiddle = l:find("sab",1,true) or l:find("release",1,true) or l:find("steal",1,true)
         local wordCount = 0
         for _ in l:gmatch("%S+") do wordCount = wordCount + 1 end
@@ -700,12 +791,35 @@ do
         ["since"]=true,["gonna"]=true,["plus"]=true,["going"]=true,["be"]=true,
     }
 
+    local ADJ_BLACKLIST = {
+        lagging=true, laggy=true, lag=true, slow=true, fast=true, quick=true,
+        good=true, bad=true, great=true, awesome=true, cool=true, nice=true,
+        terrible=true, horrible=true, awful=true, amazing=true, perfect=true,
+        broken=true, working=true, fine=true, okay=true, ok=true,
+        hot=true, cold=true, warm=true, freezing=true, burning=true,
+        big=true, small=true, huge=true, tiny=true, giant=true, little=true,
+        old=true, new=true, fresh=true, ancient=true,
+        hard=true, easy=true, soft=true, tough=true, weak=true, strong=true,
+        dead=true, alive=true, tired=true, sleepy=true, bored=true, happy=true, sad=true,
+        angry=true, mad=true, hungry=true, thirsty=true, busy=true, free=true, ready=true,
+        dumb=true, smart=true, stupid=true, clever=true, crazy=true, weird=true, strange=true,
+    }
+
     local VACATION_WORDS = {vacation=true, vacations=true, vacationing=true, holiday=true, holidays=true, trip=true, ["break"]=true}
 
     local DEVICE_WORDS = {
         laptop=true, pc=true, computer=true, phone=true, mobile=true, tablet=true, ipad=true,
         iphone=true, desktop=true, macbook=true, chromebook=true, android=true, ios=true,
         console=true, xbox=true, playstation=true, ps4=true, ps5=true, switch=true, nintendo=true,
+    }
+
+    local UI_NOISE = {
+        "you bought","you purchased","you bought a","added to your base",
+        "brainrot added","brainrot bought","purchase complete","buy complete",
+        "coins spent","spent coins","you sold","you traded","trade complete",
+        "you earned","you received","you got a","you won","slot","spin wheel",
+        "spin result","lucky block","you opened","you unlocked","new brainrot",
+        "purchased","bought","added to base","robux spent",
     }
 
     local RELATION_WORDS = {
@@ -750,6 +864,19 @@ do
     end
 
     local function isStop(w) return STOP[w] or #w <= 1 end
+
+    local function isAdjective(w)
+        if not w then return false end
+        return ADJ_BLACKLIST[w:lower()] == true
+    end
+
+    local function isNoise(text)
+        local l = tostring(text or ""):lower()
+        for _, phrase in ipairs(UI_NOISE) do
+            if l:find(phrase, 1, true) then return true end
+        end
+        return false
+    end
 
     local function addFact(attr, value, source)
         if not attr or not value then return false end
@@ -824,31 +951,27 @@ do
     end
 
     local function tryExtractLocation(l, learned)
-        local loc = l:match("im%s+on%s+the%s+(%a+)")
-                 or l:match("im%s+on%s+(%a+)")
-                 or l:match("im%s+at%s+the%s+(%a+)")
-                 or l:match("im%s+at%s+(%a+)")
-                 or l:match("im%s+in%s+the%s+(%a+)")
-                 or l:match("im%s+in%s+(%a+)")
-                 or l:match("currently%s+on%s+the%s+(%a+)")
-                 or l:match("currently%s+on%s+(%a+)")
-                 or l:match("currently%s+at%s+the%s+(%a+)")
-                 or l:match("currently%s+at%s+(%a+)")
-                 or l:match("currently%s+in%s+the%s+(%a+)")
-                 or l:match("currently%s+in%s+(%a+)")
-                 or l:match("right%s+now%s+im%s+on%s+(%a+)")
-                 or l:match("right%s+now%s+im%s+at%s+(%a+)")
-                 or l:match("^on%s+the%s+(%a+)")
-                 or l:match("^on%s+(%a+)")
-                 or l:match("^at%s+the%s+(%a+)")
-                 or l:match("^at%s+(%a+)")
-                 or l:match("^in%s+the%s+(%a+)")
-                 or l:match("^in%s+(%a+)")
-                 or l:match("%f[%a]at%s+the%s+(%a+)%f[%A]")
-                 or l:match("%f[%a]in%s+the%s+(%a+)%f[%A]")
-                 or l:match("%f[%a]on%s+the%s+(%a+)%f[%A]")
-                 or l:match("%f[%a]at%s+(%a+)%f[%A]")
-        if loc and not isStop(loc) then
+        local loc
+        local patterns = {
+            "^im%s+in%s+the%s+(%a+)", "^im%s+in%s+(%a+)",
+            "^im%s+at%s+the%s+(%a+)", "^im%s+at%s+(%a+)",
+            "^im%s+on%s+the%s+(%a+)", "^im%s+on%s+(%a+)",
+            "^im%s+from%s+the%s+(%a+)", "^im%s+from%s+(%a+)",
+            "^i%s+live%s+in%s+the%s+(%a+)", "^i%s+live%s+in%s+(%a+)",
+            "^i%s+am%s+in%s+the%s+(%a+)", "^i%s+am%s+in%s+(%a+)",
+            "^i%s+am%s+at%s+the%s+(%a+)", "^i%s+am%s+at%s+(%a+)",
+            "^i%s+am%s+from%s+(%a+)",
+            "^currently%s+in%s+the%s+(%a+)", "^currently%s+in%s+(%a+)",
+            "^currently%s+at%s+the%s+(%a+)", "^currently%s+at%s+(%a+)",
+            "^right%s+now%s+im%s+in%s+(%a+)",
+            "^right%s+now%s+im%s+at%s+(%a+)",
+            "^right%s+now%s+im%s+on%s+(%a+)",
+        }
+        for _, pat in ipairs(patterns) do
+            loc = l:match(pat)
+            if loc then break end
+        end
+        if loc and not isStop(loc) and not isAdjective(loc) then
             if VACATION_WORDS[loc:lower()] then
                 if addFact("REASON", up(loc), "vacation-reason") then
                     pushLearned(learned, "REASON", up(loc))
@@ -863,7 +986,6 @@ do
         return false
     end
 
-    -- ⭐ FIXED: device extraction now scans for device keyword anywhere
     local function tryExtractDevice(l, learned)
         local dev = l:match("im%s+using%s+a%s+(%a+)")
                  or l:match("im%s+using%s+an%s+(%a+)")
@@ -882,17 +1004,18 @@ do
                  or l:match("my%s+device%s+is%s+(%a+)")
                  or l:match("device%s+is%s+a%s+(%a+)")
                  or l:match("device%s+is%s+(%a+)")
-        if dev and not isStop(dev) and DEVICE_WORDS[dev:lower()] then
+        if dev and not isStop(dev) and not isAdjective(dev) and DEVICE_WORDS[dev:lower()] then
             if addFact("DEVICE", dev, "device") then
                 pushLearned(learned, "DEVICE", up(dev))
             end
             return true
         end
-        -- ⭐ FALLBACK: if a device cue exists, scan for any device keyword
         local hasCue = l:find("%f[%a]using%f[%A]") or l:find("%f[%a]playing%f[%A]")
                     or l:find("%f[%a]device%f[%A]")
                     or l:find("%f[%a]on%s+my%f[%A]") or l:find("%f[%a]on%s+a%f[%A]")
                     or l:find("%f[%a]on%s+the%f[%A]") or l:find("%f[%a]on%s+an%f[%A]")
+                    or l:find("^my%f[%A]") or l:find("%f[%a]im%f[%A]")
+                    or l:find("%f[%a]i%s+have%f[%A]") or l:find("%f[%a]i%s+got%f[%A]")
         if hasCue then
             for dw in pairs(DEVICE_WORDS) do
                 if l:find("%f[%a]"..dw.."%f[%A]") then
@@ -943,15 +1066,21 @@ do
     local function tryExtractRelations(l, learned)
         for rel, key in pairs(RELATION_WORDS) do
             local cap = l:match("my%s+"..rel.."%s+is%s+([%a%d]+)")
-            if cap and not isStop(cap) then
+            if cap and not isStop(cap) and not isAdjective(cap) then
                 if addFact(key, cap, "relation") then
                     pushLearned(learned, key, up(cap))
                 end
             end
             local nm = l:match("my%s+"..rel.."%s+name%s+is%s+(%a+)")
-            if nm and not isStop(nm) then
+            if nm and not isStop(nm) and not isAdjective(nm) then
                 if addFact(key.."_NAME", nm, "relation-name") then
                     pushLearned(learned, key.."_NAME", up(nm))
+                end
+            end
+            local nm2 = l:match("my%s+"..rel.."%s+is%s+called%s+(%a+)")
+            if nm2 and not isStop(nm2) and not isAdjective(nm2) then
+                if addFact(key.."_NAME", nm2, "relation-name") then
+                    pushLearned(learned, key.."_NAME", up(nm2))
                 end
             end
         end
@@ -992,7 +1121,7 @@ do
                     or l:match("im%s+called%s+(%a+)")
                     or l:match("call%s+me%s+(%a+)")
                     or l:match("they%s+call%s+me%s+(%a+)")
-            if nm and not isStop(nm) then
+            if nm and not isStop(nm) and not isAdjective(nm) then
                 if addFact("NAME", nm, "name") then
                     pushLearned(learned, "NAME", up(nm))
                 end
@@ -1004,6 +1133,8 @@ do
                      or l:match("im%s+(%d+)%s+years")
                      or l:match("my%s+age%s+is%s+(%d+)")
                      or l:match("age%s+is%s+(%d+)")
+                     or l:match("^im%s+(%d+)%s*$")
+                     or l:match("^i%sa?m%s+(%d+)%s*$")
             if age then
                 if addFact("AGE", age, "age") then
                     pushLearned(learned, "AGE", age)
@@ -1016,7 +1147,7 @@ do
                       or l:match("my%s+skin%s+color%s+is%s+(%a+)")
                       or l:match("my%s+skin%s+is%s+(%a+)")
                       or l:match("my%s+skin%s+tone%s+is%s+(%a+)")
-            if skin and not isStop(skin) then
+            if skin and not isStop(skin) and not isAdjective(skin) then
                 if addFact("SKIN", skin, "skin") then
                     pushLearned(learned, "SKIN", up(skin))
                 end
@@ -1024,15 +1155,29 @@ do
         end
 
         for sub, obj in l:gmatch("my%s+favorite%s+(%a+)%s+is%s+([%a%d]+)") do
-            if not isStop(sub) and not isStop(obj) then
+            if not isStop(sub) and not isStop(obj) and not isAdjective(obj) then
                 if addFact("FAVORITE_"..sub, obj, "favorite") then
                     pushLearned(learned, "FAVORITE_"..up(sub), up(obj))
                 end
             end
         end
         for sub, obj in l:gmatch("my%s+favourite%s+(%a+)%s+is%s+([%a%d]+)") do
-            if not isStop(sub) and not isStop(obj) then
+            if not isStop(sub) and not isStop(obj) and not isAdjective(obj) then
                 if addFact("FAVORITE_"..sub, obj, "favorite") then
+                    pushLearned(learned, "FAVORITE_"..up(sub), up(obj))
+                end
+            end
+        end
+        for sub, obj in l:gmatch("my%s+favorite%s+(%a+)%s+([%a%d]+)") do
+            if not isStop(sub) and not isStop(obj) and not isAdjective(obj) and obj ~= "is" then
+                if addFact("FAVORITE_"..sub, obj, "favorite-short") then
+                    pushLearned(learned, "FAVORITE_"..up(sub), up(obj))
+                end
+            end
+        end
+        for sub, obj in l:gmatch("my%s+favourite%s+(%a+)%s+([%a%d]+)") do
+            if not isStop(sub) and not isStop(obj) and not isAdjective(obj) and obj ~= "is" then
+                if addFact("FAVORITE_"..sub, obj, "favorite-short") then
                     pushLearned(learned, "FAVORITE_"..up(sub), up(obj))
                 end
             end
@@ -1040,30 +1185,28 @@ do
 
         for sub, obj in l:gmatch("my%s+(%a+)%s+is%s+([%a%d]+)") do
             if not isStop(sub) and not isStop(obj) then
-                if addFact(sub, obj, "possessive") then
-                    pushLearned(learned, up(sub), up(obj))
-                end
                 if DEVICE_WORDS[sub:lower()] then
-                    if addFact("DEVICE", sub, "device-from-possessive") then
-                        pushLearned(learned, "DEVICE", up(sub))
+                    -- handled by tryExtractDevice
+                elseif not isAdjective(obj) then
+                    if addFact(sub, obj, "possessive") then
+                        pushLearned(learned, up(sub), up(obj))
                     end
                 end
             end
         end
         for sub, obj in l:gmatch("my%s+(%a+)%s+was%s+([%a%d]+)") do
             if not isStop(sub) and not isStop(obj) then
-                if addFact(sub, obj, "possessive-past") then
-                    pushLearned(learned, up(sub), up(obj))
-                end
                 if DEVICE_WORDS[sub:lower()] then
-                    if addFact("DEVICE", sub, "device-from-possessive") then
-                        pushLearned(learned, "DEVICE", up(sub))
+                    -- skip
+                elseif not isAdjective(obj) then
+                    if addFact(sub, obj, "possessive-past") then
+                        pushLearned(learned, up(sub), up(obj))
                     end
                 end
             end
         end
         for a, b, c in l:gmatch("my%s+(%a+)%s+(%a+)%s+is%s+([%a%d]+)") do
-            if not isStop(a) and not isStop(b) and not isStop(c) then
+            if not isStop(a) and not isStop(b) and not isStop(c) and not isAdjective(c) then
                 if addFact(a.."_"..b, c, "possessive-multi") then
                     pushLearned(learned, up(a.."_"..b), up(c))
                 end
@@ -1071,7 +1214,7 @@ do
         end
 
         for sub, obj in l:gmatch("(%a+)%s+is%s+([%a%d]+)") do
-            if not isStop(sub) and not isStop(obj) and #sub > 2 and #obj > 2 then
+            if not isStop(sub) and not isStop(obj) and #sub > 2 and #obj > 2 and not isAdjective(obj) then
                 if addFact(sub, obj, "is-statement") then
                     pushLearned(learned, up(sub), up(obj))
                 end
@@ -1100,14 +1243,14 @@ do
         end
 
         for obj in l:gmatch("i have a%s+(%a+)") do
-            if not isStop(obj) then
+            if not isStop(obj) and not isAdjective(obj) then
                 if addFact("HAS_"..obj, "YES", "possession") then
                     pushLearned(learned, "HAS_"..up(obj), "YES")
                 end
             end
         end
         for obj in l:gmatch("i have an%s+(%a+)") do
-            if not isStop(obj) then
+            if not isStop(obj) and not isAdjective(obj) then
                 if addFact("HAS_"..obj, "YES", "possession") then
                     pushLearned(learned, "HAS_"..up(obj), "YES")
                 end
@@ -1115,28 +1258,28 @@ do
         end
 
         for obj in l:gmatch("i want%s+(%a+)") do
-            if not isStop(obj) then
+            if not isStop(obj) and not isAdjective(obj) then
                 if addFact("WANTS_"..obj, "YES", "desire") then
                     pushLearned(learned, "WANTS_"..up(obj), "YES")
                 end
             end
         end
         for obj in l:gmatch("i like%s+(%a+)") do
-            if not isStop(obj) then
+            if not isStop(obj) and not isAdjective(obj) then
                 if addFact("LIKES_"..obj, "YES", "preference") then
                     pushLearned(learned, "LIKES_"..up(obj), "YES")
                 end
             end
         end
         for obj in l:gmatch("i love%s+(%a+)") do
-            if not isStop(obj) then
+            if not isStop(obj) and not isAdjective(obj) then
                 if addFact("LOVES_"..obj, "YES", "love") then
                     pushLearned(learned, "LOVES_"..up(obj), "YES")
                 end
             end
         end
         for obj in l:gmatch("i hate%s+(%a+)") do
-            if not isStop(obj) then
+            if not isStop(obj) and not isAdjective(obj) then
                 if addFact("HATES_"..obj, "YES", "hate") then
                     pushLearned(learned, "HATES_"..up(obj), "YES")
                 end
@@ -1144,19 +1287,25 @@ do
         end
 
         for place in l:gmatch("i visited%s+(%a+)") do
-            if addFact("VISITED", place, "visited") then
-                pushLearned(learned, "VISITED", up(place))
+            if not isAdjective(place) then
+                if addFact("VISITED", place, "visited") then
+                    pushLearned(learned, "VISITED", up(place))
+                end
             end
         end
         for place in l:gmatch("i went%s+to%s+(%a+)") do
-            if addFact("VISITED", place, "visited") then
-                pushLearned(learned, "VISITED", up(place))
+            if not isAdjective(place) then
+                if addFact("VISITED", place, "visited") then
+                    pushLearned(learned, "VISITED", up(place))
+                end
             end
         end
 
         for place in l:gmatch("i live%s+in%s+(%a+)") do
-            if addFact("LIVE_IN", place, "live") then
-                pushLearned(learned, "LIVE_IN", up(place))
+            if not isAdjective(place) then
+                if addFact("LIVE_IN", place, "live") then
+                    pushLearned(learned, "LIVE_IN", up(place))
+                end
             end
         end
 
@@ -1164,7 +1313,7 @@ do
             or l:match("im%s+just%s+doing%s+(%a+)")
             or l:match("im%s+currently%s+doing%s+(%a+)")
             or l:match("im%s+playing%s+(%a+)")
-        if action and not isStop(action) then
+        if action and not isStop(action) and not isAdjective(action) then
             if addFact("ACTION", action, "action") then
                 pushLearned(learned, "ACTION", up(action))
             end
@@ -1173,7 +1322,7 @@ do
         local state = l:match("im%s+feeling%s+(%a+)")
             or l:match("im%s+very%s+(%a+)")
             or l:match("im%s+so%s+(%a+)")
-        if state and not isStop(state) then
+        if state and not isStop(state) and not isAdjective(state) then
             if addFact("STATE", state, "state") then
                 pushLearned(learned, "STATE", up(state))
             end
@@ -1183,6 +1332,7 @@ do
     local function extract(sentence)
         local l = clean(sentence)
         if l == "" then return {} end
+        if isNoise(l) then return {} end
         local learned = {}
         local chunks = splitOnSo(l)
         for _, chunk in ipairs(chunks) do
@@ -1205,17 +1355,34 @@ do
         q = q:gsub("&", " and "):gsub("%+", " and "):gsub(",", " and "):gsub(";", " and ")
         q = q:gsub("%s+also%s+", " and "):gsub("%s+plus%s+", " and ")
         local current = {}
+        local function flush()
+            if #current > 0 then
+                local s = table.concat(current, " ")
+                local subparts, buf = {}, {}
+                for word in s:gmatch("%S+") do
+                    if word == "my" and #buf > 0 then
+                        subparts[#subparts+1] = table.concat(buf, " ")
+                        buf = { word }
+                    else
+                        buf[#buf+1] = word
+                    end
+                end
+                if #buf > 0 then subparts[#subparts+1] = table.concat(buf, " ") end
+                for _, sp in ipairs(subparts) do
+                    sp = sp:match("^%s*(.-)%s*$") or ""
+                    if sp ~= "" then parts[#parts+1] = sp end
+                end
+                current = {}
+            end
+        end
         for word in q:gmatch("%S+") do
             if word == "and" then
-                if #current > 0 then
-                    parts[#parts+1] = table.concat(current, " ")
-                    current = {}
-                end
+                flush()
             else
                 current[#current+1] = word
             end
         end
-        if #current > 0 then parts[#parts+1] = table.concat(current, " ") end
+        flush()
         return parts
     end
 
@@ -1254,7 +1421,6 @@ do
         if q:find("skin") or q:find("tone") then
             intents[#intents+1] = "SKIN"
         end
-        -- ⭐ NEW: cat/pet/dog name intents (checked first, block NAME)
         local hasCatName = (q:find("cat") and q:find("name")) or q:find("cats name") or q:find("cat called") or q:find("kitty")
         local hasPetName = (q:find("pet") and q:find("name")) or q:find("pet called")
         local hasDogName = (q:find("dog") and q:find("name")) or q:find("dog called")
@@ -1329,7 +1495,6 @@ do
         if #parts > 1 then
             local answers = {}
             for _, piece in ipairs(parts) do
-                -- ⭐ FIX: numeric pieces pass through untouched
                 local numOnly = piece:match("^%s*(%d+)%s*$")
                 if numOnly then
                     answers[#answers+1] = numOnly
@@ -1460,6 +1625,21 @@ do
             or lower:find("doesn't exist",1,true) or lower:find("does not exist",1,true)
             or lower:find("not found",1,true) or lower:find("rejected",1,true)
             or lower:find("wrong code",1,true)
+    end
+    function Chk.isNoiseText(text)
+        local l = tostring(text or ""):lower()
+        local noisePhrases = {
+            "you bought","you purchased","added to your base","brainrot added",
+            "purchase complete","buy complete","coins spent","spent coins",
+            "you sold","you traded","trade complete","you earned",
+            "slot","spin wheel","spin result","lucky block","you opened",
+            "you unlocked","new brainrot","purchased","added to base",
+            "robux spent","you gained","stole","successfully bought",
+        }
+        for _, p in ipairs(noisePhrases) do
+            if l:find(p, 1, true) then return true end
+        end
+        return false
     end
 end
 
@@ -2672,7 +2852,7 @@ local function onAnnouncement(...)
     local rawText = extractAnnouncementText(...)
     if rawText == "" then return end
 
-    do
+    if not Chk.isNoiseText(rawText) then
         local l = tostring(rawText):lower()
         local qCount = 0
         if l:find("%f[%a]which%f[%A]") then qCount = qCount + 1 end
@@ -2758,6 +2938,7 @@ local function watchFB(obj, isInitialScan)
         local lower = text:lower()
         if Chk.isInvalid(lower) then pendingCode = nil; return end
         if Chk.isSuccess(lower) then handleSuccess(text); return end
+        if Chk.isNoiseText(text) then return end
         do
             local l = tostring(text):lower()
             local qCount = 0
