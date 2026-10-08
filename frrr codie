@@ -1,0 +1,2716 @@
+--[[
+    FUNHUB CODE SNIPER — v14 Build
+    + RAREST BRAINROT = POLAROIDINI (Phoenix stays as 425M brainrot)
+    + Compact GUI (520x380, smaller controls)
+    + All v13 features preserved
+--]]
+
+local cloneref = cloneref or function(o) return o end
+local Players           = cloneref(game:GetService("Players"))
+local ReplicatedStorage = cloneref(game:GetService("ReplicatedStorage"))
+local UserInputService  = cloneref(game:GetService("UserInputService"))
+local TweenService      = cloneref(game:GetService("TweenService"))
+local RunService        = cloneref(game:GetService("RunService"))
+local HttpService       = cloneref(game:GetService("HttpService"))
+local LP  = Players.LocalPlayer
+local PG  = LP:WaitForChild("PlayerGui")
+
+local Net
+do
+    local pk = ReplicatedStorage:FindFirstChild("Packages")
+    if pk then Net = pk:FindFirstChild("Net") end
+end
+
+local scriptLoadedAt = os.clock()
+local STARTUP_GRACE = 3
+
+local _nowTbl = os.date("*t")
+local TODAY_DAY_STR = tostring(_nowTbl.day)
+local _tomTbl = os.date("*t", os.time(_nowTbl) + 86400)
+local TOMORROW_DAY_STR = tostring(_tomTbl.day)
+
+local function getGlobal(name)
+    local env = (type(getfenv) == "function") and select(2, pcall(getfenv)) or _G
+    if type(env) == "table" then
+        local ok, v = pcall(function() return env[name] end)
+        if ok then return v end
+    end
+    return nil
+end
+
+local _syn             = getGlobal("syn")
+local _request         = getGlobal("request")
+local _http_request    = getGlobal("http_request")
+local _getconnections  = getGlobal("getconnections")
+local _getupvalues     = getGlobal("getupvalues")
+local _setupvalue      = getGlobal("setupvalue")
+local _setclipboard    = getGlobal("setclipboard")
+local _fireclick       = getGlobal("fireclick")
+local _firesignal      = getGlobal("firesignal")
+local _fireproximityprompt = getGlobal("fireproximityprompt")
+local _gethui          = getGlobal("gethui")
+
+----------------------------------------------------------------------
+-- ⭐ RIDDLE KNOWLEDGE BASE
+----------------------------------------------------------------------
+local BRAINROT_KNOWLEDGE = {
+    {p={"what is my full name","whats my full name","my full name","full name","what is sammys full name","whats sammys full name","sammys full name","sammy full name","what is your full name","whats your full name","your full name","the full name","what is my real full name","full name of sammy","full name of sammys","full name of the developer","the developers full name","sammys real full name","full name of sammys real name","what is sammys real full name","whats sammys real full name","tell me my full name","give me my full name"},a="SAMUEL"},
+    {p={"year when i started developing","year i started developing","when did i start developing","when did sammy start developing","year sammy started developing","started developing year","year of developing start","what year did i start developing","what year did sammy start developing","when did sammy start making games","year started making games","when did i start making games","start developing year","when i started developing","year i began developing","when did sammy begin developing","begin developing","started game development","when did sammy start developing games","what year did sammy start making games","when did the developer start developing","year the developer started developing","when did the developer start making games","when did sammy begin","when did i begin developing","year sammy began developing","sammy started developing","sammy developing year","started developing","started game dev","when did sammy start his journey"},a="2013"},
+
+    -- ⭐ RAREST = POLAROIDINI
+    {p={
+        "rarest brainrot","what is the rarest brainrot","whats the rarest brainrot",
+        "the rarest brainrot","which brainrot is the rarest","most rarest brainrot",
+        "rarest brainrot in game","rarest brainrot in sab","rarest brainrot in steal a brainrot",
+        "rarest brainrot currently","rarest brainrot now","what brainrot is the rarest",
+        "which is the rarest brainrot","tell me the rarest brainrot","name the rarest brainrot",
+        "rarest brainrot ever","the most rarest brainrot","the rarest one","which one is rarest",
+        "what is rarest brainrot","whats rarest brainrot","rarest of all","rarest brainrot of all time",
+        "most rare brainrot","which brainrot is most rare","rarest brainrot in the game",
+        "the rarest brainrot in sab","most rare brainrot in the game","rarest br","rarest in sab",
+        "rarest steal a brainrot","most rare steal a brainrot","rarest of them all",
+        "the rarest brainrot in the game","which is the most rare brainrot",
+        "tell me the rarest","rarest brainrot here","number 1 rarest brainrot",
+        "best brainrot","best brainrot in game","best brainrot in sab","best brainrot in steal a brainrot"
+    },a="POLAROIDINI"},
+
+    -- ⭐ PHOENIX — 425M brainrot (fire bird)
+    {p={"phoenix","what is phoenix","whats phoenix","phoenix brainrot","the phoenix","tell me about phoenix","describe phoenix","info about phoenix","phoenix info"},a="PHOENIX"},
+    {p={"phoenix income","how much does phoenix earn","phoenix per sec","phoenix per second","phoenix earn","phoenix earns","phoenix money","phoenix value","phoenix income per second","how much money does phoenix make","how much does the phoenix brainrot earn","what does phoenix earn","what does the phoenix earn","phoenix cash","phoenix cps","how much phoenix earns","phoenix earning","phoenix rate","phoenix income per sec","what is phoenix income","whats phoenix income","what is phoenix per second","whats phoenix per second","phoenix money per sec","phoenix earn per sec","phoenix generate","how much does phoenix generate","phoenix income value","income of phoenix","per sec of phoenix","how much is phoenix income","phoenix profit","phoenix per sec money","how much phoenix per sec","phoenix money per second","what is the income of phoenix"},a="425M"},
+    {p={"what does phoenix look like","phoenix model","phoenix appearance","how does phoenix look","what is phoenix model","whats phoenix model","phoenix type","phoenix animal","what animal is phoenix","what kind of brainrot is phoenix","phoenix brainrot type","phoenix bird","is phoenix a bird","is phoenix a fire bird","phoenix fire bird","describe phoenix model","phoenix model type","what type is phoenix","phoenix a bird","what animal is the phoenix","which animal is phoenix","what does the phoenix look like","phoenix species","what species is phoenix","phoenix is what animal","phoenix is a what","tell me phoenix model","what kind of animal is phoenix","is phoenix a flaming bird","is the phoenix a fire bird","fire bird phoenix","phoenix firebird"},a="FIREBIRD"},
+
+    {p={"my skin colour","my skin color","what is my skin colour","what is my skin color","whats my skin colour","whats my skin color","skin colour","skin color","my skin tone","what is my skin tone","whats my skin tone","skin tone","colour of my skin","color of my skin","my skin","what colour is my skin","what color is my skin","whats the colour of my skin","whats the color of my skin","the colour of my skin","the color of my skin","my skin colour is","my skin color is","what is the colour of my skin","what is the color of my skin","which colour is my skin","which color is my skin","which skin colour","which skin color","sammy skin colour","sammy skin color","sammy skin tone","sammy skin","sammy colour","sammy color","what colour is sammys skin","what color is sammys skin","sammys skin colour","sammys skin color","sammys skin tone","sammys skin","what colour am i","what color am i","what colour is my skin"},a="RED"},
+    {p={"my real life last name","my real last name","my last name","real life last name","real last name","last name","my irl last name","irl last name","my in real life last name","in real life last name","my actual last name","actual last name","my family name","family name","my surname","surname","sammy last name","sammys last name","sammy real last name","sammy irl last name","my irl surname","my real surname","what is my last name","whats my last name","what is my surname","whats my surname","what is my real last name","whats my real last name"},a="BRAKTA"},
+    {p={"day of the month tomorrow","what day of the month tomorrow","what day is tomorrow","whats the day tomorrow","tomorrows day","tomorrow day of month","what is tomorrows day","what day tomorrow","tomorrow date","whats tomorrows date","what is tomorrows date","date tomorrow","tomorrow number","tomorrow day number","what is the day tomorrow","whats the day tomorrow","day number tomorrow","tomorrows day number","which day tomorrow","tomorrow day","day tomorrow","tomorrows day of the month","what is tomorrows day of the month","whats tomorrows day of the month","tomorrow day of the month number"},a=TOMORROW_DAY_STR},
+    {p={"what day is today","what day is it today","what day today","whats today day","whats the day today","what day of month is it","whats the day of month","what is today day","what is the day today","today day number","todays day number","day number today","what is today number","whats today number","whats the day number","what day number is it","which day is today","which day is it today","what day of the month today","what day of the month is it today","what is todays day","whats todays day","todays day","today day","what is the day","whats the day","what day is it","which day today","which day are we in","today number","day today","what is today date number","what date number is today","whats the date number","todays number","day of month today","current day of month","day of month right now","which day of the month","what day of month","what date is today","whats the date today","date today","whats today date","todays date","what is todays date","date right now","current date","what is the date","whats the date","what date today","todays day of the month","today day of the month","what is todays day of the month","whats todays day of the month","what is today day of the month","whats today day of the month","day of the month","what is the day of the month","whats the day of the month","the day of the month","which day of the month is it","which day of the month is it today","what is the day of the month today","whats the day of the month today"},a=TODAY_DAY_STR},
+    {p={"what month today","whats month today","what month is today","whats month is today","what month is it","whats the month","which month is it","current month","month today","what month are we in","which month today","what month is it now","whats the current month","what is the month","tell me the month","name of the month","name the month","whats month","which month are we in","what month is it right now","what is todays month","whats todays month","todays month","what month is it today","what is the month today","whats the month today","month is it","month right now","what is the current month","whats the month now","what month now","what month is happening","which month is it now","which month are we in now","month of the year","what month of the year"},a="OCTOBER"},
+    {p={"what john pork animal is","what animal john pork is","what animal is john pork","john pork animal","john pork what animal","john pork is what animal","which animal is john pork","john pork animal name","animal of john pork","what type of animal is john pork","john pork type animal","what type animal is john pork","tell me john pork animal","whats john pork animal","whats the john pork animal","what is the john pork animal","john pork animal is what","john pork animal type","what animal is the john pork","which animal john pork","what is john pork animal","what is a john pork","what animal john pork","what species is john pork","john pork species","what species john pork","what kind of animal is john pork","john pork kind animal","what kind animal john pork"},a="PIGGY"},
+    {p={"whats holiday it is","what holiday is it","which holiday is it","what holiday is today","whats today holiday","what is today holiday","todays holiday","which holiday today","what holiday are we in","what holiday are we celebrating","what holiday is it today","what is the holiday today","whats the holiday today","holiday is it","holiday today","what holiday","whats the holiday","which holiday","name the holiday","name of holiday","what holiday is","holiday name","what holiday is it now","what holiday is being celebrated","what holiday are we celebrating today","what holiday do we have","what holiday is it right now","what holiday is sammy celebrating","which holiday are we in","what holiday is happening","what is the holiday","tell me the holiday","holiday right now","what holiday are we on","whats the current holiday"},a="HALLOWEEN"},
+
+    {p={"which mutation turns a brainrot yellow","what mutation turns a brainrot yellow","which mutation turns brainrot yellow","which mutation makes brainrot yellow","mutation turns brainrot yellow","mutation makes brainrot yellow","brainrot yellow mutation","yellow mutation name","what mutation makes brainrot yellow"},a="GOLD"},
+    {p={"which mutation turns a brainrot blue","what mutation turns a brainrot blue","which mutation turns brainrot blue","which mutation makes brainrot blue","mutation turns brainrot blue","mutation makes brainrot blue","brainrot blue mutation","blue mutation name"},a="DIAMOND"},
+    {p={"which mutation turns a brainrot pink","what mutation turns a brainrot pink","which mutation turns brainrot pink","which mutation makes brainrot pink","pink mutation","mutation that turns brainrot pink","brainrot pink mutation"},a="CANDY"},
+    {p={"which mutation turns a brainrot red","what mutation turns a brainrot red","which mutation turns brainrot red","which mutation makes brainrot red","red mutation","mutation that turns brainrot red","brainrot red mutation"},a="LAVA"},
+    {p={"which mutation turns a brainrot purple","what mutation turns a brainrot purple","which mutation turns brainrot purple","purple mutation","mutation that turns brainrot purple","brainrot purple mutation"},a="GALAXY"},
+    {p={"which mutation turns a brainrot black and white","which mutation turns brainrot black and white","black and white mutation","mutation turns brainrot black and white","brainrot black and white mutation"},a="YINYANG"},
+    {p={"which mutation turns a brainrot neon green","which mutation turns brainrot neon green","neon green mutation","mutation turns brainrot neon green","which mutation turns a brainrot green","brainrot neon green mutation"},a="RADIOACTIVE"},
+    {p={"which mutation gives a rainbow effect","which mutation gives rainbow effect","rainbow effect mutation","rainbow mutation effect","brainrot rainbow effect"},a="RAINBOW"},
+    {p={"which mutation gives a strawberry texture","strawberry texture mutation","which mutation gives strawberry texture","brainrot strawberry texture"},a="STRAWBERRYOP"},
+    {p={"which mutation gives a glitch effect","glitch effect mutation","which mutation gives glitch effect","brainrot glitch effect"},a="GLITCH"},
+    {p={"gold mutation multiplier","multiplier of gold mutation","what is the gold mutation multiplier","gold mutation multiplier value"},a="1.25X"},
+    {p={"diamond mutation multiplier","multiplier of diamond mutation","what is the diamond mutation multiplier"},a="1.5X"},
+    {p={"candy mutation multiplier","multiplier of candy mutation","what is the candy mutation multiplier"},a="4X"},
+    {p={"lava mutation multiplier","multiplier of lava mutation","what is the lava mutation multiplier"},a="6X"},
+    {p={"galaxy mutation multiplier","multiplier of galaxy mutation","what is the galaxy mutation multiplier"},a="6X"},
+    {p={"yin yang mutation multiplier","yinyang mutation multiplier","multiplier of yin yang mutation","multiplier of yinyang mutation"},a="7.5X"},
+    {p={"radioactive mutation multiplier","multiplier of radioactive mutation","what is the radioactive mutation multiplier"},a="8.5X"},
+    {p={"rainbow mutation multiplier","multiplier of rainbow mutation","what is the rainbow mutation multiplier"},a="10X"},
+    {p={"who owns steal a brainrot","who owns sab","owner of steal a brainrot","who is the owner of steal a brainrot","who owns the game","game owner","who is the owner of sab"},a="SPYDERSAMMY"},
+    {p={"sammys real name","sammy real name","what is sammys real name","what is the real name of sammy","sammy actual name","real name of sammy","real name of sammys"},a="SPYDERSAMMY"},
+    {p={"which country is sammy from","what country is sammy from","sammy from which country","which country does sammy belong to","sammy country of origin"},a="BRAZIL"},
+    {p={"sammys rival","who is sammys rival","sammy rival","who is sammys enemy","sammy enemy"},a="JANDEL"},
+    {p={"sammys favorite food","sammy favorite food","favorite food of sammy","sammy fav food"},a="TACOS"},
+    {p={"sammys net worth","net worth of sammy","how much is sammy worth","sammy net worth","how rich is sammy"},a="$30MILLION"},
+    {p={"sammys company","company of sammy","what is sammys company","sammy company","sammy owns what company"},a="DOBIGSTUDIOS"},
+    {p={"which color is sammy related to","color related to sammy","sammy related color","what color is sammy related to"},a="RED"},
+    {p={"minimum brainrots sammy spawns in admin abuse","minimum brainrots in admin abuse","min brainrots sammy spawns","how many brainrots min admin abuse"},a="3"},
+    {p={"when did tung tung tung sahur return","tung tung tung sahur return date","when did tung tung tung sahur come back","tung tung tung sahur came back"},a="NOVEMBER292025"},
+    {p={"when did sammy remove tung tung tung sahur","sammy removed tung tung tung sahur","tung tung tung sahur removed","when was tung tung tung sahur removed"},a="SEPTEMBER132025"},
+    {p={"copyright removed brainrot","copyright brainrot","brainrot with copyright issue","removed brainrot copyright","brainrot removed from copyright"},a="TUNGTUNGTUNGSAHUR"},
+    {p={"which brainrot from mexican event","brainrot from mexican event","mexican event brainrot","what brainrot from mexican event"},a="LACUCARACHA"},
+    {p={"secret brainrot from lucky block","lucky block secret brainrot","secret brainrot from lucky block 5","secret from lucky block","lucky block 5 percent secret"},a="ESOKSEKOLAH"},
+    {p={"first secret brainrot","what is first secret brainrot","first secret brainrot in game","the first secret brainrot"},a="FRAGRAMAANDCHOCROMA"},
+    {p={"which brainrot earns 1 sec","which brainrot earns 1 per sec","brainrot earns 1 per sec","brainrot earns 1 sec","brainrot that earns 1 per second"},a="NOOBINIPIZZANINI"},
+    {p={"which brainrot earns 5 per sec","brainrot earns 5 per sec","brainrot earns 5 sec","brainrot that earns 5 per second"},a="TIMCHEESE"},
+    {p={"which brainrot earns 200 per sec","brainrot earns 200 per sec","brainrot earns 200 sec","brainrot that earns 200 per second"},a="BURBALONILOLILOLI"},
+    {p={"which brainrot earns 999","brainrot earns 999","brainrot earns 999.9k per sec","brainrot earns 999k","brainrot that earns 999.9k per second","brainrot earns 999.9k"},a="GIFTINISPIDERINI"},
+    {p={"which brainrot earns 450m","brainrot earns 450m","brainrot earns 450m per sec","brainrot that earns 450m per second"},a="MEOWL"},
+    {p={"which brainrot earns 10m","brainrot earns 10m","brainrot earns 10m per sec","brainrot that earns 10m per second"},a="LAGRANDECOMBINASION"},
+    {p={"which brainrot earns 150k","brainrot earns 150k","brainrot earns 150k per sec","brainrot that earns 150k per second"},a="TRENOSTRUZZOTURBO3000"},
+    {p={"which brainrot earns 1b","brainrot earns 1b","brainrot earns 1b per sec","brainrot earns 1 billion per sec","brainrot that earns 1b per second"},a="SPYDERELEPHANT"},
+    {p={"which brainrot earns 750m","brainrot earns 750m","brainrot earns 750m per sec","brainrot that earns 750m per second"},a="STRAWBERRYELEPHANT"},
+    {p={"which brainrot earns 425m","brainrot earns 425m","brainrot earns 425m per sec","brainrot that earns 425m per second","which brainrot earns 425 million"},a="PHOENIX"},
+    {p={"starter item","starting item","first item","default item","beginner item","what item do you start with"},a="BAT"},
+    {p={"item at rebirth 17","rebirth 17 item","what item at rebirth 17","which item at rebirth 17","rebirth seventeen item"},a="GIANTPOTION"},
+    {p={"fastest non robux item","fastest non-robux item","fastest item without robux","fastest free item","fastest item no robux"},a="INVISIBILITYCLOAK"},
+    {p={"robux item that slaps pulls pushes","robux item that slaps","robux item that pulls","robux item that pushes","slap pull push robux item","blackhole slap"},a="BLACKHOLESLAP"},
+    {p={"halloween flying item","halloween item that flies","halloween flying","flying item halloween"},a="WITCHBROOM"},
+    {p={"trait that splits income","split income trait","trait that divides income","splits income trait"},a="SLEEPY"},
+    {p={"1x1x1x1 cave trait","cave trait","1x1x1x1 trait","trait from 1x1x1x1 cave"},a="GLITCH"},
+    {p={"la vacca ritual trait","ritual trait","vacca ritual trait","trait from la vacca ritual"},a="COSMIC"},
+    {p={"galaxy mutation release date","when was galaxy mutation released","galaxy mutation came out","galaxy mutation added","galaxy mutation release"},a="AUGUST232025"},
+    {p={"bunito bunito spinito machine","which machine gives bunito bunito spinito","bunito bunito spinito from which machine","bunito bunito spinito machine name"},a="NEWYEARSMACHINE"},
+    {p={"headless horseman machine","which machine gives headless horseman","headless horseman from which machine","headless horseman machine name"},a="WITCHFUSE"},
+    {p={"tralaledon machine","which machine gives tralaledon","tralaledon from which machine","tralaledon machine name"},a="CRAFTMACHINE"},
+    {p={"los hotspotsitos machine","which machine gives los hotspotsitos","los hotspotsitos from which machine","hotspotsitos machine","los hotspotsitos machine name"},a="OGFUSEMACHINE"},
+    {p={"pipi avocado machine","which machine gives pipi avocado","pipi avocado from which machine","pipi avocado machine name"},a="FUSEMACHINE"},
+    {p={"rainbow machine usage","how to use rainbow machine","rainbow machine how to use","what does rainbow machine need","rainbow machine recipe","rainbow machine requirements"},a="PUT25GOLDBRAINROTS"},
+    {p={"bubblegum machine usage","how to use bubblegum machine","bubblegum machine how to use","what does bubblegum machine need","bubblegum machine recipe"},a="PUT10CANDYBRAINROTS"},
+    {p={"fuse machine usage","how to use fuse machine","fuse machine how to use","what does fuse machine need","fuse machine recipe"},a="PUT4BRAINROTS"},
+    {p={"craft machine usage","how to use craft machine","craft machine how to use","what does craft machine need","craft machine recipe"},a="PUT2-4BRAINROTS"},
+    {p={"witch fuse usage","how to use witch fuse","witch fuse how to use","what does witch fuse need","witch fuse recipe"},a="PUT4BRAINROTS"},
+    {p={"how many colors does los chilis have","los chilis how many colors","colors of los chilis count","how many colors los chilis"},a="3"},
+    {p={"what are the colors of los chilis","los chilis colors","los chilis color names","what colors are los chilis"},a="REDYELLOWGREEN"},
+    {p={"sammys admin abuse event with jandel","admin abuse event with jandel","admin abuse event","sammy jandel admin abuse"},a="ADMINWARS"},
+    {p={"sammys taco tuesday date","taco tuesday date","when was taco tuesday","taco tuesday when"},a="SEPTEMBER92025"},
+    {p={"what did sammy accidentally spawn on taco tuesday","accidentally spawn on taco tuesday","taco tuesday accidental spawn","what did sammy spawn on taco tuesday"},a="LAKARKERKARCOMBINASION"},
+    {p={"sammys collaboration for skibidi toilet","skibidi toilet collaboration","who collaborated for skibidi toilet","skibidi toilet sammy collab"},a="ADAMGOODMAN"},
+    {p={"what did sammys base look like during admin abuse","sammys base during admin abuse","sammy base admin abuse","floating pathway base"},a="FLOATINGPATHWAY"},
+    {p={"how many skibidi toilets did sammy spawn on launch day","skibidi toilets sammy spawn launch day","how many skibidi toilets on launch day","skibidi toilets on launch day"},a="50"},
+    {p={"starfall trait multiplier","multiplier of starfall trait","starfall multiplier"},a="2.5X"},
+    {p={"rain trait multiplier","multiplier of rain trait","rain multiplier"},a="1.5X"},
+    {p={"snow trait multiplier","multiplier of snow trait","snow multiplier"},a="2X"},
+    {p={"bombardiro trait multiplier","multiplier of bombardiro trait","bombardiro multiplier"},a="3X"},
+    {p={"shark trait multiplier","multiplier of shark trait","shark multiplier"},a="3X"},
+    {p={"matteo hat trait multiplier","multiplier of matteo hat trait","matteo hat multiplier","matteo trait multiplier"},a="3.5X"},
+    {p={"galactic trait multiplier","multiplier of galactic trait","galactic multiplier"},a="3X"},
+    {p={"glitch trait multiplier","multiplier of glitch trait","glitch multiplier"},a="6X"},
+    {p={"tung tung attack trait multiplier","tung tung attack multiplier","multiplier of tung tung attack trait","tung tung attack trait"},a="5X"},
+    {p={"taco trait multiplier","multiplier of taco trait","taco multiplier"},a="3X"},
+    {p={"meowl trait multiplier","multiplier of meowl trait","meowl multiplier"},a="7X"},
+    {p={"strawberry trait multiplier","multiplier of strawberry trait","strawberry multiplier"},a="9X"},
+    {p={"john pork trait multiplier","multiplier of john pork trait","john pork multiplier"},a="7.5X"},
+    {p={"skibidi trait multiplier","multiplier of skibidi trait","skibidi multiplier"},a="7X"},
+    {p={"reindeer trait multiplier","multiplier of reindeer trait","reindeer multiplier"},a="6X"},
+    {p={"best fuse machine","best fuse brainrot","best fuse machine brainrot","best fuse brainrot of all time","best fuse machine of all time","best brainrot in fuse machine","best brainrot of fuse machine","best brainrot from fuse machine","best brainrot from fuse","best fuse brainrot ever","what is the best fuse machine","whats the best fuse machine","what is the best fuse brainrot","whats the best fuse brainrot","best fuse","best brainrot fuse machine","best brainrot in fuse","strongest fuse brainrot","rarest fuse brainrot","most expensive fuse brainrot","top fuse brainrot","number 1 fuse brainrot","best from fuse machine","best fusion brainrot","best fuse brainrot currently","best fuse brainrot now","what is the best brainrot in fuse","whats the best brainrot in fuse","what brainrot is best in fuse machine","best brainrot you can get from fuse","best brainrot in the fuse machine","strongest brainrot in fuse machine","best fuse result","highest rarity fuse brainrot","best brainrot from the fuse machine","most op fuse brainrot","op fuse brainrot","best brainrot fusion","best fusion","strongest fuse machine brainrot","strongest brainrot from fuse","best brainrot in the fuse"},a="GRIFFIN"},
+    {p={"best craft machine brainrot","best craftmachine brainrot","best craft machine brainrot of all time","best craftmachine brainrot of all time","best brainrot in craft machine","best brainrot of craft machine","best brainrot from craft machine","best brainrot from craftmachine","best brainrot in craftmachine","best craft machine","best craftmachine","what is the best craft machine brainrot","whats the best craft machine brainrot","what is the best craftmachine brainrot","whats the best craftmachine brainrot","best craft machine brainrot ever","best craft brainrot","best brainrot from craft","best brainrot in craft","strongest craft brainrot","rarest craft brainrot","most expensive craft brainrot","top craft brainrot","number 1 craft machine brainrot","best craft result","highest rarity craft brainrot","what is the best brainrot in craft","whats the best brainrot in craft","what brainrot is best in craft machine","best brainrot you can get from craft","best brainrot in the craft machine","strongest brainrot in craft machine","most op craft brainrot","op craft brainrot","best brainrot craft","best from craft machine","best from craftmachine","strongest craft machine brainrot","strongest brainrot from craft","best brainrot in the craft"},a="LOSDRAGONS"},
+    {p={"last rebirth","last rebirth which we added","the last rebirth","the last rebirth which we added","last rebirth we added","the last rebirth we added","last rebirth added","most recent rebirth","newest rebirth","latest rebirth","what is the last rebirth","whats the last rebirth","what is the last rebirth we added","whats the last rebirth we added","last rebirth we got","last rebirth level","final rebirth","highest rebirth","max rebirth","maximum rebirth","whats the max rebirth","what is the max rebirth","whats the highest rebirth","what is the highest rebirth","last rebirth in the game","newest rebirth added","latest rebirth added","most recent rebirth added","current last rebirth","last rebirth in sab","last rebirth in steal a brainrot","max rebirth level","highest rebirth level","what is the max rebirth level","whats the max rebirth level","top rebirth","newest rebirth we added","latest rebirth we added"},a="19"},
+    {p={"sab release date","sab released date","sab date","date sab released","release date of sab","release date sab","steal a brainrot release date","steal a brainrot released","when was steal a brainrot released","when was steal a brainrot made","what is sab release date","whats sab release date","what is the sab release date","whats the sab release date","sab release date is","when did sab release","when did sab come out","sab came out"},a="MAY162025"},
+    {p={"sab release month","sab month released","sab month","sab month of release","month sab was made","month sab was released","release month of sab","what month was sab released","what month was sab made","sab was released month","what is sab release month","whats sab release month","release month","month of release","month released"},a="MAY"},
+    {p={"sab release year","sab year released","sab year","year of release","sab released year","release year of sab","year sab was released","year sab was made","what year was sab released","what year was sab made","sab was released year","what is sab release year","whats sab release year","release year","year of sab"},a="2025"},
+    {p={"sab release day","day sab was released","sab released day","day of release","sab day","sab day of release","sab was released day","what day was sab released","what day was sab made","what day was sab created","day sab was made","game created on","day game released","what day was sab released on","sab released on"},a="FRIDAY"},
+    {p={"when was sab released","when was sab made","when was sab created","when was sab added","when released","when was released","when sab released","sab released","sab was released","sab made","sab created","sab release","release date","sab was made","sab was created","sab came out","when sab came out"},a="MAY162025"},
+    {p={"what is my favourite food","what is my favorite food","whats my favourite food","whats my favorite food","favorite food","favourite food","fav food","my favorite food","my favourite food","food i like","what food do i like","what is the favorite food","whats the favorite food","favorite meal","favourite meal","my fav food","best food","favorite thing to eat","what do i like to eat"},a="TACO"},
+    {p={"name of animal in last og we added","animal in last og we added","animal in last og","last og animal","animal of last og","what animal is in the last og","what animal is in last og","animal in last og added","animal in the last og we added","what animal is in the last og we added","what is the animal in the last og","whats the animal in the last og","animal in 5th og","animal in fifth og","animal in the fifth og","what animal is in the fifth og we added"},a="PIG"},
+    {p={"name of goat","goat name","name of the goat","what is the name of goat","who is the goat","whats the goat name","who is the goat of football","goat of football","who is football goat","football goat","the goat of football","who is called the goat","who is known as the goat","the goat name","goats name","who is my goat","my goat"},a="RONALDO"},
+    {p={"our planet name","our planets name","what is our planet name","whats our planet name","name of our planet","which planet do we live on","what planet do we live on","what planet are we on","our planet","planet name","which planet are we on","what is the planet we live on","whats the name of our planet","which planet is ours","name of the planet we live on","the planet we live on","on which planet do we live"},a="EARTH"},
+    {p={"what is my cat name","whats my cat name","my cat name","cat name","what is my cats name","whats my cats name","my cats name","cats name","name of my cat","name of my cats","my pet cat name","what is my pet cat name","whats my pet cat name","what is the cat name","whats the cat name","cat called","what is my cat called","whats my cat called","what is your cat name","whats your cat name","your cat name","the cat name","what is my kitty name","whats my kitty name","my kitty name","kitty name","my cats nickname","cat nickname","my cat nickname"},a="NOVA"},
+    {p={"what is the first og","first og","first og added","1st og","first og we added","the first og we added"},a="STRAWBERRYELEPHANT"},
+    {p={"what is the second og","second og","second og added","2nd og","second og we added","the second og we added"},a="MEOWL"},
+    {p={"what is the third og","third og","third og added","3rd og","third og we added","the third og we added"},a="SKIBIDITOILET"},
+    {p={"what is the fourth og","fourth og","fourth og added","4th og","fourth og we added","the fourth og we added"},a="JOHNPORK"},
+    {p={"what is the fifth og","fifth og","fifth og added","5th og","fifth og we added","the fifth og we added"},a="MEOWL"},
+    {p={"how many og brainrots","og count"},a="FIVE"},
+    {p={"unobtainable brainrot"},a="ORCHIDOX"},
+    {p={"most popular brainrot"},a="DRAGONCANNELONNI"},
+    {p={"most common brainrot","weakest brainrot"},a="NOOBINIPIZZANINI"},
+    {p={"my favourite brainrot","my favorite brainrot","what is my favourite brainrot","what is my favorite brainrot","whats my favourite brainrot","whats my favorite brainrot","favourite brainrot","favorite brainrot","fav brainrot","my fav brainrot","best brainrot i like","which brainrot is my favourite","which brainrot is my favorite","brainrot i like","what brainrot do i like","sammys favourite brainrot","sammys favorite brainrot","sammy favourite brainrot","sammy favorite brainrot","my most favourite brainrot","my most favorite brainrot"},a="MEOWL"},
+    {p={"fourteenth mutation","mutation 14","latest mutation","newest mutation","last mutation","the last mutation","last mutation we added","last mutation added","final mutation","most recent mutation","mutation added last","whats the last mutation","what is the last mutation","whats the last mutation we added","what is the last mutation we added","the last mutation we added","newest mutation we added","latest mutation we added","whats the mutation we added","what is the mutation we added","the mutation we added","whats the mutation we add","what is the mutation we add","the mutation we add","what mutation did we add","what mutation did you add","what mutation we added","whats the new mutation","what is the new mutation","the new mutation","whats the newest mutation","what is the newest mutation","the newest mutation","whats the latest mutation","what is the latest mutation","the latest mutation","new mutation","the mutation we added last","whats the newest mutation we added","what is the newest mutation we added"},a="ECLIPSE"},
+    {p={"first mutation","mutation 1","was the first mutation","the first mutation we added","first mutation we added"},a="BLOODROT"},
+    {p={"second mutation","mutation 2","second mutation we added","the second mutation we added"},a="GOLD"},
+    {p={"third mutation","mutation 3","third mutation we added","the third mutation we added"},a="DIAMOND"},
+    {p={"fourth mutation","mutation 4","fourth mutation we added","the fourth mutation we added"},a="RAINBOW"},
+    {p={"fifth mutation","mutation 5","fifth mutation we added","the fifth mutation we added"},a="CANDY"},
+    {p={"sixth mutation","mutation 6","sixth mutation we added"},a="LAVA"},
+    {p={"seventh mutation","mutation 7","seventh mutation we added"},a="GALAXY"},
+    {p={"eighth mutation","mutation 8","eighth mutation we added"},a="YINYANG"},
+    {p={"ninth mutation","mutation 9","ninth mutation we added"},a="RADIOACTIVE"},
+    {p={"tenth mutation","mutation 10","tenth mutation we added"},a="CURSED"},
+    {p={"eleventh mutation","mutation 11","eleventh mutation we added"},a="DIVINE"},
+    {p={"twelfth mutation","mutation 12","twelfth mutation we added"},a="CYBER"},
+    {p={"thirteenth mutation","mutation 13","thirteenth mutation we added"},a="PHANTOM"},
+    {p={"how many mutations"},a="14"},
+    {p={"color of gold"},a="YELLOW"},
+    {p={"color of diamond"},a="BLUE"},
+    {p={"color of bloodrot"},a="RED"},
+    {p={"color of rainbow"},a="RAINBOW"},
+    {p={"color of candy"},a="PINK"},
+    {p={"color of lava"},a="ORANGE"},
+    {p={"color of galaxy"},a="PURPLE"},
+    {p={"color of yinyang"},a="BLACK"},
+    {p={"color of radioactive"},a="GREEN"},
+    {p={"color of cursed"},a="RED"},
+    {p={"color of divine"},a="YELLOW"},
+    {p={"color of cyber"},a="BLUE"},
+    {p={"color of phantom"},a="BLACK"},
+    {p={"color of crystal"},a="BLUEPURPLE"},
+    {p={"what number is gold"},a="1"},
+    {p={"what number is diamond"},a="2"},
+    {p={"what number is bloodrot"},a="3"},
+    {p={"what number is rainbow"},a="4"},
+    {p={"what number is candy"},a="5"},
+    {p={"what number is lava"},a="6"},
+    {p={"what number is galaxy"},a="7"},
+    {p={"what number is yinyang"},a="8"},
+    {p={"what number is radioactive"},a="9"},
+    {p={"what number is cursed"},a="10"},
+    {p={"what number is divine"},a="11"},
+    {p={"what number is cyber"},a="12"},
+    {p={"what number is phantom"},a="13"},
+    {p={"what number is crystal"},a="14"},
+    {p={"newest machine","latest machine","newest machine we added","latest machine we added","machine we added latest","machine we added newest","whats the newest machine","what is the newest machine","whats the latest machine","what is the latest machine","which is the newest machine","which is the latest machine","most recent machine","recent machine","what machine did we add","what machine did we add last","last machine added","most recently added machine","newest added machine","latest added machine","newest machine added","latest machine added"},a="HAUNTEDFUSE"},
+    {p={"first machine","machine 1"},a="RAINBOWMACHINE"},
+    {p={"second machine","machine 2"},a="BUBBLEGUMMACHINE"},
+    {p={"third machine","machine 3"},a="FUSEMACHINE"},
+    {p={"fourth machine","machine 4"},a="CRAFTMACHINE"},
+    {p={"fifth machine","machine 5"},a="WITCHFUSE"},
+    {p={"sixth machine","machine 6"},a="BRAINROTDEALER"},
+    {p={"seventh machine","machine 7"},a="BRAINROTTRADER"},
+    {p={"eighth machine","machine 8"},a="SANTASFUSE"},
+    {p={"ninth machine","machine 9"},a="SANTASSHOP"},
+    {p={"tenth machine","machine 10"},a="NEWYEARSMACHINE"},
+    {p={"eleventh machine","machine 11"},a="DUELSMACHINE"},
+    {p={"twelfth machine","machine 12"},a="CUPIDSMACHINE"},
+    {p={"thirteenth machine","machine 13"},a="TRADEMACHINE"},
+    {p={"fourteenth machine","machine 14"},a="DIVINEFUSE"},
+    {p={"fifteenth machine","machine 15"},a="EGGINCUBATOR"},
+    {p={"sixteenth machine","machine 16"},a="CYBERCRAFTMACHINE"},
+    {p={"seventeenth machine","machine 17"},a="SUMMERFUSE"},
+    {p={"eighteenth machine","machine 18"},a="LOSTRADERS"},
+    {p={"how many machines"},a="18"},
+    {p={"first trait","trait 1"},a="LIGHTNING"},
+    {p={"halo trait"},a="HALO"},
+    {p={"bull trait"},a="BULL"},
+    {p={"santa hat trait"},a="SANTAHAT"},
+    {p={"taco trait"},a="TACO"},
+    {p={"crab trait"},a="CRAB"},
+    {p={"fire trait"},a="FIRE"},
+    {p={"nyan trait"},a="NYAN"},
+    {p={"concert trait"},a="CONCERT"},
+    {p={"strawberry trait"},a="STRAWBERRY"},
+
+    {p={
+        "what is my name","whats my name","what is my name is","whats my name is",
+        "what is your name","whats your name","my name","my name is","my name is what",
+        "sammy name","who is sammy","who am i","who i am","my real name","name of sammy",
+        "developer","creator","owner","owner name","developer name",
+        "name of the developer","name of the creator","name of the owner",
+        "who made this game","who created this game","who is the owner",
+        "who is the owner of the game","name of the owner of the game",
+        "name of the creator of the game","name of the developer of the game",
+        "who is the creator","who is the developer","who is the creator of sab",
+        "who is the developer of sab","who is the owner of sab",
+        "whats the name of the developer","whats the name of the creator",
+        "whats the name of the owner"
+    },a="SAMMY"},
+
+    {p={"what is my favorite color","what is my favourite color","favorite color","favourite color","fav color","fav colour","my favorite color","my favourite color","color i like","colour i like","color do i like","what color do i like","what colour do i like"},a="BLUE"},
+    {p={"how old is sammy","how old am i","what is my age","my age","sammy age","whats my age","what is the age","age of sammy","age of the developer","age of the owner","age"},a="24"},
+    {p={"what month is my birthday","my birthday month","what is my birthday month","whats my birthday month","which month is my birthday","birthday month","month of my birthday","my birth month","what month was i born in","which month was i born","what month i was born","what month am i born","when is my birthday month","in which month is my birthday"},a="FEBRUARY"},
+    {p={"what day is my birthday","my birthday day","what is my birthday day","whats my birthday day","which day is my birthday","birthday day","day of my birthday","what date is my birthday","whats my birthday date","birthday date","what day was i born","when is my birthday day"},a="24"},
+    {p={"what day and month is my birthday","my birthday date and month","my birthday month and day","when is my birthday","my birthday when","whats my birthday","what is my birthday","my full birthday","birthday"},a="FEBRUARY 24"},
+    {p={"what year am i born","birth year","what year was i born","when was i born","my birth year","which year was i born"},a="2002"},
+    {p={"where was i born","birthplace","where was sammy born","where was the developer born"},a="ALGERIA"},
+    {p={"where am i from","sammy country","my country","where is sammy from","where am i from"},a="BRAZIL"},
+    {p={"nationality","what is my nationality"},a="BRAZILIAN"},
+    {p={"state","city","what state am i from","what city am i from"},a="SAOPAULO"},
+    {p={"roblox username","username","what is my roblox username","what is my username"},a="SPYDERSAMMY"},
+    {p={"social media","youtube","discord","tiktok","instagram"},a="SPYDERSAMMY"},
+    {p={"favorite sport","fav sport","what is my favorite sport","whats my favorite sport"},a="FOOTBALL"},
+    {p={"favorite player","fav player","who is my favorite player","who is my favourite player","favorite football player","favourite football player"},a="RONALDO"},
+    {p={"favorite animal","my pet","pet name","what is my favorite animal","whats my favorite animal","what pet do i have"},a="SPIDER"},
+    {p={"favorite game","fav game","what is my favorite game","whats my favorite game"},a="ROBLOX"},
+    {p={"favorite number","lucky number","what is my favorite number","whats my lucky number"},a="SEVEN"},
+    {p={"my name twice","name two times","say my name twice"},a="SAMMYSAMMY"},
+    {p={"my name 3 times","name three times","say my name three times"},a="SAMMYSAMMYSAMMY"},
+    {p={"age twice","age two times"},a="2424"},
+    {p={"color twice","color two times","favorite color twice"},a="BLUEBLUE"},
+    {p={"color 3 times","color three times"},a="BLUEBLUEBLUE"},
+    {p={"color favorite sport"},a="BLUEFOOTBALL"},
+    {p={"color favorite animal"},a="BLUESPIDER"},
+    {p={"color favorite food"},a="BLUEPIZZA"},
+    {p={"color creator","color owner","color of creator","color of owner"},a="BLUESAMMY"},
+    {p={"color username"},a="BLUESPYDERSAMMY"},
+    {p={"color my age"},a="BLUE24"},
+    {p={"color my country"},a="BLUEBRAZIL"},
+    {p={"game name","sab stands for","full game name"},a="STEALABRAINROT"},
+    {p={"game type","sab genre"},a="SIMULATOR"},
+    {p={"first update"},a="MUTATIONS"},
+    {p={"max players","player count"},a="8"},
+    {p={"highest rarity","best rarity"},a="OG"},
+    {p={"lowest rarity","worst rarity"},a="COMMON"},
+    {p={"total rarities","how many rarities"},a="SIX"},
+    {p={"first rarity"},a="COMMON"},
+    {p={"second rarity"},a="UNCOMMON"},
+    {p={"third rarity"},a="RARE"},
+    {p={"fourth rarity"},a="EPIC"},
+    {p={"fifth rarity"},a="LEGENDARY"},
+    {p={"sixth rarity"},a="OG"},
+    {p={"sammyni cakini"},a="SAMMYNICAKINI"},
+    {p={"la anniversary grande"},a="LAANNIVERSARYGRANDE"},
+    {p={"la food combinasion"},a="LAFOODCOMBINASION"},
+    {p={"la taco combinasion"},a="LATACOCOMBINASION"},
+    {p={"los amigos"},a="LOSAMIGOS"},
+    {p={"los sekalahs"},a="LOSSEKALAHS"},
+    {p={"gub"},a="GUB"},
+    {p={"sir mangus"},a="SIRMANGUS"},
+    {p={"gattino hydrantino"},a="GATTINOHYDRANTINO"},
+    {p={"puffino builderino"},a="PUFFINOBUILDERINO"},
+    {p={"hydra dragon"},a="HYDRADRAGONCANNELLONI"},
+    {p={"los secret combinasionas"},a="LOSSECRETCOMBINASIONAS"},
+    {p={"pizza and ranch"},a="PIZZAANDRANCH"},
+    {p={"examen bros"},a="EXAMENBROS"},
+    {p={"chicleteira champeona"},a="CHICLETEIRACHAMPEONA"},
+    {p={"toro espanolo"},a="TOROESPANOLO"},
+    {p={"chicleteira futboleira"},a="CHICLETEIRAFUTBOLEIRA"},
+    {p={"grante angelta"},a="GRANTEANGELTA"},
+    {p={"foxini lanternini"},a="FOXINILANTERNINI"},
+    {p={"cloverat"},a="CLOVERAT"},
+    {p={"dragon gingerini"},a="DRAGONGINGERINI"},
+    {p={"hippo golazo"},a="HIPPOGOLAZO"},
+    {p={"ref ref ref sahur"},a="REFREFREFSAHUR"},
+    {p={"esok goala"},a="ESOKGOALA"},
+    {p={"la summer grande"},a="LASUMMERGRANDE"},
+    {p={"chicleteira surfeiteira"},a="CHICLETEIRASURFEITEIRA"},
+    {p={"aquarino"},a="AQUARINO"},
+    {p={"gelato lumacho"},a="GELATOLUMACHO"},
+    {p={"rocketini frostini"},a="ROCKETINIFROSTINI"},
+    {p={"frullato framingo"},a="FRULLATOFRAMINGO"},
+    {p={"los fruits"},a="LOSFRUITS"},
+    {p={"venuspino"},a="VENUSPINO"},
+    {p={"spongini quackini"},a="SPONGINIQUACKINI"},
+    {p={"fizzy soda"},a="FIZZYSODA"},
+    {p={"boba panda"},a="BOBAPANDA"},
+    {p={"dolphini jetskini"},a="DOLPHINIJETSKINI"},
+    {p={"los trios"},a="LOSTRIOS"},
+    {p={"chill puppy"},a="CHILLPUPPY"},
+    {p={"spinny hammy"},a="SPINNYHAMMY"},
+    {p={"ketupat bros"},a="KETUPATBROS"},
+    {p={"holy arepa"},a="HOLYAREPA"},
+    {p={"pengolino nuvoletto"},a="PENGOLINONUVOLETTO"},
+    {p={"gato celesto"},a="GATOCELESTO"},
+    {p={"buho del cielo"},a="BUHODELCIELO"},
+    {p={"seraphino gruyero"},a="SERAPHINOGRUYERO"},
+    {p={"harpuccino"},a="HARPUCCINO"},
+    {p={"berenjello angello"},a="BERENJELLOANGELLO"},
+    {p={"divino platypio"},a="DIVINOPLATYPIO"},
+    {p={"orcalita orcala"},a="ORCALITAORCALA"},
+    {p={"squalanana"},a="SQUALANANA"},
+    {p={"trenotubo axolotrico"},a="TRENOTUBOAXOLOTRICO"},
+    {p={"pretzo robo"},a="PRETZOROBO"},
+    {p={"buho de volto"},a="BUHODEVOLTO"},
+    {p={"futbolini skatini"},a="FUTBOLINISKATINI"},
+    {p={"camera ramena"},a="CAMERARAMENA"},
+    {p={"gym bros"},a="GYMBROS"},
+    {p={"los chilis"},a="LOSCHILIS"},
+    {p={"bandito axolito"},a="BANDITOAXOLITO"},
+    {p={"electro quacko"},a="ELECTROQUACKO"},
+    {p={"los noobinis"},a="LOSNOOBINIS"},
+    {p={"bee loco"},a="BEELOCO"},
+    {p={"orbi mochi"},a="ORBIMOCHI"},
+    {p={"tortuginni sandcastlini"},a="TORTUGINNISANDCASTLINI"},
+    {p={"craburger"},a="CRABURGER"},
+    {p={"octoball"},a="OCTOBALL"},
+    {p={"sushi inu"},a="SUSHIINU"},
+    {p={"girafini raftini"},a="GIRAFINIRAFTINI"},
+    {p={"what is steal a brainrot","main goal"},a="steal brainrots"},
+    {p={"what do you steal"},a="brainrots"},
+    {p={"where do brainrots spawn"},a="conveyor"},
+    {p={"where do you keep brainrots"},a="base"},
+    {p={"what protects your base"},a="lock"},
+    {p={"how many brainrots"},a="THIRTEEN"},
+    {p={"new base we added"},a="1OF1BASE"},
+    {p={"struck by lightning"},a="MATEO"},
+    {p={"won the admin war"},a="GROWAGARDEN"},
+    {p={"worst game on roblox","most boring game"},a="KEYBOARDESCAPE"},
+    {p={"brother of hydra"},a="CERBERUS"},
+    {p={"won the world cup","world cup"},a="SPAIN"},
+    {p={"first brainrotgod"},a="ODINDINDUN"},
+    {p={"uncommon"},a="UNCOMMON"},
+    {p={"rare"},a="RARE"},
+    {p={"epic"},a="EPIC"},
+    {p={"legendary"},a="LEGENDARY"},
+    {p={"og"},a="OG"},
+    {p={"common"},a="COMMON"},
+}
+
+----------------------------------------------------------------------
+-- ⭐ RIDDLE MODULE
+----------------------------------------------------------------------
+local Riddle = {}
+do
+    local FILL = {what=true,is=true,the=true,a=true,an=true,["do"]=true,does=true,did=true,you=true,are=true,was=true,were=true,am=true,i=true,my=true,me=true,we=true,our=true,of=true,to=true,["in"]=true,on=true,at=true,["and"]=true,["or"]=true,have=true,has=true,it=true,["for"]=true,how=true,where=true,who=true,when=true,which=true,can=true,s=true,will=true,would=true,could=true,please=true}
+    local function normalizeRiddleText(t)
+        t = tostring(t or ""):lower()
+        t = t:gsub("what's","what is"):gsub("whats","what is")
+        t = t:gsub("who's","who is"):gsub("whos","who is")
+        t = t:gsub("where's","where is"):gsub("wheres","where is")
+        t = t:gsub("favourite","favorite"):gsub("colour","color")
+        t = t:gsub("1st","first"):gsub("2nd","second"):gsub("3rd","third"):gsub("4th","fourth")
+        t = t:gsub("5th","fifth"):gsub("6th","sixth"):gsub("7th","seventh"):gsub("8th","eighth")
+        t = t:gsub("[^%w%s]"," "):gsub("%s+"," ")
+        return t:match("^%s*(.-)%s*$") or ""
+    end
+    local function stemRiddleWord(w)
+        w = tostring(w or ""):lower()
+        if #w>4 and w:sub(-3)=="ing" then w=w:sub(1,-4) end
+        if #w>4 and w:sub(-2)=="ed" then w=w:sub(1,-3) end
+        if #w>4 and w:sub(-2)=="es" then w=w:sub(1,-3) end
+        if #w>3 and w:sub(-1)=="s" then w=w:sub(1,-2) end
+        local al={original="og",earliest="first",newest="latest",recent="latest",last="latest",final="latest",made="add",added="add",created="add",born="birth",birthday="birth",called="name",release="releas",released="releas"}
+        return al[w] or w
+    end
+    local function riddleWords(t)
+        local w={}
+        for word in normalizeRiddleText(t):gmatch("%w+") do
+            local s=stemRiddleWord(word)
+            if s~="" and not FILL[s] and not s:match("^%d+$") then w[s]=true end
+        end
+        if w.brainrot and w.god then w.brainrotgod=true end
+        if w.brainrotgod then w.brainrot=true; w.god=true end
+        return w
+    end
+    local function riddleMatch(msg, pat)
+        local ph=normalizeRiddleText(pat)
+        if msg:find(ph,1,true) then return true end
+        if msg:gsub("%s+",""):find(ph:gsub("%s+",""),1,true) then return true end
+        if pat:find("%d") then return false end
+        local ww,rr=riddleWords(pat),riddleWords(msg)
+        local n=0
+        for w in pairs(ww) do
+            n = n + 1
+            if not rr[w] then return false end
+        end
+        if n == 1 then
+            for w in pairs(rr) do
+                if not ww[w] then return false end
+            end
+        end
+        return n>0
+    end
+    local function findFirstMatch(txt)
+        local normalized = normalizeRiddleText(txt)
+        for _, e in ipairs(BRAINROT_KNOWLEDGE) do
+            for _, pt in ipairs(e.p) do
+                if riddleMatch(normalized, pt) then
+                    return e.a:gsub("%s+",""):upper(), e.a
+                end
+            end
+        end
+        return nil, nil
+    end
+    function Riddle.solve(message)
+        if not message or message=="" then return nil end
+        local working = tostring(message):lower()
+        working = working:gsub("what's","what is"):gsub("whats","what is")
+        working = working:gsub("who's","who is"):gsub("whos","who is")
+        working = working:gsub("favourite","favorite"):gsub("colour","color")
+        working = working:gsub("1st","first"):gsub("2nd","second"):gsub("3rd","third"):gsub("4th","fourth")
+        working = working:gsub("5th","fifth"):gsub("6th","sixth"):gsub("7th","seventh"):gsub("8th","eighth")
+        working = working:gsub("&"," and "):gsub(","," and ")
+        working = working:gsub("%s+plus%s+", " and "):gsub("%s+also%s+", " and ")
+        working = working:gsub("%s+"," ")
+        local pieces = {}
+        local andPieces, cur = {}, {}
+        for word in working:gmatch("%S+") do
+            if word == "and" then
+                if #cur > 0 then table.insert(andPieces, table.concat(cur, " ")); cur = {} end
+            else
+                table.insert(cur, word)
+            end
+        end
+        if #cur > 0 then table.insert(andPieces, table.concat(cur, " ")) end
+        for _, piece in ipairs(andPieces) do
+            local p = piece:match("^%s*(.-)%s*$") or ""
+            if p ~= "" then
+                local subparts = {}
+                local buf = {}
+                for word in p:gmatch("%S+") do
+                    if word == "my" and #buf > 0 then
+                        table.insert(subparts, table.concat(buf, " "))
+                        buf = { word }
+                    else
+                        table.insert(buf, word)
+                    end
+                end
+                if #buf > 0 then table.insert(subparts, table.concat(buf, " ")) end
+                for _, sp in ipairs(subparts) do
+                    sp = sp:match("^%s*(.-)%s*$") or ""
+                    if sp ~= "" then table.insert(pieces, sp) end
+                end
+            end
+        end
+        if #pieces <= 1 then
+            local baseAnswer, originalAnswer = findFirstMatch(message)
+            if not baseAnswer then return nil end
+            local numsInAnswer = {}
+            local answerHasDigits = false
+            for num in tostring(originalAnswer):gmatch("%d+") do
+                numsInAnswer[num] = true
+                answerHasDigits = true
+            end
+            if answerHasDigits then return baseAnswer end
+            local suffix
+            for num in tostring(message):gmatch("%d+") do
+                if not numsInAnswer[num] then suffix = num end
+            end
+            if suffix and #suffix > 0 then return baseAnswer..suffix end
+            return baseAnswer
+        end
+        local answerParts = {}
+        local allOk = true
+        for _, piece in ipairs(pieces) do
+            piece = piece:match("^%s*(.-)%s*$")
+            if piece ~= "" then
+                local numOnly = piece:match("^(%d+)$")
+                if numOnly then
+                    table.insert(answerParts, numOnly)
+                else
+                    local a = findFirstMatch(piece)
+                    if not a then allOk = false; break end
+                    table.insert(answerParts, a)
+                end
+            end
+        end
+        if allOk and #answerParts > 0 then return table.concat(answerParts) end
+        -- ⭐ FALLBACK: agar compound fail ho, toh full message mein koi bhi known pattern dhoondo
+        local fallback = findFirstMatch(message)
+        if fallback then return fallback end
+        return nil
+    end
+    function Riddle.isActual(text)
+        if not text or text == "" then return false end
+        local l = text:lower():gsub("%s+", " ")
+        local hasQuestion = l:find("%?") ~= nil
+        local startsWithQ = l:match("^%s*(what%s+is)") or l:match("^%s*(whats)") or l:match("^%s*(who)") 
+                         or l:match("^%s*(where)") or l:match("^%s*(when)") or l:match("^%s*(how%s+many)")
+                         or l:match("^%s*(how%s+old)") or l:match("^%s*(which)") 
+                         or l:match("^%s*(my%s+name)") or l:match("^%s*(the%s+word)")
+                         or l:match("^%s*(first)") or l:match("^%s*(second)") or l:match("^%s*(third)")
+                         or l:match("^%s*(fourth)") or l:match("^%s*(fifth)") or l:match("^%s*(sixth)")
+                         or l:match("^%s*(seventh)") or l:match("^%s*(eighth)") or l:match("^%s*(ninth)")
+                         or l:match("^%s*(tenth)") or l:match("^%s*(last)") or l:match("^%s*(newest)")
+                         or l:match("^%s*(latest)") or l:match("^%s*(best)") or l:match("^%s*(rarest)")
+                         or l:match("^%s*(today)") or l:match("^%s*(todays)") or l:match("^%s*(our)")
+                         or l:match("^%s*(name)") or l:match("^%s*(animal)") or l:match("^%s*(month)")
+                         or l:match("^%s*(day)") or l:match("^%s*(date)") or l:match("^%s*(holiday)")
+                         or l:match("^%s*(tomorrow)") or l:match("^%s*(real)") or l:match("^%s*(last)")
+                         or l:match("^%s*(skin)") or l:match("^%s*(colour)") or l:match("^%s*(color)")
+                         or l:match("^%s*(age)") or l:match("^%s*(birthday)") or l:match("^%s*(favorite)")
+                         or l:match("^%s*(favourite)") or l:match("^%s*(fav)") or l:match("^%s*(phoenix)")
+                         or l:match("^%s*(whats%s+my)")
+        local hasKeyword = l:find("og",1,true) or l:find("mutation",1,true) or l:find("machine",1,true) or l:find("brainrot",1,true)
+                        or l:find("color",1,true) or l:find("favorite",1,true) or l:find("fav",1,true)
+                        or l:find("name",1,true) or l:find("age",1,true) or l:find("birthday",1,true)
+                        or l:find("country",1,true) or l:find("rarity",1,true) or l:find("trait",1,true)
+                        or l:find("sammy",1,true) or l:find("developer",1,true) or l:find("creator",1,true)
+                        or l:find("owner",1,true) or l:find("game",1,true) or l:find("secret",1,true)
+                        or l:find("admin",1,true) or l:find("hydra",1,true) or l:find("lightning",1,true)
+                        or l:find("fight",1,true) or l:find("roblox",1,true) or l:find("release",1,true)
+                        or l:find("sab",1,true) or l:find("steal",1,true) or l:find("pet",1,true)
+                        or l:find("cat",1,true) or l:find("kitty",1,true) or l:find("number",1,true) or l:find("player",1,true)
+                        or l:find("sport",1,true) or l:find("food",1,true) or l:find("animal",1,true)
+                        or l:find("username",1,true) or l:find("city",1,true) or l:find("state",1,true)
+                        or l:find("nationality",1,true) or l:find("year",1,true) or l:find("month",1,true)
+                        or l:find("day",1,true) or l:find("base",1,true) or l:find("conveyor",1,true)
+                        or l:find("lock",1,true) or l:find("cup",1,true) or l:find("war",1,true)
+                        or l:find("today",1,true) or l:find("date",1,true) or l:find("planet",1,true)
+                        or l:find("earth",1,true) or l:find("goat",1,true) or l:find("ronaldo",1,true)
+                        or l:find("taco",1,true) or l:find("pig",1,true) or l:find("rebirth",1,true)
+                        or l:find("fuse",1,true) or l:find("griffin",1,true) or l:find("craft",1,true)
+                        or l:find("multiplier",1,true) or l:find("earn",1,true) or l:find("item",1,true)
+                        or l:find("tung",1,true) or l:find("sahur",1,true) or l:find("galaxy",1,true)
+                        or l:find("skibidi",1,true) or l:find("toilet",1,true) or l:find("copyright",1,true)
+                        or l:find("chilis",1,true) or l:find("lucky",1,true) or l:find("block",1,true)
+                        or l:find("full name",1,true) or l:find("developing",1,true) or l:find("develop",1,true)
+                        or l:find("begin",1,true) or l:find("journey",1,true) or l:find("samuel",1,true)
+                        or l:find("luck",1,true) or l:find("location",1,true) or l:find("vacation",1,true)
+                        or l:find("beach",1,true) or l:find("where",1,true)
+                        or l:find("special",1,true) or l:find("celebrat",1,true) or l:find("holiday",1,true)
+                        or l:find("john pork",1,true) or l:find("species",1,true) or l:find("piggy",1,true)
+                        or l:find("tomorrow",1,true) or l:find("last name",1,true) or l:find("surname",1,true)
+                        or l:find("real life",1,true) or l:find("real last",1,true) or l:find("plus",1,true)
+                        or l:find("skin",1,true) or l:find("colour",1,true) or l:find("tone",1,true)
+                        or l:find("phoenix",1,true) or l:find("fire bird",1,true) or l:find("firebird",1,true)
+                        or l:find("rarest",1,true) or l:find("rare",1,true)
+        local isSabRiddle = l:find("sab",1,true) or l:find("release",1,true) or l:find("steal",1,true)
+        local wordCount = 0
+        for _ in l:gmatch("%S+") do wordCount = wordCount + 1 end
+        if wordCount < 2 then return false end
+        local isMultiPart = l:find(" and ",1,true) ~= nil or l:find(" plus ",1,true) ~= nil
+        if hasQuestion or startsWithQ or isSabRiddle or (hasKeyword and isMultiPart and wordCount >= 3) then
+            return hasKeyword or startsWithQ or hasQuestion
+        end
+        return false
+    end
+end
+
+----------------------------------------------------------------------
+-- 🧠 ULTRA MEMORY BANK
+----------------------------------------------------------------------
+local MemoryBank = {}
+do
+    local facts = {}
+    local rawLog = {}
+
+    local STOP = {
+        ["the"]=true,["a"]=true,["an"]=true,["is"]=true,["am"]=true,["are"]=true,
+        ["was"]=true,["were"]=true,["be"]=true,["been"]=true,["i"]=true,["im"]=true,
+        ["you"]=true,["my"]=true,["me"]=true,["on"]=true,["at"]=true,["in"]=true,
+        ["to"]=true,["of"]=true,["for"]=true,["and"]=true,["but"]=true,["or"]=true,
+        ["so"]=true,["soo"]=true,["sooo"]=true,["it"]=true,["this"]=true,["that"]=true,
+        ["will"]=true,["would"]=true,["can"]=true,["could"]=true,["do"]=true,["does"]=true,
+        ["did"]=true,["have"]=true,["has"]=true,["had"]=true,["get"]=true,["got"]=true,
+        ["just"]=true,["now"]=true,["here"]=true,["there"]=true,["when"]=true,["where"]=true,
+        ["what"]=true,["who"]=true,["which"]=true,["how"]=true,["why"]=true,["very"]=true,
+        ["really"]=true,["about"]=true,["like"]=true,["from"]=true,["with"]=true,["into"]=true,
+        ["up"]=true,["out"]=true,["if"]=true,["then"]=true,["than"]=true,["because"]=true,
+        ["cause"]=true,["cuz"]=true,["also"]=true,["too"]=true,["well"]=true,["yes"]=true,
+        ["no"]=true,["ok"]=true,["okay"]=true,["oh"]=true,["yeah"]=true,["hey"]=true,["hi"]=true,
+        ["right"]=true,["left"]=true,["still"]=true,["only"]=true,["some"]=true,["any"]=true,
+        ["all"]=true,["every"]=true,["each"]=true,["much"]=true,["many"]=true,["more"]=true,
+        ["most"]=true,["other"]=true,["such"]=true,["same"]=true,["before"]=true,["after"]=true,
+        ["during"]=true,["while"]=true,["until"]=true,["till"]=true,["over"]=true,["under"]=true,
+        ["since"]=true,["gonna"]=true,["plus"]=true,["going"]=true,["be"]=true,
+    }
+
+    local ADJ_BLACKLIST = {
+        lagging=true, laggy=true, lag=true, slow=true, fast=true, quick=true,
+        good=true, bad=true, great=true, awesome=true, cool=true, nice=true,
+        terrible=true, horrible=true, awful=true, amazing=true, perfect=true,
+        broken=true, working=true, fine=true, okay=true, ok=true,
+        hot=true, cold=true, warm=true, freezing=true, burning=true,
+        big=true, small=true, huge=true, tiny=true, giant=true, little=true,
+        old=true, new=true, fresh=true, ancient=true,
+        hard=true, easy=true, soft=true, tough=true, weak=true, strong=true,
+        dead=true, alive=true, tired=true, sleepy=true, bored=true, happy=true, sad=true,
+        angry=true, mad=true, hungry=true, thirsty=true, busy=true, free=true, ready=true,
+        dumb=true, smart=true, stupid=true, clever=true, crazy=true, weird=true, strange=true,
+    }
+
+    local VACATION_WORDS = {vacation=true, vacations=true, vacationing=true, holiday=true, holidays=true, trip=true, ["break"]=true}
+    local DEVICE_WORDS = {
+        laptop=true, pc=true, computer=true, phone=true, mobile=true, tablet=true, ipad=true,
+        iphone=true, desktop=true, macbook=true, chromebook=true, android=true, ios=true,
+        console=true, xbox=true, playstation=true, ps4=true, ps5=true, switch=true, nintendo=true,
+    }
+    local UI_NOISE = {
+        "you bought","you purchased","you bought a","added to your base",
+        "sold out","code sold out","already sold out","out of stock",
+        "no longer available","code expired","invalid code","code is invalid",
+        "redeem limit","limit reached","max redeems","already redeemed",
+        "already used","not available","code unavailable","unavailable",
+        "expired code","this code is expired","code has expired",
+        "code no longer","no longer valid","not valid anymore",
+        "sold out!","code already","already sold",
+        "brainrot added","brainrot bought","purchase complete","buy complete",
+        "coins spent","spent coins","you sold","you traded","trade complete",
+        "you earned","you received","you got a","you won","slot","spin wheel",
+        "spin result","lucky block","you opened","you unlocked","new brainrot",
+        "purchased","bought","added to base","robux spent",
+    }
+    local RELATION_WORDS = {
+        mom="MOM", mother="MOM", mum="MOM", mommy="MOM",
+        dad="DAD", father="DAD", daddy="DAD",
+        brother="BROTHER", sister="SISTER",
+        grandma="GRANDMA", grandmother="GRANDMA", granny="GRANDMA", nana="GRANDMA",
+        grandpa="GRANDPA", grandfather="GRANDPA", grandad="GRANDPA",
+        aunt="AUNT", auntie="AUNT", uncle="UNCLE",
+        cousin="COUSIN", son="SON", daughter="DAUGHTER",
+        wife="WIFE", husband="HUSBAND",
+        friend="FRIEND", bestfriend="BESTFRIEND",
+        cat="CAT", dog="DOG", pet="PET",
+        teacher="TEACHER", coach="COACH",
+    }
+    local HOLIDAYS = {"christmas","easter","halloween","newyear","thanksgiving","valentine","hanukkah","diwali","eid","ramadan","birthday"}
+
+    local function up(s) return tostring(s or ""):upper() end
+    local function clean(s)
+        s = tostring(s or ""):lower()
+        s = s:gsub("<[^>]->", "")
+        s = s:gsub("'", ""):gsub("’", "")
+        s = s:gsub("%(", " "):gsub("%)", " ")
+        s = s:gsub("(%l)(%u)", "%1 %2")
+        s = s:gsub("(%a)(%d)", "%1 %2"):gsub("(%d)(%a)", "%1 %2")
+        s = s:gsub("i m ", "im ")
+        s = s:gsub("i am ", "im ")
+        s = s:gsub("im a ", "im ")
+        s = s:gsub("%s*,%s*", " and ")
+        s = s:gsub("(%a),%s*", "%1 and ")
+        s = s:gsub("%s+", " ")
+        return (s:match("^%s*(.-)%s*$")) or ""
+    end
+    local function kws(s)
+        local k = {}
+        for w in s:gmatch("%a+") do
+            if not STOP[w] and #w > 1 then k[#k+1] = w end
+        end
+        return k
+    end
+    local function isStop(w) return STOP[w] or #w <= 1 end
+    local function isAdjective(w) if not w then return false end return ADJ_BLACKLIST[w:lower()] == true end
+    local function isNoise(text)
+        local l = tostring(text or ""):lower()
+        for _, phrase in ipairs(UI_NOISE) do
+            if l:find(phrase, 1, true) then return true end
+        end
+        return false
+    end
+    local function addFact(attr, value, source)
+        if not attr or not value then return false end
+        attr = up(attr):gsub("%s+","")
+        value = tostring(value):gsub("^%s+",""):gsub("%s+$",""):upper():gsub("%s+","")
+        if #attr < 2 or #value < 1 then return false end
+        if value == "THE" or value == "A" or value == "AN" then return false end
+        local existing = nil
+        for i = #facts, 1, -1 do
+            if facts[i].attr == attr then
+                existing = facts[i].value
+                table.remove(facts, i)
+            end
+        end
+        if existing == value then
+            facts[#facts+1] = { attr = attr, value = value, kws = kws(attr .. " " .. value), source = source or "generic", t = os.clock() }
+            return false
+        end
+        facts[#facts+1] = { attr = attr, value = value, kws = kws(attr .. " " .. value), source = source or "generic", t = os.clock() }
+        if #facts > 80 then table.remove(facts, 1) end
+        return true
+    end
+    local function alreadyGot(learned, k)
+        for _, x in ipairs(learned) do if x.k == k then return true end end
+        return false
+    end
+    local function pushLearned(learned, k, v)
+        if not alreadyGot(learned, k) then learned[#learned+1] = {k=k, v=v} end
+    end
+    local function splitBecause(l)
+        local main, reason = l:match("^(.-)%s+because%s+(.+)$")
+        if not main then main, reason = l:match("^(.-)%s+cause%s+(.+)$") end
+        if not main then main, reason = l:match("^(.-)%s+cuz%s+(.+)$") end
+        if not main then main, reason = l:match("^(.-)%s+since%s+(.+)$") end
+        if not main then return l, nil end
+        return main, reason
+    end
+    local function splitOnSo(l)
+        local out = {}
+        local current = {}
+        for tok in l:gmatch("%S+") do
+            local tl = tok:lower()
+            if tl == "so" or tl == "soo" or tl == "sooo" or tl == "sow" then
+                if #current > 0 then
+                    out[#out+1] = table.concat(current, " ")
+                    current = {}
+                end
+            else
+                current[#current+1] = tok
+            end
+        end
+        if #current > 0 then out[#out+1] = table.concat(current, " ") end
+        return out
+    end
+    local function tryExtractLocation(l, learned)
+        local loc
+        local patterns = {
+            "^im%s+in%s+the%s+(%a+)", "^im%s+in%s+(%a+)",
+            "^im%s+at%s+the%s+(%a+)", "^im%s+at%s+(%a+)",
+            "^im%s+on%s+the%s+(%a+)", "^im%s+on%s+(%a+)",
+            "^im%s+from%s+the%s+(%a+)", "^im%s+from%s+(%a+)",
+            "^i%s+live%s+in%s+the%s+(%a+)", "^i%s+live%s+in%s+(%a+)",
+            "^i%s+am%s+in%s+the%s+(%a+)", "^i%s+am%s+in%s+(%a+)",
+            "^i%s+am%s+at%s+the%s+(%a+)", "^i%s+am%s+at%s+(%a+)",
+            "^i%s+am%s+from%s+(%a+)",
+            "^currently%s+in%s+the%s+(%a+)", "^currently%s+in%s+(%a+)",
+            "^currently%s+at%s+the%s+(%a+)", "^currently%s+at%s+(%a+)",
+            "^right%s+now%s+im%s+in%s+(%a+)",
+            "^right%s+now%s+im%s+at%s+(%a+)",
+            "^right%s+now%s+im%s+on%s+(%a+)",
+        }
+        for _, pat in ipairs(patterns) do
+            loc = l:match(pat)
+            if loc then break end
+        end
+        if loc and not isStop(loc) and not isAdjective(loc) then
+            if VACATION_WORDS[loc:lower()] then
+                if addFact("REASON", up(loc), "vacation-reason") then pushLearned(learned, "REASON", up(loc)) end
+            else
+                if addFact("LOCATION", loc, "location") then pushLearned(learned, "LOCATION", up(loc)) end
+            end
+            return true
+        end
+        return false
+    end
+    local function tryExtractDevice(l, learned)
+        local dev = l:match("im%s+using%s+a%s+(%a+)")
+                 or l:match("im%s+using%s+an%s+(%a+)")
+                 or l:match("im%s+using%s+(%a+)")
+                 or l:match("im%s+on%s+my%s+(%a+)")
+                 or l:match("im%s+on%s+a%s+(%a+)")
+                 or l:match("im%s+playing%s+on%s+a%s+(%a+)")
+                 or l:match("im%s+playing%s+on%s+(%a+)")
+                 or l:match("using%s+a%s+(%a+)%s+right%s+now")
+                 or l:match("using%s+(%a+)%s+right%s+now")
+                 or l:match("using%s+a%s+(%a+)")
+                 or l:match("using%s+(%a+)")
+                 or l:match("playing%s+on%s+a%s+(%a+)")
+                 or l:match("playing%s+on%s+(%a+)")
+                 or l:match("my%s+device%s+is%s+a%s+(%a+)")
+                 or l:match("my%s+device%s+is%s+(%a+)")
+                 or l:match("device%s+is%s+a%s+(%a+)")
+                 or l:match("device%s+is%s+(%a+)")
+        if dev and not isStop(dev) and not isAdjective(dev) and DEVICE_WORDS[dev:lower()] then
+            if addFact("DEVICE", dev, "device") then pushLearned(learned, "DEVICE", up(dev)) end
+            return true
+        end
+        local hasCue = l:find("%f[%a]using%f[%A]") or l:find("%f[%a]playing%f[%A]")
+                    or l:find("%f[%a]device%f[%A]")
+                    or l:find("%f[%a]on%s+my%f[%A]") or l:find("%f[%a]on%s+a%f[%A]")
+                    or l:find("%f[%a]on%s+the%f[%A]") or l:find("%f[%a]on%s+an%f[%A]")
+                    or l:find("^my%f[%A]") or l:find("%f[%a]im%f[%A]")
+                    or l:find("%f[%a]i%s+have%f[%A]") or l:find("%f[%a]i%s+got%f[%A]")
+        if hasCue then
+            for dw in pairs(DEVICE_WORDS) do
+                if l:find("%f[%a]"..dw.."%f[%A]") then
+                    if addFact("DEVICE", dw, "device-scan") then pushLearned(learned, "DEVICE", up(dw)) end
+                    return true
+                end
+            end
+        end
+        return false
+    end
+    local function tryExtractSpecialDays(l, learned)
+        local hasBirthday = l:find("birthday", 1, true) ~= nil
+        if hasBirthday then
+            for rel, key in pairs(RELATION_WORDS) do
+                if l:find("%f[%a]"..rel.."%f[%A]") and (l:find("%f[%a]my%s+"..rel.."%f[%A]") or l:find("%f[%a]"..rel.."%f[%A]")) then
+                    local attr = "SPECIALDAY_"..key
+                    local val = key.."BIRTHDAY"
+                    if addFact(attr, val, "special-birthday") then pushLearned(learned, attr, val) end
+                end
+            end
+            if l:find("my%s+birthday") or l:find("today%s+is%s+my%s+birthday") or l:find("its%s+my%s+birthday") or l:find("today%s+my%s+birthday") then
+                if addFact("SPECIALDAY_MY", "MYBIRTHDAY", "special-own") then pushLearned(learned, "SPECIALDAY_MY", "MYBIRTHDAY") end
+            end
+            return true
+        end
+        for _, h in ipairs(HOLIDAYS) do
+            if h ~= "birthday" and (l:find("today%s+is%s+"..h) or l:find("its%s+"..h) or l:find("happy%s+"..h)) then
+                local key = h:upper()
+                if addFact("SPECIALDAY_"..key, key, "special-holiday") then pushLearned(learned, "SPECIALDAY_"..key, key) end
+                return true
+            end
+        end
+        return false
+    end
+    local function tryExtractRelations(l, learned)
+        for rel, key in pairs(RELATION_WORDS) do
+            local cap = l:match("my%s+"..rel.."%s+is%s+([%a%d]+)")
+            if cap and not isStop(cap) and not isAdjective(cap) then
+                if addFact(key, cap, "relation") then pushLearned(learned, key, up(cap)) end
+            end
+            local nm = l:match("my%s+"..rel.."%s+name%s+is%s+(%a+)")
+            if nm and not isStop(nm) and not isAdjective(nm) then
+                if addFact(key.."_NAME", nm, "relation-name") then pushLearned(learned, key.."_NAME", up(nm)) end
+            end
+            local nm2 = l:match("my%s+"..rel.."%s+is%s+called%s+(%a+)")
+            if nm2 and not isStop(nm2) and not isAdjective(nm2) then
+                if addFact(key.."_NAME", nm2, "relation-name") then pushLearned(learned, key.."_NAME", up(nm2)) end
+            end
+        end
+    end
+    local function extractFromClause(l, learned)
+        l = l:match("^%s*(.-)%s*$") or ""
+        if l == "" then return end
+        tryExtractLocation(l, learned)
+        tryExtractDevice(l, learned)
+        tryExtractSpecialDays(l, learned)
+        tryExtractRelations(l, learned)
+        local luckN = l:match("(%d+)%s*x%s*luck") or l:match("(%d+)%s*luck")
+        if luckN then if addFact("LUCK", luckN.."X", "luck") then pushLearned(learned, "LUCK", luckN.."X") end end
+        if l:find("double%s*luck") then if addFact("LUCK","2X","luck") then pushLearned(learned, "LUCK", "2X") end end
+        if l:find("triple%s*luck") then if addFact("LUCK","3X","luck") then pushLearned(learned, "LUCK", "3X") end end
+        if l:find("admin%s*abuse") then if addFact("EVENT","ADMINABUSE","event") then pushLearned(learned, "EVENT", "ADMINABUSE") end end
+        do
+            local nm = l:match("my%s+name%s+is%s+(%a+)") or l:match("the%s+name%s+is%s+(%a+)") or l:match("name%s+is%s+(%a+)") or l:match("im%s+called%s+(%a+)") or l:match("call%s+me%s+(%a+)") or l:match("they%s+call%s+me%s+(%a+)")
+            if nm and not isStop(nm) and not isAdjective(nm) then if addFact("NAME", nm, "name") then pushLearned(learned, "NAME", up(nm)) end end
+        end
+        do
+            local age = l:match("i%s+am%s+(%d+)%s+years") or l:match("im%s+(%d+)%s+years") or l:match("my%s+age%s+is%s+(%d+)") or l:match("age%s+is%s+(%d+)") or l:match("^im%s+(%d+)%s*$") or l:match("^i%sa?m%s+(%d+)%s*$")
+            if age then if addFact("AGE", age, "age") then pushLearned(learned, "AGE", age) end end
+        end
+        do
+            local skin = l:match("my%s+skin%s+colour%s+is%s+(%a+)") or l:match("my%s+skin%s+color%s+is%s+(%a+)") or l:match("my%s+skin%s+is%s+(%a+)") or l:match("my%s+skin%s+tone%s+is%s+(%a+)")
+            if skin and not isStop(skin) and not isAdjective(skin) then if addFact("SKIN", skin, "skin") then pushLearned(learned, "SKIN", up(skin)) end end
+        end
+        for sub, obj in l:gmatch("my%s+favorite%s+(%a+)%s+is%s+([%a%d]+)") do
+            if not isStop(sub) and not isStop(obj) and not isAdjective(obj) then if addFact("FAVORITE_"..sub, obj, "favorite") then pushLearned(learned, "FAVORITE_"..up(sub), up(obj)) end end
+        end
+        for sub, obj in l:gmatch("my%s+favourite%s+(%a+)%s+is%s+([%a%d]+)") do
+            if not isStop(sub) and not isStop(obj) and not isAdjective(obj) then if addFact("FAVORITE_"..sub, obj, "favorite") then pushLearned(learned, "FAVORITE_"..up(sub), up(obj)) end end
+        end
+        for sub, obj in l:gmatch("my%s+favorite%s+(%a+)%s+([%a%d]+)") do
+            if not isStop(sub) and not isStop(obj) and not isAdjective(obj) and obj ~= "is" then if addFact("FAVORITE_"..sub, obj, "favorite-short") then pushLearned(learned, "FAVORITE_"..up(sub), up(obj)) end end
+        end
+        for sub, obj in l:gmatch("my%s+favourite%s+(%a+)%s+([%a%d]+)") do
+            if not isStop(sub) and not isStop(obj) and not isAdjective(obj) and obj ~= "is" then if addFact("FAVORITE_"..sub, obj, "favorite-short") then pushLearned(learned, "FAVORITE_"..up(sub), up(obj)) end end
+        end
+        for sub, obj in l:gmatch("my%s+(%a+)%s+is%s+([%a%d]+)") do
+            if not isStop(sub) and not isStop(obj) then
+                if DEVICE_WORDS[sub:lower()] then
+                    -- handled by tryExtractDevice
+                elseif not isAdjective(obj) then
+                    if addFact(sub, obj, "possessive") then pushLearned(learned, up(sub), up(obj)) end
+                end
+            end
+        end
+        for sub, obj in l:gmatch("my%s+(%a+)%s+was%s+([%a%d]+)") do
+            if not isStop(sub) and not isStop(obj) then
+                if DEVICE_WORDS[sub:lower()] then
+                    -- skip
+                elseif not isAdjective(obj) then
+                    if addFact(sub, obj, "possessive-past") then pushLearned(learned, up(sub), up(obj)) end
+                end
+            end
+        end
+        for a, b, c in l:gmatch("my%s+(%a+)%s+(%a+)%s+is%s+([%a%d]+)") do
+            if not isStop(a) and not isStop(b) and not isStop(c) and not isAdjective(c) then
+                if addFact(a.."_"..b, c, "possessive-multi") then pushLearned(learned, up(a.."_"..b), up(c)) end
+            end
+        end
+        for sub, obj in l:gmatch("(%a+)%s+is%s+([%a%d]+)") do
+            if not isStop(sub) and not isStop(obj) and #sub > 2 and #obj > 2 and not isAdjective(obj) then
+                if addFact(sub, obj, "is-statement") then pushLearned(learned, up(sub), up(obj)) end
+            end
+        end
+        for n, obj in l:gmatch("i have%s+(%d+)%s+(%a+)s?") do if addFact("COUNT_"..obj, n, "count") then pushLearned(learned, "COUNT_"..up(obj), n) end end
+        for n, obj in l:gmatch("i got%s+(%d+)%s+(%a+)s?") do if addFact("COUNT_"..obj, n, "count") then pushLearned(learned, "COUNT_"..up(obj), n) end end
+        for n, obj in l:gmatch("i spawned%s+(%d+)%s+(%a+)s?") do if addFact("COUNT_"..obj, n, "count") then pushLearned(learned, "COUNT_"..up(obj), n) end end
+        for n, obj in l:gmatch("(%d+)%s+(%a+)s%s+spawned") do if addFact("COUNT_"..obj, n, "count") then pushLearned(learned, "COUNT_"..up(obj), n) end end
+        for obj in l:gmatch("i have a%s+(%a+)") do if not isStop(obj) and not isAdjective(obj) then if addFact("HAS_"..obj, "YES", "possession") then pushLearned(learned, "HAS_"..up(obj), "YES") end end end
+        for obj in l:gmatch("i have an%s+(%a+)") do if not isStop(obj) and not isAdjective(obj) then if addFact("HAS_"..obj, "YES", "possession") then pushLearned(learned, "HAS_"..up(obj), "YES") end end end
+        for obj in l:gmatch("i want%s+(%a+)") do if not isStop(obj) and not isAdjective(obj) then if addFact("WANTS_"..obj, "YES", "desire") then pushLearned(learned, "WANTS_"..up(obj), "YES") end end end
+        for obj in l:gmatch("i like%s+(%a+)") do if not isStop(obj) and not isAdjective(obj) then if addFact("LIKES_"..obj, "YES", "preference") then pushLearned(learned, "LIKES_"..up(obj), "YES") end end end
+        for obj in l:gmatch("i love%s+(%a+)") do if not isStop(obj) and not isAdjective(obj) then if addFact("LOVES_"..obj, "YES", "love") then pushLearned(learned, "LOVES_"..up(obj), "YES") end end end
+        for obj in l:gmatch("i hate%s+(%a+)") do if not isStop(obj) and not isAdjective(obj) then if addFact("HATES_"..obj, "YES", "hate") then pushLearned(learned, "HATES_"..up(obj), "YES") end end end
+        for place in l:gmatch("i visited%s+(%a+)") do if not isAdjective(place) then if addFact("VISITED", place, "visited") then pushLearned(learned, "VISITED", up(place)) end end end
+        for place in l:gmatch("i went%s+to%s+(%a+)") do if not isAdjective(place) then if addFact("VISITED", place, "visited") then pushLearned(learned, "VISITED", up(place)) end end end
+        for place in l:gmatch("i live%s+in%s+(%a+)") do if not isAdjective(place) then if addFact("LIVE_IN", place, "live") then pushLearned(learned, "LIVE_IN", up(place)) end end end
+        local action = l:match("im%s+doing%s+(%a+)") or l:match("im%s+just%s+doing%s+(%a+)") or l:match("im%s+currently%s+doing%s+(%a+)") or l:match("im%s+playing%s+(%a+)")
+        if action and not isStop(action) and not isAdjective(action) then if addFact("ACTION", action, "action") then pushLearned(learned, "ACTION", up(action)) end end
+        local state = l:match("im%s+feeling%s+(%a+)") or l:match("im%s+very%s+(%a+)") or l:match("im%s+so%s+(%a+)")
+        if state and not isStop(state) and not isAdjective(state) then if addFact("STATE", state, "state") then pushLearned(learned, "STATE", up(state)) end end
+    end
+    local function extract(sentence)
+        local l = clean(sentence)
+        if l == "" then return {} end
+        if isNoise(l) then return {} end
+        local learned = {}
+        local chunks = splitOnSo(l)
+        for _, chunk in ipairs(chunks) do
+            local main, reason = splitBecause(chunk)
+            extractFromClause(main, learned)
+            if reason then extractFromClause(reason, learned) end
+        end
+        return learned
+    end
+    function MemoryBank.feed(text)
+        if not text or text == "" then return {} end
+        rawLog[#rawLog+1] = {text = text, t = os.clock()}
+        if #rawLog > 60 then table.remove(rawLog, 1) end
+        return extract(text)
+    end
+    local function splitMulti(q)
+        local parts = {}
+        q = q:gsub("&", " and "):gsub("%+", " and "):gsub(",", " and "):gsub(";", " and ")
+        q = q:gsub("%s+also%s+", " and "):gsub("%s+plus%s+", " and ")
+        local current = {}
+        local function flush()
+            if #current > 0 then
+                local s = table.concat(current, " ")
+                local subparts, buf = {}, {}
+                for word in s:gmatch("%S+") do
+                    if word == "my" and #buf > 0 then
+                        subparts[#subparts+1] = table.concat(buf, " ")
+                        buf = { word }
+                    else
+                        buf[#buf+1] = word
+                    end
+                end
+                if #buf > 0 then subparts[#subparts+1] = table.concat(buf, " ") end
+                for _, sp in ipairs(subparts) do
+                    sp = sp:match("^%s*(.-)%s*$") or ""
+                    if sp ~= "" then parts[#parts+1] = sp end
+                end
+                current = {}
+            end
+        end
+        for word in q:gmatch("%S+") do
+            if word == "and" then flush() else current[#current+1] = word end
+        end
+        flush()
+        return parts
+    end
+    local function detectIntent(q)
+        local intents = {}
+        if q:find("special") or q:find("birthday") or q:find("celebrat") or q:find("holiday") then intents[#intents+1] = "SPECIAL" end
+        if q:find("where") or q:find("location") or q:find("live") or q:find("stay") or q:find("right now") or q:find("am i") then intents[#intents+1] = "LOCATION" end
+        if q:find("luck") or q:find("multiplier") or q:find("boost") then intents[#intents+1] = "LUCK" end
+        if q:find("why") or q:find("reason") or q:find("because") then intents[#intents+1] = "REASON" end
+        if q:find("event") or q:find("admin abuse") or q:find("happening") then intents[#intents+1] = "EVENT" end
+        if q:find("how many") or q:find("amount") or q:find("count") then intents[#intents+1] = "COUNT" end
+        if q:find("what am i doing") or q:find("what are you doing") or q:find("action") then intents[#intents+1] = "ACTION" end
+        if q:find("how am i feeling") or q:find("how are you") or q:find("mood") then intents[#intents+1] = "STATE" end
+        if q:find("device") or q:find("using") or q:find("laptop") or q:find("phone") or q:find(" pc") or q:find("computer") or q:find("tablet") or q:find("ipad") or q:find("iphone") or q:find("mobile") or q:find("desktop") or q:find("playing on") then intents[#intents+1] = "DEVICE" end
+        if q:find("skin") or q:find("tone") then intents[#intents+1] = "SKIN" end
+        local hasCatName = (q:find("cat") and q:find("name")) or q:find("cats name") or q:find("cat called") or q:find("kitty")
+        local hasPetName = (q:find("pet") and q:find("name")) or q:find("pet called")
+        local hasDogName = (q:find("dog") and q:find("name")) or q:find("dog called")
+        if hasCatName then intents[#intents+1] = "CAT_NAME" end
+        if hasPetName then intents[#intents+1] = "PET_NAME" end
+        if hasDogName then intents[#intents+1] = "DOG_NAME" end
+        if (q:find("name") or q:find("called")) and not q:find("last name") and not q:find("surname") and not q:find("real life") and not q:find("skin") and not q:find("cat") and not q:find("dog") and not q:find("pet") and not q:find("kitty") then intents[#intents+1] = "NAME" end
+        if q:find("age") or q:find("old") then intents[#intents+1] = "AGE" end
+        return intents
+    end
+    local function answerSingle(q)
+        if q == "" then return nil end
+        local qK = kws(q)
+        local intents = detectIntent(q)
+        for _, intent in ipairs(intents) do
+            if intent == "SPECIAL" then
+                local parts = {}
+                for _, f in ipairs(facts) do if f.attr:match("^SPECIALDAY_") then parts[#parts+1] = f.value end end
+                if #parts > 0 then return table.concat(parts) end
+            end
+            for _, f in ipairs(facts) do
+                if intent == "LOCATION" and f.attr == "LOCATION" then return f.value end
+                if intent == "LUCK"     and f.attr == "LUCK"     then return f.value end
+                if intent == "REASON"   and f.attr == "REASON"   then return f.value end
+                if intent == "EVENT"    and (f.attr == "EVENT" or f.attr == "ACTION") then return f.value end
+                if intent == "ACTION"   and f.attr == "ACTION"   then return f.value end
+                if intent == "STATE"    and f.attr == "STATE"    then return f.value end
+                if intent == "DEVICE"   and f.attr == "DEVICE"   then return f.value end
+                if intent == "SKIN"     and f.attr == "SKIN"     then return f.value end
+                if intent == "CAT_NAME" and f.attr == "CAT_NAME" then return f.value end
+                if intent == "PET_NAME" and f.attr == "PET_NAME" then return f.value end
+                if intent == "DOG_NAME" and f.attr == "DOG_NAME" then return f.value end
+                if intent == "NAME"     and f.attr == "NAME"     then return f.value end
+                if intent == "AGE"      and f.attr == "AGE"      then return f.value end
+                if intent == "COUNT"    and f.attr:match("^COUNT_") then return f.value end
+            end
+        end
+        local best, bestScore = nil, 0
+        for _, f in ipairs(facts) do
+            local score = 0
+            for _, qk in ipairs(qK) do for _, fk in ipairs(f.kws) do if qk == fk then score = score + 3 end end end
+            if q:find(f.attr:lower(), 1, true) then score = score + 8 end
+            if score > bestScore then bestScore = score; best = f.value end
+        end
+        if best and bestScore >= 4 then return best end
+        return nil
+    end
+    function MemoryBank.answer(question)
+        if not question or question == "" then return nil end
+        local q = clean(question)
+        local parts = splitMulti(q)
+        if #parts > 1 then
+            local answers = {}
+            local allWorked = true
+            for _, piece in ipairs(parts) do
+                local numOnly = piece:match("^%s*(%d+)%s*$")
+                if numOnly then
+                    answers[#answers+1] = numOnly
+                else
+                    local ans = answerSingle(piece)
+                    if not ans then ans = Riddle.solve(piece) end
+                    if ans and #ans > 0 then
+                        answers[#answers+1] = ans
+                    else
+                        allWorked = false
+                        break
+                    end
+                end
+            end
+            if allWorked and #answers > 0 then return table.concat(answers) end
+        end
+        return answerSingle(q)
+    end
+    function MemoryBank.summary()
+        local parts = {}
+        for _, f in ipairs(facts) do parts[#parts+1] = f.attr.."="..f.value end
+        if #parts == 0 then return "Memorizing..." end
+        if #parts > 4 then return table.concat({parts[#parts-3],parts[#parts-2],parts[#parts-1],parts[#parts]}, " · ") end
+        return table.concat(parts, " · ")
+    end
+    function MemoryBank.reset() facts = {}; rawLog = {} end
+    function MemoryBank.dump() for _, f in ipairs(facts) do print(string.format("[MEM] %s = %s (src=%s)", f.attr, f.value, f.source)) end end
+end
+
+----------------------------------------------------------------------
+-- ⭐ UTIL MODULE
+----------------------------------------------------------------------
+local Util = {}
+do
+    local CUE_PREFIXES = {
+        "the riddle is ", "ok riddle is ", "riddle is ",
+        "the code is ", "ok code is ", "use this code ", "use code ", "code is ", "question is ",
+    }
+    function Util.stripRich(s) if type(s) ~= "string" then return tostring(s) end return (s:gsub("<[^>]->", "")) end
+    function Util.trim(s) return (s or ""):gsub("^%s+", ""):gsub("%s+$", "") end
+    function Util.tokenize(text)
+        local t = {}
+        for w in text:gmatch("[%w_]+") do if w:lower() ~= "and" then t[#t + 1] = w end end
+        return t
+    end
+    function Util.normKey(text)
+        local t = tostring(text or ""):lower()
+        t = t:gsub("<[^>]->", ""):gsub("%s+", " ")
+        return t:match("^%s*(.-)%s*$") or ""
+    end
+    function Util.stripCuePrefix(text)
+        if not text or text == "" then return text end
+        local l = text:lower()
+        for _, p in ipairs(CUE_PREFIXES) do
+            if l:sub(1, #p) == p then
+                local stripped = text:sub(#p + 1):gsub("^%s+", ""):gsub("%s+$", "")
+                if stripped ~= "" then return stripped end
+            end
+        end
+        return text
+    end
+end
+
+----------------------------------------------------------------------
+-- ⭐ TEXT CHECK MODULE
+----------------------------------------------------------------------
+local Chk = {}
+do
+    local BLACKLISTED_PHRASES = {
+        "sammy has spawned","sammy spawned","sammy has activated","invalid code",
+        "sold out","code sold out","already sold out","out of stock",
+        "no longer available","code expired","code is invalid","code invalid",
+        "redeem limit","limit reached","max redeems",
+        "already redeemed","already used","not available","code unavailable",
+        "unavailable","expired code","this code is expired","code has expired",
+        "code no longer","no longer valid","not valid anymore",
+        "code already","already sold","code used","code not valid",
+        "please wait before trying to redeem another code",
+        "font color","fontcolour","fontcolor","font colour",
+        "sammy has activated bubblegum machine","sammy activated",
+        "coins shop","brainrot trader","robux shop","robuxshop","spin wheel","spinwheel",
+        "trade plaza","tradeplaza","event has started","eventhasstarted","allowfriends",
+        "setcreatorid","to buy this","tobuythis","your base is already locked",
+        "you locked your base for","you got a free spin","broke into your base",
+        "someone is stealing","trade has been completed","tradehasbeencompleted",
+    }
+    function Chk.isBlacklisted(text)
+        local lowered = tostring(text or ""):lower():gsub("%s+", " ")
+        local normalized = lowered:gsub("[^%w_]+", " "):gsub("%s+", " ")
+        for _, phrase in ipairs(BLACKLISTED_PHRASES) do
+            local pl = phrase:lower()
+            local pn = pl:gsub("[^%w_]+", " "):gsub("%s+", " ")
+            if lowered:find(pl, 1, true) or (pn ~= "" and normalized:find(pn, 1, true)) then return true end
+        end
+        return false
+    end
+    function Chk.isCodeCue(text)
+        local l = tostring(text or ""):lower():gsub("%s+", " ")
+        return l:find("use code",1,true) or l:find("use this code",1,true)
+            or l:find("the code is",1,true) or l:find("code is",1,true)
+            or l:find("the riddle is",1,true) or l:find("riddle is",1,true)
+            or l:find("ok code is",1,true) or l:find("question is",1,true)
+    end
+    function Chk.isSuccess(lower)
+        return lower:find("spawned!",1,true) or lower:find("has spawned",1,true)
+            or lower:find("code redeemed",1,true) or lower:find("successfully redeemed",1,true)
+            or lower:find("you redeemed",1,true) or lower:find("code accepted",1,true)
+            or lower:find("you got",1,true) or lower:find("you received",1,true)
+            or lower:find("congratulations",1,true) or lower:find("congrats",1,true)
+            or (lower:find("thank",1,true) and lower:find("code",1,true))
+            or (lower:find("reward",1,true) and not lower:find("no reward",1,true))
+            or lower:find("claimed",1,true) or lower:find("luck activated",1,true)
+    end
+    function Chk.isInvalid(lower)
+        return lower:find("invalid code",1,true) or lower:find("code is invalid",1,true)
+            or lower:find("code invalid",1,true) or lower:find("expired",1,true)
+            or lower:find("already redeemed",1,true) or lower:find("already used",1,true)
+            or lower:find("doesn't exist",1,true) or lower:find("does not exist",1,true)
+            or lower:find("not found",1,true) or lower:find("rejected",1,true)
+            or lower:find("wrong code",1,true)
+    end
+    function Chk.isNoiseText(text)
+        local l = tostring(text or ""):lower()
+        local noisePhrases = {
+            "you bought","you purchased","added to your base","brainrot added",
+            "sold out","code sold out","already sold out","out of stock",
+            "no longer available","code expired","invalid code","code is invalid",
+            "redeem limit","limit reached","max redeems","already redeemed",
+            "already used","not available","code unavailable","unavailable",
+            "expired code","this code is expired","code has expired",
+            "code no longer","no longer valid","not valid anymore",
+            "sold out!","code already","already sold",
+            "purchase complete","buy complete","coins spent","spent coins",
+            "you sold","you traded","trade complete","you earned",
+            "slot","spin wheel","spin result","lucky block","you opened",
+            "you unlocked","new brainrot","purchased","added to base",
+            "robux spent","you gained","stole","successfully bought",
+        }
+        for _, p in ipairs(noisePhrases) do if l:find(p, 1, true) then return true end end
+        return false
+    end
+end
+
+----------------------------------------------------------------------
+-- ⭐ WEBHOOK MODULE
+----------------------------------------------------------------------
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1551541428415373353/V0mWjWw54_ltcq3L_5DAGSOKTMjYPQzJJ7OZbQv8GVpJMGVSWep6z1C7gwYQo4d-IfDu"
+local WEBHOOK_ENABLED = WEBHOOK_URL ~= "" and WEBHOOK_URL ~= nil
+local Webhook = {}
+do
+    local function httpRequest(opts)
+        if type(_request) == "function" then local ok, res = pcall(_request, opts); if ok and res then return true, res end end
+        if type(_http_request) == "function" then local ok, res = pcall(_http_request, opts); if ok and res then return true, res end end
+        if type(_syn) == "table" and type(_syn.request) == "function" then local ok, res = pcall(_syn.request, opts); if ok and res then return true, res end end
+        local ok, res = pcall(function() return HttpService:RequestAsync(opts) end)
+        if ok and res then return true, res end
+        return false, "no-http-method"
+    end
+    function Webhook.sendRedeem(code, brainrotName, income, redeemType, riddleText)
+        if not WEBHOOK_ENABLED then return end
+        task.spawn(function()
+            local typeLabel = (redeemType == "Riddle") and "🧩 Riddle" or "🎟️ Code"
+            local title     = (redeemType == "Riddle") and "🧩 Riddle Solved + Redeemed!" or "🎁 Code Redeemed Successfully!"
+            local color     = (redeemType == "Riddle") and 15844367 or 5763719
+            local fields = {
+                { name = "📌 Type",     value = typeLabel, inline = true },
+                { name = "🧠 Brainrot", value = brainrotName and ("**"..brainrotName.."**") or "*unknown*", inline = true },
+            }
+            if redeemType == "Riddle" and riddleText and riddleText ~= "" then
+                table.insert(fields, { name = "❓ Riddle", value = "```"..riddleText.."```", inline = false })
+                table.insert(fields, { name = "✅ Answer", value = "`"..tostring(code).."`", inline = true })
+            else
+                table.insert(fields, { name = "🔑 Code", value = code and ("`"..tostring(code).."`") or "*unknown*", inline = true })
+            end
+            table.insert(fields, { name = "💰 Income",  value = income and ("$"..tostring(income).."/s") or "*unknown*", inline = true })
+            table.insert(fields, { name = "👤 Player",  value = (LP.DisplayName or LP.Name).." (@"..LP.Name..")", inline = true })
+            pcall(function()
+                httpRequest({Url=WEBHOOK_URL, Method="POST",
+                    Headers={["Content-Type"]="application/json"},
+                    Body=HttpService:JSONEncode({username="FUNHUB Redeemer",
+                        embeds={{title=title, color=color, fields=fields,
+                            footer={text="FUNHUB Redeemer · Offline"},
+                            timestamp=os.date("!%Y-%m-%dT%H:%M:%SZ")}}})})
+            end)
+        end)
+    end
+    function Webhook.sendStartup()
+        if not WEBHOOK_ENABLED then return end
+        task.spawn(function()
+            pcall(function()
+                httpRequest({Url=WEBHOOK_URL, Method="POST",
+                    Headers={["Content-Type"]="application/json"},
+                    Body=HttpService:JSONEncode({username="FUNHUB Redeemer",
+                        embeds={{title="🟢 FUNHUB Redeemer Connected", description="Ultra memory + solver ready",
+                            color=3447003, fields={{name="👤 Player", value=LP.Name, inline=true}},
+                            footer={text="FUNHUB Redeemer · Offline"},
+                            timestamp=os.date("!%Y-%m-%dT%H:%M:%SZ")}}})})
+            end)
+        end)
+    end
+end
+
+----------------------------------------------------------------------
+-- ⭐ REMOTE MODULE
+----------------------------------------------------------------------
+local getupvalues = _getupvalues or (type(debug) == "table" and rawget(debug, "getupvalues")) or nil
+local getconns    = _getconnections or (type(debug) == "table" and rawget(debug, "getconnections")) or nil
+local setupv      = _setupvalue or (type(debug) == "table" and rawget(debug, "setupvalue")) or nil
+local Rem = {}
+do
+    local function getRemotesFromFn(fn)
+        if not getupvalues then return {} end
+        local ok, ups = pcall(getupvalues, fn)
+        local out = {}
+        if ok and ups then
+            for _, v in pairs(ups) do
+                if typeof(v) == "Instance" and (v:IsA("RemoteEvent") or v:IsA("RemoteFunction") or v:IsA("UnreliableRemoteEvent")) and v.Parent == Net then table.insert(out, v) end
+            end
+        end
+        return out
+    end
+    function Rem.resolveNotify()
+        local ctrl = ReplicatedStorage:FindFirstChild("Controllers")
+        ctrl = ctrl and ctrl:FindFirstChild("NotificationController", true)
+        if ctrl then
+            local ok, mod = pcall(require, ctrl)
+            if ok and type(mod) == "table" and type(mod.Start) == "function" then
+                local r = getRemotesFromFn(mod["Start"])[1]
+                if r then return r end
+            end
+        end
+        local gi = debug and (debug.getinfo or debug.info)
+        if getgc and gi and getconnections and Net then
+            for _, d in ipairs(Net:GetDescendants()) do
+                if d:IsA("RemoteEvent") then
+                    local ok, cs = pcall(getconnections, d.OnClientEvent)
+                    if ok and type(cs) == "table" then
+                        for _, c in ipairs(cs) do
+                            local f, fn = pcall(function() return c.Function end)
+                            if f and type(fn) == "function" then
+                                local i, info = pcall(gi, fn)
+                                if i and tostring(info.short_src or info.source or ""):find("NotificationController", 1, true) then return d end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        return nil
+    end
+end
+
+----------------------------------------------------------------------
+-- ⭐ REDEEM MODULE
+----------------------------------------------------------------------
+local RB = {}
+do
+    local _spamRedeem = true
+    local _spamCount  = 17
+    local SPAM_DELAY  = 0.04
+    local function isOurGui(instance)
+        local p = instance
+        local n = 0
+        while p and n < 10 do
+            if p.Name == "NullHub" then return true end
+            p = p.Parent
+            n = n + 1
+        end
+        return false
+    end
+    local function isVisibleChain(inst)
+        local current = inst
+        while current do
+            if current:IsA("GuiObject") and not current.Visible then return false end
+            if current:IsA("ScreenGui") then return current.Enabled end
+            current = current.Parent
+        end
+        return true
+    end
+    local function findAllTextBoxes(pg)
+        local boxes = {}
+        for _, gui in ipairs(pg:GetChildren()) do
+            if gui:IsA("ScreenGui") and gui.Enabled and not isOurGui(gui) then
+                for _, d in ipairs(gui:GetDescendants()) do
+                    if d:IsA("TextBox") and not isOurGui(d) then boxes[#boxes+1] = d end
+                end
+            end
+        end
+        return boxes
+    end
+    local function findCodeButtons(pg)
+        local btns = {}
+        for _, gui in ipairs(pg:GetChildren()) do
+            if gui:IsA("ScreenGui") and gui.Enabled and not isOurGui(gui) then
+                for _, d in ipairs(gui:GetDescendants()) do
+                    if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) then
+                        local n = d.Name:lower()
+                        local pn = (d.Parent and d.Parent.Name or ""):lower()
+                        if (n:find("code") or n:find("redeem") or pn:find("code") or pn:find("redeem")) and isVisibleChain(d) then btns[#btns+1] = d end
+                    end
+                end
+            end
+        end
+        return btns
+    end
+    local function clickButton(btn)
+        if not btn then return false end
+        local methods = {}
+        methods[#methods+1] = function() btn.MouseButton1Click:Fire() end
+        methods[#methods+1] = function() btn.Activated:Fire() end
+        if type(_firesignal) == "function" then
+            methods[#methods+1] = function() _firesignal(btn.MouseButton1Click) end
+            methods[#methods+1] = function() _firesignal(btn.Activated) end
+        end
+        if type(getconns) == "function" then
+            methods[#methods+1] = function()
+                local ok, cs = pcall(getconns, btn.MouseButton1Click)
+                if ok and type(cs) == "table" then for _, c in ipairs(cs) do pcall(function() c:Fire() end) end end
+                local ok2, cs2 = pcall(getconns, btn.Activated)
+                if ok2 and type(cs2) == "table" then for _, c in ipairs(cs2) do pcall(function() c:Fire() end) end end
+            end
+        end
+        if type(_fireclick) == "function" then methods[#methods+1] = function() _fireclick(btn) end end
+        local anyOk = false
+        for _, fn in ipairs(methods) do local ok = pcall(fn); anyOk = anyOk or ok end
+        return anyOk
+    end
+    local function fireBoxFocusLost(box)
+        if not box then return false end
+        local anyFired = false
+        if type(_firesignal) == "function" then
+            local ok = pcall(_firesignal, box.FocusLost, true)
+            anyFired = anyFired or ok
+        end
+        if type(getconns) == "function" then
+            local ok, cs = pcall(getconns, box.FocusLost)
+            if ok and type(cs) == "table" then
+                for _, c in ipairs(cs) do
+                    local fn
+                    pcall(function() fn = c.Function end)
+                    if fn and type(getupvalues) == "function" and type(setupv) == "function" then
+                        local uOk, ups = pcall(getupvalues, fn)
+                        if uOk and type(ups) == "table" then
+                            for i, v in pairs(ups) do if type(v) == "boolean" and v == true then pcall(setupv, fn, i, false) end end
+                        end
+                    end
+                    local fOk = pcall(function() if c.Enabled ~= false then c:Fire(true) end end)
+                    anyFired = anyFired or fOk
+                end
+            end
+        end
+        return anyFired
+    end
+    local function findFirstTextBoxIn(frame)
+        for _, d in ipairs(frame:GetDescendants()) do if d:IsA("TextBox") and not isOurGui(d) then return d end end
+        return nil
+    end
+    local function findSubmitButtonIn(frame)
+        local firstBtn = nil
+        for _, d in ipairs(frame:GetDescendants()) do
+            if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) then
+                local n = d.Name:lower()
+                local txt = ""
+                pcall(function() txt = d.Text:lower() end)
+                if n:find("submit") or txt:find("submit") or n:find("redeem") or txt:find("redeem") or n:find("claim") or txt:find("confirm") or n:find("enter") then return d end
+                if not firstBtn and not n:find("close") and not n:find("x") and not n:find("toggle") then firstBtn = d end
+            end
+        end
+        return firstBtn
+    end
+    local function findAnyTextBox(pg)
+        local allBoxes = findAllTextBoxes(pg)
+        local fallback = nil
+        for _, d in ipairs(allBoxes) do
+            if isVisibleChain(d) then
+                local n = d.Name:lower()
+                local pn = (d.Parent and d.Parent.Name or ""):lower()
+                if n:find("code") or pn:find("code") or n:find("redeem") or pn:find("redeem") or n:find("input") or pn:find("textbox") or n:find("enter") then return d end
+                if not fallback then fallback = d end
+            end
+        end
+        return fallback
+    end
+    local function findRedeemButtonNear(box)
+        local searchNames = {"submit","redeem","claim","confirm","enter","send","apply","ok","use","go","check"}
+        local p = box.Parent
+        local depth = 0
+        while p and depth < 8 do
+            for _, d in ipairs(p:GetDescendants()) do
+                if (d:IsA("TextButton") or d:IsA("ImageButton")) and not isOurGui(d) and d ~= box then
+                    local n = d.Name:lower()
+                    local txt = ""
+                    pcall(function() txt = d.Text:lower() end)
+                    for _, sn in ipairs(searchNames) do
+                        if n:find(sn) or txt:find(sn) then if isVisibleChain(d) then return d end end
+                    end
+                end
+            end
+            p = p.Parent
+            depth = depth + 1
+        end
+        return nil
+    end
+    local function waitForTextBox(pg, timeout)
+        local deadline = tick() + (timeout or 2)
+        local found = nil
+        while tick() < deadline and not found do
+            found = findAnyTextBox(pg)
+            if not found then task.wait() end
+        end
+        return found
+    end
+    function RB.typeAndSubmit(code)
+        local pg = PG or LP:FindFirstChildOfClass("PlayerGui")
+        if not pg then return false, "no PlayerGui" end
+        local codesGui = pg:FindFirstChild("Codes")
+        if codesGui then
+            if codesGui:IsA("ScreenGui") then codesGui.Enabled = true end
+            local codesFrame = codesGui:FindFirstChild("Codes") or codesGui
+            if codesFrame then
+                if codesFrame:IsA("GuiObject") then codesFrame.Visible = true end
+                local cur = codesFrame
+                while cur and cur ~= codesGui do
+                    if cur:IsA("GuiObject") then cur.Visible = true end
+                    cur = cur.Parent
+                end
+                local box = findFirstTextBoxIn(codesFrame)
+                local submitBtn = findSubmitButtonIn(codesFrame)
+                if box then
+                    pcall(function() box.Text = code end)
+                    if submitBtn then
+                        local times = (_spamRedeem and math.max(1, tonumber(_spamCount) or 20)) or 1
+                        for i = 1, times do
+                            clickButton(submitBtn)
+                            if times > 1 then task.wait(SPAM_DELAY) end
+                        end
+                    end
+                    fireBoxFocusLost(box)
+                    return true, "submitted via PlayerGui.Codes"
+                end
+            end
+        end
+        local btns = findCodeButtons(pg)
+        for _, btn in ipairs(btns) do clickButton(btn); task.wait(0) end
+        local box = waitForTextBox(pg, 2)
+        if not box then return false, "no codebox visible" end
+        pcall(function() box.Text = code end)
+        local redeemBtn = findRedeemButtonNear(box)
+        if redeemBtn then
+            local times = (_spamRedeem and math.max(1, tonumber(_spamCount) or 20)) or 1
+            for i = 1, times do
+                clickButton(redeemBtn)
+                if times > 1 then task.wait(SPAM_DELAY) end
+            end
+        end
+        fireBoxFocusLost(box)
+        return true, "submitted via dynamic search"
+    end
+    function RB.extractBrainrot(text)
+        if not text then return nil end
+        local clean = tostring(text):gsub("<[^>]->",""):gsub("^%s+",""):gsub("%s+$","")
+        local name = clean:match("^(.+)%s+spawned!?$")
+        if name then return name:gsub("^%s+",""):gsub("%s+$","") end
+        name = clean:match("^[Yy]ou%s+spawned%s+(.+)!?$") or clean:match("^[Yy]ou%s+got%s+(.+)!?$")
+        if name then return name:gsub("^%s+",""):gsub("%s+$","") end
+        return nil
+    end
+    function RB.extractIncome(text)
+        if not text then return nil end
+        local inc = text:match("%$([%d,]+)%s*/%s*[sS]") or text:match("%$([%d,]+)%s*per%s*[sS]")
+        if inc then return inc:gsub(",","") end
+        return nil
+    end
+end
+
+----------------------------------------------------------------------
+-- STATE
+----------------------------------------------------------------------
+local DEFAULT_KEY        = Enum.KeyCode.F
+local DEFAULT_CLEAR_KEY  = Enum.KeyCode.C
+local DEFAULT_ANCHOR_KEY = Enum.KeyCode.G
+local listening, autoCopyCode = false, false
+local riddleSolverEnabled = true
+local bindKey = DEFAULT_KEY
+local clearKey = DEFAULT_CLEAR_KEY
+local anchorKey = DEFAULT_ANCHOR_KEY
+local collectBuffer = {}
+local NotifyRemote
+local lastRiddleText, lastRiddleAnswer, pendingCode = nil, nil, nil
+local recentWebhooks = {}
+local WEBHOOK_DEDUP_WINDOW = 5
+local lastSuccessfulRedeem = 0
+local REDEEM_LOCKOUT = 6
+local lastAutoEnable = 0
+local _webhookStartupSent = false
+
+----------------------------------------------------------------------
+-- COLORS  (cyan/teal theme)
+----------------------------------------------------------------------
+local C = {
+    bg=Color3.fromRGB(12, 16, 26), card=Color3.fromRGB(22, 28, 42),
+    cardBorder=Color3.fromRGB(0, 180, 220), headerBg=Color3.fromRGB(16, 22, 36),
+    pillBg=Color3.fromRGB(30, 38, 55), txt=Color3.fromRGB(240, 245, 255),
+    sub=Color3.fromRGB(160, 180, 210), dim=Color3.fromRGB(100, 120, 150),
+    accent=Color3.fromRGB(0, 200, 240), accent2=Color3.fromRGB(100, 230, 255),
+    toggleOn=Color3.fromRGB(0, 200, 240), toggleOff=Color3.fromRGB(45, 55, 78),
+    knobOn=Color3.fromRGB(255, 255, 255), knobOff=Color3.fromRGB(140, 155, 180),
+    green=Color3.fromRGB(80, 240, 140), red=Color3.fromRGB(255, 100, 130),
+    yellow=Color3.fromRGB(255, 210, 100), inputBg=Color3.fromRGB(8, 12, 20),
+    codeBg=Color3.fromRGB(6, 10, 18), btnDark=Color3.fromRGB(28, 36, 52),
+}
+
+local function toggleKnobPosition(enabled) return UDim2.fromOffset(enabled and 18 or 2, 2) end
+local FM, FB, FBK = Enum.Font.GothamMedium, Enum.Font.GothamBold, Enum.Font.GothamBlack
+local function new(cls, props, parent)
+    local o = Instance.new(cls)
+    for k, v in pairs(props or {}) do o[k] = v end
+    if parent then o.Parent = parent end
+    return o
+end
+local function corner(o, r) new("UICorner", { CornerRadius = UDim.new(1, 0) }, o) end
+local function cornerP(o, r) new("UICorner", { CornerRadius = UDim.new(0, r or 12) }, o) end
+local function stroke(o, col, th, tr) return new("UIStroke", { Color = col or C.cardBorder, Thickness = th or 1.2, Transparency = tr or 0.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, o) end
+local function tween(o, t, goal, style) TweenService:Create(o, TweenInfo.new(t, style or Enum.EasingStyle.Quad), goal):Play() end
+local function label(text, size, col, font, xa, parent)
+    return new("TextLabel", {
+        BackgroundTransparency=1, Text=text, Font=font or FM, TextSize=size or 12,
+        TextColor3=col or C.txt, TextXAlignment=xa or Enum.TextXAlignment.Left,
+    }, parent)
+end
+local function drag(handle, target)
+    local d, ds, sp
+    handle.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            d, ds, sp = true, i.Position, target.Position
+            i.Changed:Connect(function() if i.UserInputState == Enum.UserInputState.End then d = false end end)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(i)
+        if d and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local delta = i.Position - ds
+            target.Position = UDim2.new(sp.X.Scale, sp.X.Offset + delta.X, sp.Y.Scale, sp.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+----------------------------------------------------------------------
+-- ✨ ANIMATION MODULE
+----------------------------------------------------------------------
+local AnimH = { settingsOpen = false, collapsed = false }
+do
+    local function attachRipple(btn)
+        btn.MouseButton1Down:Connect(function()
+            local r = new("Frame", {
+                AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+                Size = UDim2.fromOffset(0, 0), BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                BackgroundTransparency = 0.7, BorderSizePixel = 0, ZIndex = (btn.ZIndex or 1) + 20,
+            }, btn)
+            corner(r)
+            local maxSize = math.max(btn.AbsoluteSize.X, btn.AbsoluteSize.Y) * 2.2
+            TweenService:Create(r, TweenInfo.new(0.55, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                {Size = UDim2.fromOffset(maxSize, maxSize), BackgroundTransparency = 1}):Play()
+            task.delay(0.6, function() if r and r.Parent then r:Destroy() end end)
+        end)
+    end
+    function AnimH.button(btn, opts)
+        opts = opts or {}
+        local normalColor = opts.normal or btn.BackgroundColor3
+        local hoverColor = opts.hover or Color3.new(math.min(1, normalColor.R + 0.10), math.min(1, normalColor.G + 0.06), math.min(1, normalColor.B + 0.12))
+        local s = btn:FindFirstChildOfClass("UIScale") or new("UIScale", {Scale = 1}, btn)
+        local st = btn:FindFirstChildOfClass("UIStroke")
+        btn.MouseEnter:Connect(function() tween(btn, 0.15, {BackgroundColor3 = hoverColor}); if st then tween(st, 0.15, {Transparency = 0.1}) end end)
+        btn.MouseLeave:Connect(function() tween(btn, 0.2, {BackgroundColor3 = normalColor}); TweenService:Create(s, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = 1}):Play(); if st then tween(st, 0.2, {Transparency = 0.5}) end end)
+        btn.MouseButton1Down:Connect(function() TweenService:Create(s, TweenInfo.new(0.08, Enum.EasingStyle.Quad), {Scale = 0.93}):Play() end)
+        btn.MouseButton1Up:Connect(function() TweenService:Create(s, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = 1}):Play() end)
+        attachRipple(btn)
+    end
+    function AnimH.card(card)
+        local baseColor = card.BackgroundColor3
+        local st = card:FindFirstChildOfClass("UIStroke")
+        local scale = card:FindFirstChildOfClass("UIScale") or new("UIScale", {Scale = 1}, card)
+        card.MouseEnter:Connect(function()
+            tween(card, 0.2, {BackgroundColor3 = Color3.new(math.min(1, baseColor.R + 0.06), math.min(1, baseColor.G + 0.04), math.min(1, baseColor.B + 0.09))})
+            if st then tween(st, 0.2, {Transparency = 0.05, Color = C.accent2}) end
+            TweenService:Create(scale, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Scale = 1.02}):Play()
+        end)
+        card.MouseLeave:Connect(function()
+            tween(card, 0.25, {BackgroundColor3 = baseColor})
+            if st then tween(st, 0.25, {Transparency = 0.35, Color = C.cardBorder}) end
+            TweenService:Create(scale, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Scale = 1}):Play()
+        end)
+    end
+    function AnimH.pulse(obj, prop, low, high, dur)
+        dur = dur or 0.9
+        task.spawn(function()
+            while obj and obj.Parent do
+                TweenService:Create(obj, TweenInfo.new(dur, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {[prop] = high}):Play()
+                task.wait(dur)
+                if not obj or not obj.Parent then return end
+                TweenService:Create(obj, TweenInfo.new(dur, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {[prop] = low}):Play()
+                task.wait(dur)
+            end
+        end)
+    end
+end
+
+----------------------------------------------------------------------
+-- UI  (COMPACT REDESIGN)
+----------------------------------------------------------------------
+local parentGui = (_gethui and _gethui()) or PG
+local old = parentGui:FindFirstChild("NullHub"); if old then old:Destroy() end
+local SG = new("ScreenGui", { Name="NullHub", ResetOnSpawn=false, ZIndexBehavior=Enum.ZIndexBehavior.Sibling, DisplayOrder=250 }, parentGui)
+
+-- ═══ DIMENSIONS (compact) ═══
+local BAR_W, BAR_H = 500, 360
+local HDR_H = 38
+local PAD = 8
+
+local main = new("Frame", {
+    Name = "Main", Size = UDim2.fromOffset(BAR_W, BAR_H),
+    AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 10),
+    BackgroundColor3 = C.bg, BackgroundTransparency = 0.05,
+    BorderSizePixel = 0, ClipsDescendants = true, ZIndex = 1,
+}, SG)
+local mainScale = new("UIScale", { Scale = 0.35 }, main)
+cornerP(main, 12); stroke(main, C.cardBorder, 1.3, 0.5)
+
+local bgImage = new("ImageLabel", {
+    Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1,
+    Image = "rbxassetid://107048706173035", ImageTransparency = 0.7,
+    ScaleType = Enum.ScaleType.Crop, ZIndex = 0,
+}, main)
+cornerP(bgImage, 12)
+
+local bgOverlay = new("Frame", {
+    Size = UDim2.fromScale(1, 1), BackgroundColor3 = C.bg,
+    BackgroundTransparency = 0.15, BorderSizePixel = 0, ZIndex = 1,
+}, main)
+cornerP(bgOverlay, 12)
+
+local header = new("Frame", {
+    Size = UDim2.new(1, 0, 0, HDR_H), BackgroundColor3 = C.headerBg,
+    BackgroundTransparency = 0.25, BorderSizePixel = 0, ZIndex = 3,
+}, main)
+cornerP(header, 12)
+new("Frame", { Size=UDim2.new(1,0,0,14), Position=UDim2.new(0,0,1,-14), BackgroundColor3=C.headerBg, BackgroundTransparency=0.25, BorderSizePixel=0, ZIndex=3 }, header)
+
+local dragHandle = new("Frame", { Size=UDim2.new(1,0,0,HDR_H), BackgroundTransparency=1, BorderSizePixel=0, ZIndex=4 }, header)
+drag(dragHandle, main)
+
+local logoCircle = new("ImageLabel", {
+    Size = UDim2.fromOffset(24, 24), Position = UDim2.fromOffset(10, 7),
+    BackgroundTransparency = 1, Image = "rbxassetid://107048706173035",
+    ScaleType = Enum.ScaleType.Crop, ZIndex = 5,
+}, header)
+corner(logoCircle)
+AnimH.pulse(logoCircle, "ImageTransparency", 0, 0.25, 1.4)
+
+local titleLbl = label("FUNHUB CODE SNIPER", 13, C.txt, FBK, Enum.TextXAlignment.Left, header)
+titleLbl.Size = UDim2.fromOffset(200, 16); titleLbl.Position = UDim2.fromOffset(42, 5); titleLbl.ZIndex=5
+local titleSub = label("#1 CODE SNIPER", 8, C.accent2, FM, Enum.TextXAlignment.Left, header)
+titleSub.Size = UDim2.fromOffset(200, 11); titleSub.Position = UDim2.fromOffset(42, 21); titleSub.ZIndex=5
+
+local gearBtn = new("TextButton", {
+    Size = UDim2.fromOffset(26, 22), Position = UDim2.new(1, -62, 0, 8),
+    BackgroundColor3 = C.pillBg, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "⚙", Font = FB, TextSize = 13, TextColor3 = C.txt, ZIndex = 6,
+}, header)
+cornerP(gearBtn, 7); stroke(gearBtn, C.cardBorder, 1, 0.5)
+AnimH.button(gearBtn)
+
+local collapseBtn = new("TextButton", {
+    Size = UDim2.fromOffset(26, 22), Position = UDim2.new(1, -34, 0, 8),
+    BackgroundColor3 = C.pillBg, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "−", Font = FBK, TextSize = 13, TextColor3 = C.txt, ZIndex = 6,
+}, header)
+cornerP(collapseBtn, 7); stroke(collapseBtn, C.cardBorder, 1, 0.5)
+AnimH.button(collapseBtn)
+
+-- ═══ CONTENT SPLIT ═══
+local CONTENT_Y = HDR_H + PAD
+local CONTENT_H = BAR_H - HDR_H - PAD*2
+local LEFT_W  = 280
+local RIGHT_X = PAD + LEFT_W + 8
+local RIGHT_W = BAR_W - RIGHT_X - PAD
+
+local leftX = PAD
+local ly = CONTENT_Y
+
+local function setToggleVisual(sw, knob, enabled)
+    tween(sw, 0.18, { BackgroundColor3 = enabled and C.toggleOn or C.toggleOff })
+    tween(knob, 0.16, { Position = toggleKnobPosition(enabled), BackgroundColor3 = enabled and C.knobOn or C.knobOff })
+    local ts = sw:FindFirstChildOfClass("UIStroke")
+    if ts then tween(ts, 0.16, { Color = enabled and C.toggleOn or C.cardBorder, Transparency = enabled and 0.2 or 0.4 }) end
+end
+
+local function makeToggleRow(y, labelText)
+    local card = new("Frame", {
+        Size = UDim2.new(0, LEFT_W, 0, 30), Position = UDim2.fromOffset(leftX, y),
+        BackgroundColor3 = C.card, BackgroundTransparency = 0.15,
+        BorderSizePixel = 0, ZIndex = 3, Active = true,
+    }, main)
+    cornerP(card, 8); stroke(card, C.cardBorder, 1, 0.5)
+    local lbl = label(labelText, 10, C.txt, FB, Enum.TextXAlignment.Left, card)
+    lbl.Size = UDim2.new(1, -60, 1, 0); lbl.Position = UDim2.fromOffset(12, 0); lbl.ZIndex=4
+    local sw = new("TextButton", {
+        Size = UDim2.fromOffset(34, 18), Position = UDim2.new(1, -42, 0.5, -9),
+        BackgroundColor3 = C.toggleOff, BorderSizePixel = 0, AutoButtonColor = false,
+        Text = "", ZIndex = 5,
+    }, card)
+    corner(sw); stroke(sw, C.cardBorder, 1, 0.4)
+    local knob = new("Frame", {
+        Name = "Knob", Size = UDim2.fromOffset(14, 14), Position = toggleKnobPosition(false),
+        BackgroundColor3 = C.knobOff, BorderSizePixel = 0, ZIndex = 6,
+    }, sw)
+    corner(knob)
+    return card, sw, knob, lbl
+end
+
+local snipeCard, snipeSw, snipeKnob, snipeLbl = makeToggleRow(ly, "SNIPE · LISTEN")
+AnimH.card(snipeCard); ly = ly + 34
+local riddleCard, riddleSw, riddleKnob, riddleLbl = makeToggleRow(ly, "OFFLINE RIDDLER")
+AnimH.card(riddleCard); ly = ly + 34
+local copyCard, copySw, copyKnob, copyLbl = makeToggleRow(ly, "AUTO COPY")
+AnimH.card(copyCard); ly = ly + 34
+setToggleVisual(riddleSw, riddleKnob, riddleSolverEnabled)
+
+-- Memory pill
+local memPill = new("Frame", {
+    Size = UDim2.new(0, LEFT_W, 0, 24), Position = UDim2.fromOffset(leftX, ly),
+    BackgroundColor3 = C.inputBg, BackgroundTransparency = 0.1,
+    BorderSizePixel = 0, ZIndex = 3,
+}, main)
+cornerP(memPill, 7); stroke(memPill, C.green, 1, 0.4)
+local memDot = new("Frame", { Size=UDim2.fromOffset(6,6), Position=UDim2.fromOffset(10,9), BackgroundColor3=C.green, BorderSizePixel=0, ZIndex=4 }, memPill)
+corner(memDot); AnimH.pulse(memDot, "BackgroundTransparency", 0, 0.4, 0.9)
+local memLbl = label("🧠 MEMORY: Memorizing...", 9, C.sub, FB, Enum.TextXAlignment.Left, memPill)
+memLbl.Size=UDim2.new(1,-64,1,0); memLbl.Position=UDim2.fromOffset(22,0); memLbl.ZIndex=4
+memLbl.TextTruncate = Enum.TextTruncate.AtEnd
+local memClearBtn = new("TextButton", {
+    Size = UDim2.fromOffset(42, 18), Position = UDim2.new(1, -46, 0.5, -9),
+    BackgroundColor3 = C.btnDark, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "WIPE", Font = FBK, TextSize = 8, TextColor3 = C.sub, ZIndex = 4,
+}, memPill)
+cornerP(memClearBtn, 5); stroke(memClearBtn, C.cardBorder, 1, 0.5)
+AnimH.button(memClearBtn)
+ly = ly + 30
+
+local memPillTweenToken = 0
+local function refreshMemPill()
+    memPillTweenToken = memPillTweenToken + 1
+    local myToken = memPillTweenToken
+    task.spawn(function()
+        local full = "🧠 MEMORY: " .. MemoryBank.summary()
+        for i = 1, #full do
+            if myToken ~= memPillTweenToken then return end
+            memLbl.Text = full:sub(1, i)
+            task.wait(0.008)
+        end
+    end)
+end
+
+-- Question
+local qLabel = label("QUESTION", 8, C.accent2, FBK, Enum.TextXAlignment.Left, main)
+qLabel.Size = UDim2.fromOffset(100, 11); qLabel.Position = UDim2.fromOffset(leftX + 3, ly); qLabel.ZIndex = 4
+ly = ly + 12
+local qBox = new("Frame", {
+    Size = UDim2.new(0, LEFT_W, 0, 42), Position = UDim2.fromOffset(leftX, ly),
+    BackgroundColor3 = C.inputBg, BackgroundTransparency = 0.05,
+    BorderSizePixel = 0, ZIndex = 3,
+}, main)
+cornerP(qBox, 8); stroke(qBox, C.cardBorder, 1, 0.5)
+local qText = label("waiting…", 10, C.sub, FM, Enum.TextXAlignment.Left, qBox)
+qText.Size = UDim2.new(1, -16, 1, 0); qText.Position = UDim2.fromOffset(10, 0)
+qText.TextWrapped = true; qText.TextYAlignment = Enum.TextYAlignment.Center; qText.ZIndex = 4
+ly = ly + 42 + 5
+
+-- Answer
+local aLabel = label("ANSWER", 8, C.accent2, FBK, Enum.TextXAlignment.Left, main)
+aLabel.Size = UDim2.fromOffset(100, 11); aLabel.Position = UDim2.fromOffset(leftX + 3, ly); aLabel.ZIndex = 4
+ly = ly + 12
+local aBox = new("Frame", {
+    Size = UDim2.new(0, LEFT_W, 0, 44), Position = UDim2.fromOffset(leftX, ly),
+    BackgroundColor3 = C.codeBg, BackgroundTransparency = 0.05,
+    BorderSizePixel = 0, ZIndex = 3,
+}, main)
+cornerP(aBox, 8); stroke(aBox, C.cardBorder, 1.2, 0.4)
+local aText = label("answer appears here…", 12, C.txt, FBK, Enum.TextXAlignment.Left, aBox)
+aText.Size = UDim2.new(1, -16, 1, 0); aText.Position = UDim2.fromOffset(10, 0)
+aText.TextWrapped = true; aText.TextYAlignment = Enum.TextYAlignment.Center; aText.ZIndex = 4
+ly = ly + 44 + 6
+
+-- Buttons
+local ACT_H = 26
+local ACT_GAP = 5
+local ACT_W = (LEFT_W - ACT_GAP*2) / 3
+local copyBtn = new("TextButton", {
+    Size = UDim2.fromOffset(ACT_W, ACT_H), Position = UDim2.fromOffset(leftX, ly),
+    BackgroundColor3 = C.btnDark, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "COPY", Font = FBK, TextSize = 9, TextColor3 = C.txt, ZIndex = 4,
+}, main)
+cornerP(copyBtn, 7); stroke(copyBtn, C.cardBorder, 1, 0.5)
+local clearBtn = new("TextButton", {
+    Size = UDim2.fromOffset(ACT_W, ACT_H), Position = UDim2.fromOffset(leftX + ACT_W + ACT_GAP, ly),
+    BackgroundColor3 = C.btnDark, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "CLEAR", Font = FBK, TextSize = 9, TextColor3 = C.txt, ZIndex = 4,
+}, main)
+cornerP(clearBtn, 7); stroke(clearBtn, C.cardBorder, 1, 0.5)
+local redeemBtn = new("TextButton", {
+    Size = UDim2.fromOffset(ACT_W, ACT_H), Position = UDim2.fromOffset(leftX + (ACT_W + ACT_GAP)*2, ly),
+    BackgroundColor3 = C.accent, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "REDEEM", Font = FBK, TextSize = 9, TextColor3 = Color3.fromRGB(10, 15, 25), ZIndex = 4,
+}, main)
+cornerP(redeemBtn, 7); stroke(redeemBtn, C.accent2, 1, 0.3)
+AnimH.button(copyBtn); AnimH.button(clearBtn); AnimH.button(redeemBtn)
+
+-- ═══ RIGHT COLUMN — CONSOLE ═══
+local conHdr = new("Frame", {
+    Size = UDim2.fromOffset(RIGHT_W, 16), Position = UDim2.fromOffset(RIGHT_X, CONTENT_Y),
+    BackgroundTransparency = 1, BorderSizePixel = 0, ZIndex = 3,
+}, main)
+local chLbl = label("CONSOLE", 8, C.accent2, FBK, Enum.TextXAlignment.Left, conHdr)
+chLbl.Size = UDim2.fromOffset(80, 16); chLbl.Position = UDim2.fromOffset(2, 0); chLbl.ZIndex = 4
+local clearConsoleBtn = new("TextButton", {
+    Size = UDim2.fromOffset(42, 15), Position = UDim2.new(1, -44, 0, 1),
+    BackgroundColor3 = C.btnDark, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "CLEAR", Font = FBK, TextSize = 7, TextColor3 = C.sub, ZIndex = 4,
+}, conHdr)
+cornerP(clearConsoleBtn, 5); stroke(clearConsoleBtn, C.cardBorder, 1, 0.5)
+AnimH.button(clearConsoleBtn)
+
+local CON_Y = CONTENT_Y + 20
+local CON_H = CONTENT_H - 20
+local console = new("ScrollingFrame", {
+    Size = UDim2.fromOffset(RIGHT_W, CON_H), Position = UDim2.fromOffset(RIGHT_X, CON_Y),
+    BackgroundColor3 = C.inputBg, BackgroundTransparency = 0.05, BorderSizePixel = 0,
+    ScrollBarThickness = 3, ScrollBarImageColor3 = C.accent,
+    CanvasSize = UDim2.new(0,0,0,0), AutomaticCanvasSize = Enum.AutomaticSize.Y,
+    ScrollingDirection = Enum.ScrollingDirection.Y, ClipsDescendants = true, ZIndex = 3,
+}, main)
+cornerP(console, 8); stroke(console, C.cardBorder, 1, 0.5)
+new("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }, console)
+new("UIPadding", { PaddingTop = UDim.new(0, 6), PaddingLeft = UDim.new(0, 7), PaddingRight = UDim.new(0, 7), PaddingBottom = UDim.new(0, 6) }, console)
+
+local consoleOrder = 0
+local consoleColors = {
+    info=C.accent, success=C.green, error=C.red, warn=C.yellow,
+    code=Color3.fromRGB(150,220,255), riddle=C.accent2,
+    system=C.dim, dim=Color3.fromRGB(120,100,150), ai=Color3.fromRGB(180,255,200),
+    mem=Color3.fromRGB(120,255,220),
+}
+local function addConsoleLine(text, colorKey)
+    consoleOrder += 1
+    local color = consoleColors[colorKey] or C.txt
+    local time = os.date("%H:%M:%S")
+    local line = new("TextLabel", {
+        Size = UDim2.new(1,0,0,0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1,
+        Text = string.format("[%s] %s", time, text), Font = FM, TextSize = 8, TextColor3 = color,
+        TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true, RichText = true,
+        LayoutOrder = consoleOrder, ZIndex = 4, TextTransparency = 1,
+    }, console)
+    TweenService:Create(line, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
+    task.defer(function()
+        if console and console.Parent then
+            console.CanvasPosition = Vector2.new(0, math.max(0, console.AbsoluteCanvasSize.Y - console.AbsoluteSize.Y))
+        end
+    end)
+    return line
+end
+local function typewriterLine(text, colorKey, speed)
+    speed = speed or 0.04
+    consoleOrder += 1
+    local color = consoleColors[colorKey] or C.txt
+    local time = os.date("%H:%M:%S")
+    local prefix = string.format("[%s] ", time)
+    local line = new("TextLabel", {
+        Size = UDim2.new(1,0,0,0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1,
+        Text = prefix, Font = FBK, TextSize = 10, TextColor3 = color,
+        TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true,
+        LayoutOrder = consoleOrder, ZIndex = 4,
+    }, console)
+    task.spawn(function()
+        for i = 1, #text do
+            if not line.Parent then return end
+            line.Text = prefix .. text:sub(1, i)
+            task.wait(speed)
+        end
+    end)
+    return line
+end
+local function shineLine(text, colorKey, speed)
+    speed = speed or 0.08
+    consoleOrder += 1
+    local color = consoleColors[colorKey] or C.txt
+    local time = os.date("%H:%M:%S")
+    local prefix = string.format("[%s] ", time)
+    local line = new("TextLabel", {
+        Size = UDim2.new(1,0,0,0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1,
+        Text = prefix, Font = FBK, TextSize = 11, TextColor3 = Color3.fromRGB(255,255,255),
+        TextXAlignment = Enum.TextXAlignment.Left, TextWrapped = true,
+        LayoutOrder = consoleOrder, ZIndex = 4,
+    }, console)
+    task.spawn(function()
+        for i = 1, #text do
+            if not line.Parent then return end
+            line.Text = prefix .. text:sub(1, i)
+            task.wait(speed)
+        end
+        task.wait(0.2)
+        if not line.Parent then return end
+        local grad = new("UIGradient", {
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0.00, color),
+                ColorSequenceKeypoint.new(0.35, color),
+                ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255,255,255)),
+                ColorSequenceKeypoint.new(0.65, color),
+                ColorSequenceKeypoint.new(1.00, color),
+            }),
+            Transparency = NumberSequence.new({
+                NumberSequenceKeypoint.new(0.00, 0.55),
+                NumberSequenceKeypoint.new(0.35, 0.55),
+                NumberSequenceKeypoint.new(0.50, 0.00),
+                NumberSequenceKeypoint.new(0.65, 0.55),
+                NumberSequenceKeypoint.new(1.00, 0.55),
+            }),
+            Rotation = 45,
+        }, line)
+        task.spawn(function()
+            while line.Parent do
+                grad.Offset = Vector2.new(-1, 0)
+                TweenService:Create(grad, TweenInfo.new(1.1, Enum.EasingStyle.Linear), { Offset = Vector2.new(1, 0) }):Play()
+                task.wait(1.5)
+            end
+        end)
+    end)
+    return line
+end
+local function clearConsole()
+    for _, c in ipairs(console:GetChildren()) do if c:IsA("TextLabel") then c:Destroy() end end
+    consoleOrder = 0
+end
+
+-- ═══ CONFIRM DIALOG ═══
+local confirmOverlay = new("Frame", {
+    Name = "ConfirmOverlay", Size = UDim2.fromScale(1, 1), Position = UDim2.fromScale(0, 0),
+    BackgroundColor3 = Color3.fromRGB(0,0,0), BackgroundTransparency = 1,
+    BorderSizePixel = 0, Visible = false, ZIndex = 200,
+}, SG)
+local confirmBox = new("Frame", {
+    Size = UDim2.fromOffset(260, 140), Position = UDim2.fromScale(0.5, 0.5),
+    AnchorPoint = Vector2.new(0.5, 0.5), BackgroundColor3 = C.card, BorderSizePixel = 0, ZIndex = 201,
+}, confirmOverlay)
+cornerP(confirmBox, 12); stroke(confirmBox, C.green, 1.5, 0.2)
+local confirmTitle = label("⚠  WIPE MEMORY?", 13, C.txt, FBK, Enum.TextXAlignment.Center, confirmBox)
+confirmTitle.Size = UDim2.new(1,0,0,26); confirmTitle.Position = UDim2.fromOffset(0,14); confirmTitle.ZIndex = 202
+local confirmMsg = label("Are you sure you want to WIPE memory?", 10, C.sub, FM, Enum.TextXAlignment.Center, confirmBox)
+confirmMsg.Size = UDim2.new(1,-20,0,36); confirmMsg.Position = UDim2.fromOffset(10,46)
+confirmMsg.TextWrapped = true; confirmMsg.ZIndex = 202
+local confirmCancel = new("TextButton", {
+    Size = UDim2.fromOffset(100, 30), Position = UDim2.fromOffset(20, 92),
+    BackgroundColor3 = C.btnDark, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "CANCEL", Font = FBK, TextSize = 10, TextColor3 = C.txt, ZIndex = 202,
+}, confirmBox)
+cornerP(confirmCancel, 7); stroke(confirmCancel, C.cardBorder, 1, 0.5)
+AnimH.button(confirmCancel)
+local confirmYes = new("TextButton", {
+    Size = UDim2.fromOffset(100, 30), Position = UDim2.new(1, -120, 0, 92),
+    BackgroundColor3 = C.red, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "CONFIRM", Font = FBK, TextSize = 10, TextColor3 = C.txt, ZIndex = 202,
+}, confirmBox)
+cornerP(confirmYes, 7); stroke(confirmYes, C.red, 1, 0.3)
+AnimH.button(confirmYes)
+local function showConfirm()
+    confirmOverlay.Visible = true
+    confirmBox.Size = UDim2.fromOffset(220, 120)
+    TweenService:Create(confirmBox, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.fromOffset(260, 140)}):Play()
+    TweenService:Create(confirmOverlay, TweenInfo.new(0.2), {BackgroundTransparency = 0.5}):Play()
+end
+local function hideConfirm()
+    TweenService:Create(confirmOverlay, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(confirmBox, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.fromOffset(180, 100)}):Play()
+    task.delay(0.22, function() confirmOverlay.Visible = false end)
+end
+confirmCancel.MouseButton1Click:Connect(hideConfirm)
+confirmYes.MouseButton1Click:Connect(function()
+    MemoryBank.reset(); refreshMemPill(); addConsoleLine("🧠 Memory wiped", "warn"); hideConfirm()
+end)
+
+-- ═══ SETTINGS PANEL ═══
+local SET_W, SET_H = 280, 380
+local settingsPanel = new("Frame", {
+    Name = "SettingsPanel", Size = UDim2.fromOffset(SET_W, SET_H),
+    AnchorPoint = Vector2.new(0, 0), Position = UDim2.new(0.5, BAR_W/2 + 8, 0, 10),
+    BackgroundColor3 = C.bg, BackgroundTransparency = 0.05,
+    BorderSizePixel = 0, Active = true, Visible = false, ZIndex = 5,
+}, SG)
+local settingsScale = new("UIScale", { Scale = 0.9 }, settingsPanel)
+cornerP(settingsPanel, 12); stroke(settingsPanel, C.cardBorder, 1.3, 0.4)
+
+local bgImage2 = new("ImageLabel", {
+    Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1,
+    Image = "rbxassetid://107048706173035", ImageTransparency = 0.6,
+    ScaleType = Enum.ScaleType.Crop, ZIndex = 0,
+}, settingsPanel)
+cornerP(bgImage2, 12)
+local bgOverlay2 = new("Frame", {
+    Size = UDim2.fromScale(1, 1), BackgroundColor3 = C.bg,
+    BackgroundTransparency = 0.2, BorderSizePixel = 0, ZIndex = 1,
+}, settingsPanel)
+cornerP(bgOverlay2, 12)
+
+local settingsHeader = new("Frame", {
+    Size = UDim2.new(1, 0, 0, 32), BackgroundColor3 = C.headerBg,
+    BackgroundTransparency = 0.25, BorderSizePixel = 0, Active = true, ZIndex = 3,
+}, settingsPanel)
+cornerP(settingsHeader, 12)
+new("Frame", { Size=UDim2.new(1,0,0,10), Position=UDim2.new(0,0,1,-10), BackgroundColor3=C.headerBg, BackgroundTransparency=0.25, BorderSizePixel=0, ZIndex=3 }, settingsHeader)
+local settingsTitle = label("⚙  SETTINGS", 11, C.txt, FBK, Enum.TextXAlignment.Left, settingsHeader)
+settingsTitle.Size = UDim2.new(1,-50,1,0); settingsTitle.Position = UDim2.fromOffset(12,0); settingsTitle.ZIndex = 5
+local settingsCloseBtn = new("TextButton", {
+    Size = UDim2.fromOffset(20, 20), Position = UDim2.new(1, -26, 0, 6),
+    BackgroundColor3 = C.btnDark, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "X", Font = FBK, TextSize = 9, TextColor3 = C.txt, ZIndex = 5,
+}, settingsHeader)
+cornerP(settingsCloseBtn, 5); stroke(settingsCloseBtn, C.cardBorder, 1, 0.5)
+AnimH.button(settingsCloseBtn)
+local dragSettings = new("Frame", { Size=UDim2.new(1,0,0,32), BackgroundTransparency=1, BorderSizePixel=0, ZIndex=4 }, settingsHeader)
+drag(dragSettings, settingsPanel)
+
+local function makeSettingsRow(y, labelText, parent)
+    local card = new("Frame", {
+        Size = UDim2.new(1, -20, 0, 32), Position = UDim2.fromOffset(10, y),
+        BackgroundColor3 = C.card, BackgroundTransparency = 0.15,
+        BorderSizePixel = 0, ZIndex = 3, Active = true,
+    }, parent)
+    cornerP(card, 8); stroke(card, C.cardBorder, 1, 0.4)
+    local lbl = label(labelText, 10, C.txt, FB, Enum.TextXAlignment.Left, card)
+    lbl.Size = UDim2.new(1,-90,1,0); lbl.Position = UDim2.fromOffset(10,0); lbl.ZIndex = 4
+    local keyBtn = new("TextButton", {
+        Size = UDim2.fromOffset(30, 18), Position = UDim2.new(1, -80, 0.5, -9),
+        BackgroundColor3 = C.inputBg, BorderSizePixel = 0, AutoButtonColor = false,
+        Text = "", Font = FBK, TextSize = 8, TextColor3 = C.accent2, ZIndex = 4,
+    }, card)
+    cornerP(keyBtn, 5); stroke(keyBtn, C.cardBorder, 1, 0.4)
+    local sw = new("TextButton", {
+        Size = UDim2.fromOffset(34, 18), Position = UDim2.new(1, -42, 0.5, -9),
+        BackgroundColor3 = C.toggleOff, BorderSizePixel = 0, AutoButtonColor = false,
+        Text = "", ZIndex = 5,
+    }, card)
+    corner(sw); stroke(sw, C.cardBorder, 1, 0.4)
+    local knob = new("Frame", {
+        Name="Knob", Size = UDim2.fromOffset(14,14), Position = toggleKnobPosition(false),
+        BackgroundColor3 = C.knobOff, BorderSizePixel = 0, ZIndex = 6,
+    }, sw)
+    corner(knob)
+    return card, sw, knob, lbl, keyBtn
+end
+
+local settingsY = 40
+local autoBuyCard, autoBuySw, autoBuyKnob, autoBuyLbl = makeSettingsRow(settingsY, "Auto Buy", settingsPanel)
+settingsY = settingsY + 32 + 5
+local anchorCard, anchorSw, anchorKnob, anchorLbl, anchorKeyBtn = makeSettingsRow(settingsY, "Anchor", settingsPanel)
+anchorKeyBtn.Text = anchorKey.Name
+settingsY = settingsY + 32 + 5
+local radiusCard, radiusSw, radiusKnob, radiusLbl = makeSettingsRow(settingsY, "Auto-Buy Radius", settingsPanel)
+settingsY = settingsY + 32 + 12
+
+local testLbl = label("TEST SENDER", 8, C.accent2, FBK, Enum.TextXAlignment.Left, settingsPanel)
+testLbl.Size = UDim2.fromOffset(120, 12); testLbl.Position = UDim2.fromOffset(12, settingsY); testLbl.ZIndex = 4
+settingsY = settingsY + 14
+
+local inlineTestBox = new("TextBox", {
+    Size = UDim2.new(1, -20, 0, 28), Position = UDim2.fromOffset(10, settingsY),
+    BackgroundColor3 = C.inputBg, BorderSizePixel = 0,
+    PlaceholderText = "type a message…", PlaceholderColor3 = C.dim,
+    Text = "", TextColor3 = C.txt, ClearTextOnFocus = false,
+    Font = FBK, TextSize = 9, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 4,
+}, settingsPanel)
+cornerP(inlineTestBox, 7); stroke(inlineTestBox, C.cardBorder, 1, 0.4)
+new("UIPadding", { PaddingLeft = UDim.new(0,9), PaddingRight = UDim.new(0,9) }, inlineTestBox)
+settingsY = settingsY + 34
+
+local inlineSendTest = new("TextButton", {
+    Size = UDim2.fromOffset((SET_W - 20 - 5)/2, 28), Position = UDim2.fromOffset(10, settingsY),
+    BackgroundColor3 = C.accent, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "SEND", Font = FBK, TextSize = 9, TextColor3 = Color3.fromRGB(10,15,25), ZIndex = 4,
+}, settingsPanel)
+cornerP(inlineSendTest, 7); stroke(inlineSendTest, C.accent2, 1, 0.3)
+AnimH.button(inlineSendTest)
+local inlineRandomTest = new("TextButton", {
+    Size = UDim2.fromOffset((SET_W - 20 - 5)/2, 28), Position = UDim2.fromOffset(10 + (SET_W - 20 - 5)/2 + 5, settingsY),
+    BackgroundColor3 = C.btnDark, BorderSizePixel = 0, AutoButtonColor = false,
+    Text = "TEST CODE", Font = FBK, TextSize = 9, TextColor3 = C.txt, ZIndex = 4,
+}, settingsPanel)
+cornerP(inlineRandomTest, 7); stroke(inlineRandomTest, C.cardBorder, 1, 0.5)
+AnimH.button(inlineRandomTest)
+
+local function setSettingsVisible(value)
+    AnimH.settingsOpen = value
+    if value then
+        local p = main.Position
+        local targetX = p.X.Offset + BAR_W/2 + 10
+        settingsPanel.Visible = true
+        settingsPanel.Position = UDim2.new(p.X.Scale, targetX + 25, p.Y.Scale, p.Y.Offset)
+        settingsScale.Scale = 0.7
+        TweenService:Create(settingsScale, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = 0.9}):Play()
+        TweenService:Create(settingsPanel, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+            {Position = UDim2.new(p.X.Scale, targetX, p.Y.Scale, p.Y.Offset)}):Play()
+    else
+        local p = settingsPanel.Position
+        TweenService:Create(settingsScale, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Scale = 0.7}):Play()
+        TweenService:Create(settingsPanel, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+            {Position = UDim2.new(p.X.Scale, p.X.Offset + 25, p.Y.Scale, p.Y.Offset)}):Play()
+        task.delay(0.3, function() if not AnimH.settingsOpen then settingsPanel.Visible = false end end)
+    end
+    gearBtn.TextColor3 = value and C.accent2 or C.txt
+end
+
+-- ═══ TOGGLE LOGIC ═══
+local function setListening(v)
+    listening = v
+    setToggleVisual(snipeSw, snipeKnob, v)
+    snipeLbl.TextColor3 = v and C.txt or C.sub
+    if v then collectBuffer = {} end
+end
+snipeSw.MouseButton1Click:Connect(function() setListening(not listening) end)
+
+local function setRiddleSolver(v)
+    riddleSolverEnabled = v
+    setToggleVisual(riddleSw, riddleKnob, v)
+    riddleLbl.TextColor3 = v and C.txt or C.sub
+end
+riddleSw.MouseButton1Click:Connect(function() setRiddleSolver(not riddleSolverEnabled) end)
+
+local function setAutoCopy(v)
+    autoCopyCode = v
+    setToggleVisual(copySw, copyKnob, v)
+    copyLbl.TextColor3 = v and C.txt or C.sub
+    addConsoleLine(v and "Auto Copy ON" or "Auto Copy OFF", v and "success" or "warn")
+end
+copySw.MouseButton1Click:Connect(function() setAutoCopy(not autoCopyCode) end)
+
+gearBtn.MouseButton1Click:Connect(function() setSettingsVisible(not settingsPanel.Visible) end)
+settingsCloseBtn.MouseButton1Click:Connect(function() setSettingsVisible(false) end)
+memClearBtn.MouseButton1Click:Connect(function() showConfirm() end)
+
+collapseBtn.MouseButton1Click:Connect(function()
+    AnimH.collapsed = not AnimH.collapsed
+    local collapsed = AnimH.collapsed
+    collapseBtn.Text = collapsed and "+" or "−"
+    tween(main, 0.28, { Size = UDim2.fromOffset(BAR_W, collapsed and HDR_H or BAR_H) }, Enum.EasingStyle.Back)
+end)
+
+-- ═══ AUTO ENABLE ═══
+local function autoEnableOnCodeCue()
+    local now = os.clock()
+    if now - lastAutoEnable < 2 then return end
+    lastAutoEnable = now
+    local changed = false
+    if not listening then setListening(true); changed = true end
+    if not riddleSolverEnabled then setRiddleSolver(true); changed = true end
+    if changed then typewriterLine("AUTO-ENABLED · SNIPE + RIDDLER", "success", 0.05) end
+end
+
+-- ═══ REDEEM QUEUE ═══
+local redeemQueue, redeemWorkerRunning = {}, false
+local function doRedeem(code)
+    code = Util.trim(code)
+    if code == "" then return false end
+    if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then return false end
+    pendingCode = string.upper(code)
+    addConsoleLine(pendingCode.." submitted", "code")
+    return RB.typeAndSubmit(code)
+end
+local function queueRedeem(code)
+    code = Util.trim(code)
+    if code == "" then return end
+    if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then return end
+    redeemQueue[#redeemQueue + 1] = code
+    if redeemWorkerRunning then return end
+    redeemWorkerRunning = true
+    task.spawn(function()
+        while #redeemQueue > 0 and os.clock() - lastSuccessfulRedeem >= REDEEM_LOCKOUT do
+            local item = table.remove(redeemQueue, 1)
+            if item then doRedeem(item); task.wait(0.15) end
+        end
+        if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then redeemQueue = {} end
+        redeemWorkerRunning = false
+    end)
+end
+local function clearFeed()
+    collectBuffer = {}
+    lastRiddleText, lastRiddleAnswer = nil, nil
+    pendingCode = nil
+    recentWebhooks = {}
+    redeemQueue = {}
+    clearConsole()
+    aText.Text = "answer appears here…"; aText.TextColor3 = C.txt
+    qText.Text = "waiting…"; qText.TextColor3 = C.sub
+    addConsoleLine("Feed cleared · console reset", "system")
+end
+
+local function handleSuccess(rawText)
+    local now = os.clock()
+    if now - scriptLoadedAt < STARTUP_GRACE then return end
+    if not pendingCode and not lastRiddleAnswer then return end
+    if now - lastSuccessfulRedeem < REDEEM_LOCKOUT then return end
+    local key = Util.normKey(rawText)
+    if key == "" then return end
+    if recentWebhooks[key] and (now - recentWebhooks[key]) < WEBHOOK_DEDUP_WINDOW then return end
+    recentWebhooks[key] = now
+    for k, t in pairs(recentWebhooks) do if now - t > WEBHOOK_DEDUP_WINDOW * 2 then recentWebhooks[k] = nil end end
+    lastSuccessfulRedeem = now
+    local isRiddle = (lastRiddleAnswer ~= nil) and pendingCode and tostring(lastRiddleAnswer):gsub("%s+",""):upper() == tostring(pendingCode):gsub("%s+",""):upper()
+    local redeemedCode = pendingCode
+    local riddleQ = lastRiddleText
+    local redeemType = isRiddle and "Riddle" or "Code"
+    local brainrotName = RB.extractBrainrot(rawText)
+    local income = RB.extractIncome(rawText)
+    pendingCode = nil
+    lastRiddleText, lastRiddleAnswer = nil, nil
+    redeemQueue = {}
+    collectBuffer = {}
+    if isRiddle then addConsoleLine("Riddle Redeemed Successfully", "riddle")
+    elseif brainrotName then addConsoleLine("Code Redeemed Successfully · "..brainrotName, "success")
+    else addConsoleLine("Code Redeemed Successfully", "success") end
+    if brainrotName then addConsoleLine("   Brainrot: "..brainrotName..(income and (" · $"..income.."/s") or ""), "success") end
+    Webhook.sendRedeem(redeemedCode, brainrotName, income, redeemType, riddleQ)
+end
+
+local function flashAnswerBox(color)
+    local st = aBox:FindFirstChildOfClass("UIStroke")
+    if not st then return end
+    st.Color = color; st.Transparency = 0
+    TweenService:Create(st, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {Transparency = 0.05}):Play()
+    task.wait(0.35)
+    TweenService:Create(st, TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 0.4, Color = C.cardBorder}):Play()
+end
+
+local function handleRiddle(rawText)
+    qText.Text = rawText
+    qText.TextColor3 = C.txt
+    if not riddleSolverEnabled then
+        aText.Text = "Riddler is OFF"; aText.TextColor3 = C.dim; return
+    end
+    if not Riddle.isActual(rawText) then return end
+    addConsoleLine("Riddle: "..rawText, "riddle")
+    aText.Text = "solving…"; aText.TextColor3 = C.yellow
+    local answer = MemoryBank.answer(rawText)
+    local source = "memory"
+    if not answer then answer = Riddle.solve(rawText); source = "knowledge" end
+    if answer and #answer > 0 then
+        lastRiddleText = rawText
+        lastRiddleAnswer = answer
+        aText.Text = answer; aText.TextColor3 = C.green
+        task.spawn(flashAnswerBox, C.green)
+        addConsoleLine("📚 Answer ("..source.."): "..answer, "success")
+        queueRedeem(answer)
+        if autoCopyCode and _setclipboard then pcall(_setclipboard, answer) end
+    else
+        aText.Text = "No answer found"; aText.TextColor3 = C.red
+        task.spawn(flashAnswerBox, C.red)
+        addConsoleLine("⚠ Could not solve riddle (memory: "..MemoryBank.summary()..")", "warn")
+    end
+end
+
+local POSITIONS = {Top=true, Bottom=true, Center=true, Middle=true, Left=true, Right=true, TopRight=true, TopLeft=true, BottomRight=true, BottomLeft=true}
+local function extractAnnouncementText(...)
+    local packed = table.pack(...)
+    local best
+    for i = 1, packed.n do
+        local v = packed[i]
+        if typeof(v) == "string" then
+            local text = Util.stripRich(v)
+            local lower = text:lower()
+            if text ~= "" and not lower:find("sounds%.") and not lower:find("rbxassetid") and not POSITIONS[text] then
+                if not best or #text > #best then best = text end
+            end
+        end
+    end
+    return Util.stripRich(tostring(best or ((...) or "")))
+end
+
+local riddleCooldown = {}
+local function onAnnouncement(...)
+    local rawText = extractAnnouncementText(...)
+    if rawText == "" then return end
+    -- ⭐ Early skip: sold out / expired / invalid codes ko memory mein mat daalo
+    do
+        local _ll = tostring(rawText):lower()
+        if _ll:find("sold out", 1, true)
+           or _ll:find("out of stock", 1, true)
+           or _ll:find("no longer available", 1, true)
+           or _ll:find("already redeemed", 1, true)
+           or _ll:find("already used", 1, true)
+           or _ll:find("code expired", 1, true)
+           or _ll:find("redeem limit", 1, true)
+           or _ll:find("limit reached", 1, true)
+           or _ll:find("not available", 1, true)
+           or _ll:find("unavailable", 1, true) then
+            return
+        end
+    end
+    if not Chk.isNoiseText(rawText) then
+        local l = tostring(rawText):lower()
+        local qCount = 0
+        if l:find("%f[%a]which%f[%A]") then qCount = qCount + 1 end
+        if l:find("%f[%a]where%f[%A]") then qCount = qCount + 1 end
+        if l:find("%f[%a]what%f[%A]") then qCount = qCount + 1 end
+        if l:find("%f[%a]who%f[%A]") then qCount = qCount + 1 end
+        if l:find("%f[%a]when%f[%A]") then qCount = qCount + 1 end
+        if l:find("%f[%a]why%f[%A]") then qCount = qCount + 1 end
+        if l:find("%f[%a]how%f[%A]") then qCount = qCount + 1 end
+        local isQuestion = qCount >= 2 or rawText:find("%?") ~= nil
+        if not isQuestion and not l:find("spawned!") and not l:find("has spawned") and not l:find("code redeemed") and not l:find("you got") and not l:find("you received") and not l:find("congratulations") then
+            local learned = MemoryBank.feed(rawText)
+            if learned and #learned > 0 then
+                for _, kv in ipairs(learned) do typewriterLine("🧠 Memorizing "..kv.k.." = "..kv.v, "mem", 0.012) end
+                refreshMemPill()
+            end
+        end
+    end
+    if Chk.isBlacklisted(rawText) then return end
+    if os.clock() - lastSuccessfulRedeem < REDEEM_LOCKOUT then return end
+    local lower = rawText:lower()
+    if lower:find("code is", 1, true) or lower:find("the code is", 1, true) or lower:find("use code", 1, true) or lower:find("use this code", 1, true) or lower:find("riddle is", 1, true) or lower:find("the riddle is", 1, true) or lower:find("ok code is", 1, true) or lower:find("question is", 1, true) or Riddle.isActual(rawText) then
+        autoEnableOnCodeCue()
+    end
+    local stripped = Util.stripCuePrefix(rawText)
+    if stripped ~= "" and stripped ~= rawText then
+        addConsoleLine("Stripped cue: '"..rawText.."' → '"..stripped.."'", "system")
+        rawText = stripped
+        lower = rawText:lower()
+    end
+    if listening and riddleSolverEnabled and rawText:find("%s") and not Chk.isCodeCue(rawText) then
+        local key = rawText:lower():gsub("%s+", " ")
+        local now = os.clock()
+        if not riddleCooldown[key] or (now - riddleCooldown[key]) > 3 then
+            riddleCooldown[key] = now
+            handleRiddle(rawText)
+            return
+        end
+    end
+    if listening then
+        local wordCount = 0
+        for _ in rawText:gmatch("%S+") do wordCount = wordCount + 1 end
+        if wordCount > 1 then return end
+        local words = Util.tokenize(rawText)
+        if #words == 0 then return end
+        for _, w in ipairs(words) do
+            collectBuffer[#collectBuffer + 1] = w
+            local joined = table.concat(collectBuffer)
+            aText.Text = string.upper(joined)
+            aText.TextColor3 = C.txt
+            queueRedeem(joined)
+            if autoCopyCode and _setclipboard then pcall(_setclipboard, joined) end
+        end
+    end
+end
+
+-- ═══ FALLBACK LISTENERS ═══
+local watchedObjects = {}
+local function watchFB(obj, isInitialScan)
+    if not (obj:IsA("TextLabel") or obj:IsA("TextButton")) then return end
+    if obj:IsDescendantOf(SG) then return end
+    if watchedObjects[obj] then return end
+    watchedObjects[obj] = true
+    local function handleText()
+        local text = obj.Text or ""
+        if text == "" then return end
+        local lower = text:lower()
+        if Chk.isInvalid(lower) then pendingCode = nil; return end
+        if Chk.isSuccess(lower) then handleSuccess(text); return end
+        if Chk.isNoiseText(text) then return end
+        -- ⭐ skip sold out / expired too
+        if lower:find("sold out", 1, true)
+           or lower:find("out of stock", 1, true)
+           or lower:find("no longer available", 1, true)
+           or lower:find("already redeemed", 1, true)
+           or lower:find("already used", 1, true)
+           or lower:find("code expired", 1, true)
+           or lower:find("redeem limit", 1, true)
+           or lower:find("limit reached", 1, true)
+           or lower:find("not available", 1, true) then
+            return
+        end
+        do
+            local l = tostring(text):lower()
+            local qCount = 0
+            if l:find("%f[%a]which%f[%A]") then qCount = qCount + 1 end
+            if l:find("%f[%a]where%f[%A]") then qCount = qCount + 1 end
+            if l:find("%f[%a]what%f[%A]") then qCount = qCount + 1 end
+            if l:find("%f[%a]who%f[%A]") then qCount = qCount + 1 end
+            if l:find("%f[%a]why%f[%A]") then qCount = qCount + 1 end
+            local isQ = qCount >= 2 or text:find("%?") ~= nil
+            if not isQ then
+                local learned = MemoryBank.feed(text)
+                if learned and #learned > 0 then
+                    for _, kv in ipairs(learned) do typewriterLine("🧠 Memorizing (UI) "..kv.k.." = "..kv.v, "mem", 0.012) end
+                    refreshMemPill()
+                end
+            end
+        end
+    end
+    if not isInitialScan then handleText() end
+    obj:GetPropertyChangedSignal("Text"):Connect(handleText)
+end
+local function scanAll(obj) for _, d in ipairs(obj:GetDescendants()) do watchFB(d, true) end end
+if parentGui ~= PG then scanAll(PG) end
+scanAll(parentGui)
+PG.DescendantAdded:Connect(function(obj) task.wait(0.04); watchFB(obj, false) end)
+if parentGui ~= PG then parentGui.DescendantAdded:Connect(function(obj) task.wait(0.04); watchFB(obj, false) end) end
+
+local listenConn
+NotifyRemote = Rem.resolveNotify()
+if NotifyRemote then
+    listenConn = NotifyRemote.OnClientEvent:Connect(function(...)
+        local rawText = extractAnnouncementText(...)
+        if rawText == "" then return end
+        local lower = rawText:lower()
+        if Chk.isInvalid(lower) then pendingCode = nil; return end
+        if Chk.isSuccess(lower) then handleSuccess(rawText); return end
+        pcall(onAnnouncement, ...)
+    end)
+else
+    task.spawn(function()
+        local tries = 0
+        while not NotifyRemote and tries < 30 do
+            task.wait(2)
+            NotifyRemote = Rem.resolveNotify()
+            if NotifyRemote then
+                listenConn = NotifyRemote.OnClientEvent:Connect(function(...)
+                    local rawText = extractAnnouncementText(...)
+                    if rawText == "" then return end
+                    local lower = rawText:lower()
+                    if Chk.isInvalid(lower) then pendingCode = nil; return end
+                    if Chk.isSuccess(lower) then handleSuccess(rawText); return end
+                    pcall(onAnnouncement, ...)
+                end)
+            end
+            tries = tries + 1
+        end
+    end)
+end
+
+-- ═══ AUTO BUY / ANCHOR / RADIUS ═══
+local autoBuyActive, anchored, radiusVisible = false, false, false
+local autoBuyRadius = 15
+local setAnchorToggle
+local function inlineToggleController(hit, onChange)
+    if not hit then return function() end end
+    local hitStroke = hit:FindFirstChildOfClass("UIStroke")
+    local knob = hit:FindFirstChild("Knob")
+    local state = false
+    local function set(value, silent)
+        state = value
+        tween(hit, 0.14, { BackgroundColor3 = value and C.toggleOn or C.toggleOff })
+        if knob then tween(knob, 0.14, { Position = toggleKnobPosition(value), BackgroundColor3 = value and C.knobOn or C.knobOff }) end
+        if hitStroke then tween(hitStroke, 0.14, { Color = value and C.toggleOn or C.cardBorder }) end
+        if onChange and not silent then onChange(value) end
+    end
+    hit.MouseButton1Click:Connect(function() set(not state) end)
+    set(false, true)
+    return set
+end
+inlineToggleController(autoBuySw, function(value) autoBuyActive = value end)
+setAnchorToggle = inlineToggleController(anchorSw, function(value)
+    anchored = value
+    local character = LP.Character
+    if character then
+        for _, part in ipairs(character:GetDescendants()) do if part:IsA("BasePart") then part.Anchored = value end end
+    end
+end)
+inlineToggleController(radiusSw, function(value) radiusVisible = value end)
+
+local radiusFolder = new("Folder", { Name = "__FUNHUBAutoBuyRadius" }, workspace)
+local radiusModel  = new("Model", { Name = "GroundHalo" }, radiusFolder)
+radiusModel.WorldPivot = CFrame.new()
+local radiusRingBuilt, radiusRingEnabled = false, false
+local ensureRadiusRing, setRadiusRingEnabled
+do
+    local radiusAnchor, attachments, beams = nil, {}, {}
+    local LAYERS = { { name="PurpleOutline", width=2.35, color=Color3.fromRGB(200,60,220), transparency=0.06, emission=0.80 } }
+    ensureRadiusRing = function()
+        if radiusRingBuilt then return end
+        radiusRingBuilt = true
+        radiusAnchor = new("Part", { Name="RadiusAnchor", Anchored=true, CanCollide=false, CanTouch=false, CanQuery=false, CastShadow=false, Transparency=1, Size=Vector3.new(0.1,0.1,0.1) }, radiusModel)
+        for li, spec in ipairs(LAYERS) do
+            attachments[li] = {}
+            for i = 1, 4 do
+                local angle = ((i-1)/4) * 2 * math.pi
+                local radial = Vector3.new(math.cos(angle), 0, math.sin(angle))
+                attachments[li][i] = new("Attachment", { Name=spec.name.."P"..i, Position=radial*autoBuyRadius }, radiusAnchor)
+            end
+            for i = 1, 4 do
+                local beam = new("Beam", { Name=spec.name..i, Attachment0=attachments[li][i], Attachment1=attachments[li][(i%4)+1], FaceCamera=false, Segments=32, Width0=spec.width, Width1=spec.width, Color=ColorSequence.new(spec.color), Transparency=NumberSequence.new(spec.transparency), LightEmission=spec.emission, LightInfluence=0, Enabled=false }, radiusAnchor)
+                beams[#beams+1] = beam
+            end
+        end
+    end
+    setRadiusRingEnabled = function(value)
+        if radiusRingEnabled == value then return end
+        radiusRingEnabled = value
+        for _, b in ipairs(beams) do b.Enabled = value end
+    end
+end
+
+local proximityPrompts = {}
+for _, descendant in ipairs(workspace:GetDescendants()) do
+    if descendant:IsA("ProximityPrompt") then proximityPrompts[descendant] = true end
+end
+workspace.DescendantAdded:Connect(function(d) if d:IsA("ProximityPrompt") then proximityPrompts[d] = true end end)
+workspace.DescendantRemoving:Connect(function(d) if proximityPrompts[d] then proximityPrompts[d] = nil end end)
+
+local lastAutoBuy = 0
+RunService.Stepped:Connect(function()
+    if not autoBuyActive or os.clock() - lastAutoBuy < 0.1 then return end
+    lastAutoBuy = os.clock()
+    local char = LP.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    for prompt in pairs(proximityPrompts) do
+        local action = tostring(prompt.ActionText or ""):lower()
+        local isPurchase = action:find("%f[%a]purchase%f[%A]") ~= nil
+        local pp = prompt.Parent
+        local pos
+        if pp and pp:IsA("Attachment") then pos = pp.WorldPosition
+        elseif pp and pp:IsA("BasePart") then pos = pp.Position
+        else local wp = pp and pp:FindFirstAncestorWhichIsA("BasePart"); pos = wp and wp.Position end
+        if prompt.Parent and prompt.Enabled and isPurchase and pos and (root.Position-pos).Magnitude <= autoBuyRadius then
+            prompt.HoldDuration = 0
+            pcall(function()
+                if type(_fireproximityprompt) == "function" then _fireproximityprompt(prompt)
+                else prompt:InputHoldBegin(); prompt:InputHoldEnd() end
+            end)
+        end
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if not radiusVisible then setRadiusRingEnabled(false); return end
+    local char = LP.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then setRadiusRingEnabled(false); return end
+    ensureRadiusRing()
+    radiusModel:PivotTo(CFrame.new(root.Position - Vector3.new(0, 2.35, 0)))
+    setRadiusRingEnabled(true)
+end)
+
+LP.CharacterAdded:Connect(function(char)
+    if not anchored then return end
+    task.wait()
+    for _, p in ipairs(char:GetDescendants()) do if p:IsA("BasePart") then p.Anchored = true end end
+end)
+
+-- ═══ BUTTON WIRES ═══
+copyBtn.MouseButton1Click:Connect(function()
+    if aText.Text and aText.Text ~= "" and aText.Text ~= "answer appears here…" and aText.Text ~= "solving…" then
+        if _setclipboard then pcall(_setclipboard, aText.Text) end
+        addConsoleLine("Copied: "..aText.Text, "info")
+    end
+end)
+clearBtn.MouseButton1Click:Connect(clearFeed)
+redeemBtn.MouseButton1Click:Connect(function()
+    if aText.Text and aText.Text ~= "" and aText.Text ~= "answer appears here…" and aText.Text ~= "solving…" then
+        queueRedeem(aText.Text)
+    end
+end)
+clearConsoleBtn.MouseButton1Click:Connect(function() clearConsole(); addConsoleLine("Console cleared", "system") end)
+
+local function fireTestAnnouncement(text)
+    text = Util.trim(text)
+    if text == "" then return false end
+    if type(_firesignal) ~= "function" then return false end
+    if not NotifyRemote or not NotifyRemote.Parent then return false end
+    return pcall(_firesignal, NotifyRemote.OnClientEvent, text, 5.5, "Sounds.Sfx.Blop", "Top", 2678001507)
+end
+inlineSendTest.MouseButton1Click:Connect(function() if fireTestAnnouncement(inlineTestBox.Text) then inlineTestBox.Text = "" end end)
+inlineTestBox.FocusLost:Connect(function(enter) if enter and fireTestAnnouncement(inlineTestBox.Text) then inlineTestBox.Text = "" end end)
+inlineRandomTest.MouseButton1Click:Connect(function()
+    local code = "TESTCODE" .. tostring(math.random(1000, 9999))
+    if fireTestAnnouncement(code) then addConsoleLine("Random test: "..code, "info") end
+end)
+
+local inputConn = UserInputService.InputBegan:Connect(function(input, gpe)
+    if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
+    if gpe then return end
+    if input.KeyCode == bindKey then
+        if listening then setListening(false) else setListening(true) end
+    end
+    if input.KeyCode == clearKey then clearFeed() end
+    if input.KeyCode == anchorKey then if setAnchorToggle then setAnchorToggle(not anchored) end end
+end)
+
+task.spawn(function()
+    task.wait(0.05)
+    TweenService:Create(mainScale, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = 1}):Play()
+    tween(bgImage, 0.7, {ImageTransparency = 0.7})
+    tween(bgOverlay, 0.65, {BackgroundTransparency = 0.15})
+    tween(header, 0.55, {BackgroundTransparency = 0.25})
+    task.wait(0.35)
+    shineLine("FUNHUB ON TOP", "success", 0.08)
+    task.wait(1.5)
+    if WEBHOOK_ENABLED and not _webhookStartupSent then
+        _webhookStartupSent = true
+        task.wait(0.2)
+        Webhook.sendStartup()
+    end
+end)
+
+local function stopAll()
+    if listenConn then pcall(function() listenConn:Disconnect() end); listenConn = nil end
+    if inputConn then pcall(function() inputConn:Disconnect() end); inputConn = nil end
+    if radiusFolder then pcall(function() radiusFolder:Destroy() end) end
+end
+SG.Destroying:Connect(stopAll)
+if getgenv then getgenv().FUNHUBStop = stopAll end
